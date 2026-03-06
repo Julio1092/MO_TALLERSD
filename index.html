@@ -144,7 +144,7 @@ async function procesarLogin(codigoRaw) {
 function redirigirPorRol(user) {
   const rol = (user.rol||'').toUpperCase();
   if (rol === 'SUPERVISOR') { window.location.href = 'menu_supervisor.html'; }
-  else { window.location.href = 'grabar.html'; }
+  else { window.location.href = 'menu_mecanico.html'; }
 }
 
 let nTO;

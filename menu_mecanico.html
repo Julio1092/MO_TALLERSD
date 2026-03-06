@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANODEOBRA – Supervisor</title>
+<title>MANODEOBRA – Mecánico</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -25,9 +25,9 @@
 </head>
 <body>
 <div style="text-align:center">
-  <div class="badge">👔 Supervisor</div>
+  <div class="badge">👷 Mecánico</div>
   <div class="title">MANODEOBRA</div>
-  <div class="name" id="sup-nombre">—</div>
+  <div class="name" id="nombre">—</div>
 </div>
 
 <div class="menu">
@@ -38,32 +38,25 @@
       <span class="btn-desc">Registrar actividades de mano de obra</span>
     </div>
   </a>
-  <a class="btn" href="autorizar.html">
-    <div class="btn-icon">🔍</div>
-    <div>
-      <span class="btn-label">Validar MO</span>
-      <span class="btn-desc">Revisar y autorizar registros grabados</span>
-    </div>
-  </a>
-  <a class="btn" href="aprobar_reservas.html">
+  <a class="btn" href="reservas.html">
     <div class="btn-icon">📦</div>
     <div>
-      <span class="btn-label">Aprobar Reservas</span>
-      <span class="btn-desc">Gestionar solicitudes de materiales pendientes</span>
+      <span class="btn-label">Reserva de Materiales</span>
+      <span class="btn-desc">Solicitar materiales para tus órdenes</span>
     </div>
   </a>
 </div>
 
-<button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+<button class="btn-logout" onclick="cerrar()">🚪 Cerrar sesión</button>
 
 <script>
 window.onload = () => {
-  const user = getSession();
-  if (!user) { window.location.href='index.html'; return; }
-  if ((user.rol||'').toUpperCase()!=='SUPERVISOR') { window.location.href='menu_mecanico.html'; return; }
-  document.getElementById('sup-nombre').textContent = user.nombre;
+  const u = getSession();
+  if (!u) { window.location.href='index.html'; return; }
+  if ((u.rol||'').toUpperCase()==='SUPERVISOR') { window.location.href='menu_supervisor.html'; return; }
+  document.getElementById('nombre').textContent = u.nombre;
 };
-function cerrarSesion(){ clearSession(); window.location.href='index.html'; }
+function cerrar(){ clearSession(); window.location.href='index.html'; }
 </script>
 </body>
 </html>
