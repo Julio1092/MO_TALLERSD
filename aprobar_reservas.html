@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Aprobar Reservas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--bg:#f0f4fb;--bg2:#fff;--bg3:#f8fafc;--border:#e2e8f0;--bord2:#bac8e2;--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--verde:#2e9e4f;--nrj:#c05621;--rojo:#c53030;--txt:#1a202c;--txt2:#2d3748;--txt3:#718096;--shadow:0 2px 12px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
+
+.topbar{position:sticky;top:0;z-index:200;background:var(--azul-d);display:flex;align-items:center;gap:12px;padding:0 24px;height:58px;box-shadow:0 2px 12px rgba(0,18,107,0.22)}
+.tb-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back:hover{background:rgba(255,255,255,0.22)}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+
+.page{padding:24px;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.page-title{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--azul-d)}
+.page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
+
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.card-hdr{padding:13px 20px;border-bottom:1.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between}
+.card-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* FILTROS */
+.f-grid{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.f-grp{display:flex;flex-direction:column;gap:5px}
+.f-lbl{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px}
+.f-inp{width:100%;padding:10px 13px;background:white;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);outline:none;-webkit-appearance:none;appearance:none;transition:border-color .2s}
+.f-inp:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.12)}
+.f-btns{padding:0 20px 18px;display:flex;gap:10px}
+.btn-b{flex:1;padding:11px;background:var(--azul);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-b:hover{background:var(--azul-d);transform:translateY(-1px)} .btn-b:disabled{opacity:.6;transform:none;cursor:wait}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);animation:fadeUp .4s ease both;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.kpi.a::before{background:var(--azul)} .kpi.v::before{background:var(--verde)} .kpi.n::before{background:var(--nrj)}
+.kpi-val{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;letter-spacing:-1px}
+.kpi.a .kpi-val{color:var(--azul)} .kpi.v .kpi-val{color:var(--verde)} .kpi.n .kpi-val{color:var(--nrj)}
+.kpi-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* GRUPOS POR OT */
+.grupos{padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+.grupo{border:1.5px solid var(--border);border-radius:14px;overflow:hidden}
+.grupo-hdr{background:var(--bg3);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1.5px solid var(--border)}
+.grupo-info{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.grupo-ot{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--azul-d);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:8px;padding:4px 12px}
+.grupo-mec{font-size:13px;font-weight:600;color:var(--txt2)}
+.grupo-meta{font-size:12px;color:var(--txt3)}
+.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-family:'Space Mono',monospace}
+.badge.Diurno,.badge.diurno{background:#fef3c7;color:#92400e;border:1px solid#fcd34d}
+.badge.Nocturno{background:#ede9fe;color:#4c1d95;border:1px solid#c4b5fd}
+.badge.Mantenimiento{background:#d1fae5;color:#064e3b;border:1px solid#6ee7b7}
+.badge.Extraordinario{background:#fee2e2;color:#7f1d1d;border:1px solid#fca5a5}
+
+.btn-aprobar{background:var(--verde);color:white;border:none;border-radius:9px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;box-shadow:0 2px 8px rgba(46,158,79,.25);white-space:nowrap}
+.btn-aprobar:hover{background:#276040;transform:translateY(-1px)} .btn-aprobar:disabled{opacity:.5;cursor:wait;transform:none}
+.btn-aprobar.done{background:#e2f8ea;color:#276040;border:1.5px solid #9ae6b4;cursor:default;box-shadow:none}
+
+/* LINES TABLE */
+.lineas-tbl{width:100%;border-collapse:collapse}
+.lineas-tbl th{padding:8px 16px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);background:var(--bg3);border-bottom:1.5px solid var(--border)}
+.lineas-tbl td{padding:10px 16px;font-size:13px;color:var(--txt2);border-bottom:1px solid var(--border)}
+.lineas-tbl tr:last-child td{border-bottom:none}
+.lineas-tbl tr:hover td{background:var(--azul-bg)}
+.td-cod{font-family:'Space Mono',monospace;font-size:12px;color:var(--txt3)}
+.td-qty{font-family:'Space Mono',monospace;font-weight:700;color:var(--azul)}
+.td-um{font-family:'Space Mono',monospace;font-size:12px;color:var(--txt3)}
+
+/* EMPTY */
+.estado{padding:56px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:48px;opacity:.35}
+.e-txt{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--txt3)}
+.e-sub{font-size:13px;color:var(--txt3);opacity:.7}
+
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.22)}
+.notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
+
+@media(max-width:700px){.f-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.f-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="tb-back" onclick="window.location.href='menu_supervisor.html'">← Menú</button>
+  <div class="tb-logo">MANODEOBRA</div>
+  <div class="tb-user">👔 <span id="tb-user">—</span></div>
+</div>
+
+<div class="page">
+  <div>
+    <div class="page-title">Aprobar Reservas de Materiales</div>
+    <div class="page-sub">Revisa y aprueba las solicitudes pendientes de los mecánicos</div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-ttl"><span class="dot" style="background:var(--azul)"></span> Filtros</div></div>
+    <div class="f-grid">
+      <div class="f-grp"><label class="f-lbl">Fecha Desde</label><input type="date" id="f-desde" class="f-inp"></div>
+      <div class="f-grp"><label class="f-lbl">Fecha Hasta</label> <input type="date" id="f-hasta" class="f-inp"></div>
+      <div class="f-grp"><label class="f-lbl">Mecánico</label>
+        <select id="f-mec" class="f-inp"><option value="">— Todos —</option></select>
+      </div>
+    </div>
+    <div class="f-btns">
+      <button class="btn-b" id="btnB" onclick="buscar()">
+        <span id="bico">🔍</span><span id="btxt">Buscar Pendientes</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row" id="kpis" style="display:none">
+    <div class="kpi a" style="animation-delay:.00s"><div class="kpi-val" id="k0">0</div><div class="kpi-lbl">Solicitudes</div></div>
+    <div class="kpi n" style="animation-delay:.08s"><div class="kpi-val" id="k1">0</div><div class="kpi-lbl">OTs involucradas</div></div>
+    <div class="kpi v" style="animation-delay:.16s"><div class="kpi-val" id="k2">0</div><div class="kpi-lbl">Artículos totales</div></div>
+  </div>
+
+  <!-- RESULTADOS -->
+  <div class="card" id="card-res" style="display:none">
+    <div class="card-hdr">
+      <div class="card-ttl"><span class="dot" style="background:var(--nrj)"></span> Reservas Pendientes</div>
+      <span id="res-cnt" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)"></span>
+    </div>
+    <div class="grupos" id="grupos"></div>
+  </div>
+
+  <!-- ESTADO VACÍO -->
+  <div class="estado" id="evacio">
+    <div class="e-ico">🔍</div>
+    <div class="e-txt">Selecciona un rango y presiona Buscar</div>
+    <div class="e-sub">Solo se muestran reservas pendientes de aprobación</div>
+  </div>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+const SB_URL = 'https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+
+async function sbGet(p){ const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+
+let colabs={}, todosRaw=[];
+
+window.onload = async () => {
+  const u = getSession();
+  if (!u) { window.location.href='index.html'; return; }
+  if ((u.rol||'').toUpperCase()!=='SUPERVISOR') { window.location.href='menu_mecanico.html'; return; }
+  document.getElementById('tb-user').textContent = u.nombre;
+  const hoy=new Date(), d7=new Date(); d7.setDate(hoy.getDate()-7);
+  document.getElementById('f-desde').value = d7.toISOString().slice(0,10);
+  document.getElementById('f-hasta').value = hoy.toISOString().slice(0,10);
+  await cargarColabs();
+};
+
+async function cargarColabs() {
+  try {
+    const data = await sbGet('Colaboradores?select=codigo,nombre&order=nombre.asc');
+    const sel = document.getElementById('f-mec');
+    (data||[]).forEach(c=>{ colabs[String(c.codigo)]=c.nombre; const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o); });
+  } catch(e){ console.warn('colabs',e.message); }
+}
+
+async function buscar() {
+  const desde = document.getElementById('f-desde').value;
+  const hasta  = document.getElementById('f-hasta').value;
+  const mec    = document.getElementById('f-mec').value;
+
+  const p = ['select=*','sup_aprueba=not.is.true'];
+  if (desde) p.push(`Fecha_Reserva=gte.${desde}`);
+  if (hasta)  p.push(`Fecha_Reserva=lte.${hasta}`);
+  if (mec)    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
+  p.push('order=Fecha_Reserva.desc,OT.asc');
+
+  setLoad(true);
+  document.getElementById('kpis').style.display='none';
+  document.getElementById('card-res').style.display='none';
+  document.getElementById('evacio').style.display='none';
+
+  try {
+    todosRaw = await sbGet(`reservas?${p.join('&')}`);
+    setLoad(false);
+
+    if (!todosRaw.length) {
+      document.getElementById('evacio').querySelector('.e-ico').textContent='😊';
+      document.getElementById('evacio').querySelector('.e-txt').textContent='Sin reservas pendientes';
+      document.getElementById('evacio').querySelector('.e-sub').textContent='Todas las solicitudes han sido aprobadas';
+      document.getElementById('evacio').style.display='flex';
+      document.getElementById('kpis').style.display='grid';
+      renderKPIs([]);
+      return;
+    }
+
+    renderKPIs(todosRaw);
+    renderGrupos(todosRaw);
+    document.getElementById('kpis').style.display='grid';
+    document.getElementById('card-res').style.display='block';
+
+  } catch(e) {
+    setLoad(false);
+    document.getElementById('evacio').querySelector('.e-ico').textContent='❌';
+    document.getElementById('evacio').querySelector('.e-txt').textContent='Error al consultar';
+    document.getElementById('evacio').querySelector('.e-sub').textContent=e.message;
+    document.getElementById('evacio').style.display='flex';
+    notify(e.message,'error');
+  }
+}
+
+function setLoad(v){
+  document.getElementById('bico').innerHTML = v?'<span class="spin"></span>':'🔍';
+  document.getElementById('btxt').textContent = v?'Cargando…':'Buscar Pendientes';
+  document.getElementById('btnB').disabled=v;
+}
+
+function renderKPIs(rows) {
+  const ots = new Set(rows.map(r=>r.OT).filter(Boolean));
+  document.getElementById('k0').textContent = rows.length;
+  document.getElementById('k1').textContent = ots.size;
+  document.getElementById('k2').textContent = rows.reduce((s,r)=>s+(parseFloat(r.Cantidad)||0),0).toFixed(0);
+}
+
+function renderGrupos(rows) {
+  // Agrupar por (Fecha_Reserva + OT + codigo_operario)
+  const groups={};
+  rows.forEach(r=>{
+    const key=`${r.Fecha_Reserva}||${r.OT}||${r.codigo_operario}`;
+    if(!groups[key]) groups[key]={key,fecha:r.Fecha_Reserva,ot:r.OT,turno:r.Turno,cod:r.codigo_operario,nombre:colabs[String(r.codigo_operario)]||r.codigo_operario,lineas:[]};
+    groups[key].lineas.push(r);
+  });
+
+  const container = document.getElementById('grupos');
+  container.innerHTML='';
+  document.getElementById('res-cnt').textContent = `${Object.keys(groups).length} grupo${Object.keys(groups).length!==1?'s':''}`;
+
+  Object.values(groups).forEach(g=>{
+    const gid = btoa(g.key).replace(/[^a-zA-Z0-9]/g,'').slice(0,12);
+    const div = document.createElement('div');
+    div.className='grupo'; div.id=`g-${gid}`;
+    const linRows = g.lineas.map(l=>`
+      <tr>
+        <td class="td-cod">${l.ArticuloSAP||'—'}</td>
+        <td>${l.Descripcion||'—'}</td>
+        <td class="td-qty">${l.Cantidad}</td>
+        <td class="td-um">${l.UM||'—'}</td>
+      </tr>`).join('');
+
+    div.innerHTML=`
+      <div class="grupo-hdr">
+        <div class="grupo-info">
+          <span class="grupo-ot">OT ${g.ot}</span>
+          <span class="grupo-mec">👷 ${g.nombre}</span>
+          <span class="grupo-meta">${g.fecha}</span>
+          <span class="badge ${g.turno}">${g.turno||'—'}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
+        </div>
+        <button class="btn-aprobar" id="ba-${gid}" onclick="aprobarGrupo('${gid}','${g.key}')">✅ Aprobar</button>
+      </div>
+      <table class="lineas-tbl">
+        <thead><tr><th>Código SAP</th><th>Descripción</th><th>Cantidad</th><th>UM</th></tr></thead>
+        <tbody>${linRows}</tbody>
+      </table>`;
+    container.appendChild(div);
+  });
+}
+
+async function aprobarGrupo(gid, key) {
+  const btn = document.getElementById(`ba-${gid}`);
+  btn.disabled=true; btn.innerHTML='<span class="spin" style="border-top-color:#2e9e4f;border-color:rgba(46,158,79,.3)"></span> Aprobando…'; btn.style.background='#f0fff4'; btn.style.color='#276040';
+
+  const [fecha, ot, codOp] = key.split('||');
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/reservas?Fecha_Reserva=eq.${encodeURIComponent(fecha)}&OT=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}`,
+      { method:'PATCH', headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({sup_aprueba:true}) }
+    );
+    if(!res.ok) throw new Error(await res.text());
+
+    btn.innerHTML='✅ Aprobado'; btn.className='btn-aprobar done';
+    notify(`OT ${ot} aprobada correctamente ✅`,'success');
+
+    setTimeout(()=>{
+      document.getElementById(`g-${gid}`)?.remove();
+      todosRaw = todosRaw.filter(r=>!(r.Fecha_Reserva===fecha&&r.OT===ot&&String(r.codigo_operario)===String(codOp)));
+      renderKPIs(todosRaw);
+      document.getElementById('res-cnt').textContent=`${document.querySelectorAll('.grupo').length} grupo${document.querySelectorAll('.grupo').length!==1?'s':''}`;
+      if(!todosRaw.length){
+        document.getElementById('card-res').style.display='none';
+        const ev=document.getElementById('evacio');
+        ev.querySelector('.e-ico').textContent='😊';
+        ev.querySelector('.e-txt').textContent='¡Todo aprobado!';
+        ev.querySelector('.e-sub').textContent='No quedan reservas pendientes';
+        ev.style.display='flex';
+      }
+    },700);
+
+  } catch(e) {
+    btn.disabled=false; btn.innerHTML='✅ Aprobar'; btn.style.background=''; btn.style.color='';
+    notify('Error al aprobar: '+e.message,'error');
+  }
+}
+
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
+</script>
+</body>
+</html>
