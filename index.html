@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Ingreso</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="config.js"></script>
+<style>
+  :root { --azul:#3860b2; --azul-oscuro:#00126b; --azul-claro:#bac8e2; --borde:#e2e8f0; --gris:#4d4d4d; --rojo:#e53e3e; --verde:#2e9e4f; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:var(--azul); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+
+  /* SPLASH */
+  #splash { position:fixed; inset:0; background:var(--azul); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; z-index:100; transition:opacity 0.5s; }
+  #splash.hide { opacity:0; pointer-events:none; }
+  .splash-logo { width:120px; height:120px; background:rgba(255,255,255,0.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:52px; }
+  .splash-title { color:white; font-family:'Space Mono',monospace; font-size:28px; letter-spacing:4px; font-weight:700; }
+  .splash-sub { color:rgba(255,255,255,0.7); font-size:14px; }
+
+  .login-card { background:white; border-radius:24px; padding:28px 24px; width:100%; max-width:420px; box-shadow:0 8px 40px rgba(0,0,0,0.2); display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .login-icon { font-size:44px; }
+  .login-title { font-family:'Space Mono',monospace; font-size:17px; font-weight:700; color:var(--azul-oscuro); text-align:center; }
+  .login-sub { font-size:13px; color:var(--gris); text-align:center; line-height:1.5; }
+
+  #video-wrap { width:100%; border-radius:14px; overflow:hidden; background:#111; position:relative; aspect-ratio:4/3; }
+  #qr-reader__header_message,#qr-reader__status_span,#qr-reader__dashboard_section_csr,
+  #qr-reader__filescan_input,#qr-reader > img,#qr-reader__dashboard { display:none !important; }
+  #qr-reader { width:100%; height:100%; }
+  #qr-reader video { width:100% !important; height:100% !important; object-fit:cover !important; border-radius:0 !important; }
+  .scan-line { position:absolute; left:8%; right:8%; height:2.5px; background:linear-gradient(90deg,transparent,#00ff88 40%,#00ff88 60%,transparent); box-shadow:0 0 10px #00ff88; animation:scanMove 1.8s ease-in-out infinite; z-index:10; }
+  @keyframes scanMove { 0%{top:12%} 50%{top:82%} 100%{top:12%} }
+  .scan-corner { position:absolute; width:22px; height:22px; border-color:#00ff88; border-style:solid; z-index:11; }
+  .scan-corner.tl{top:8px;left:8px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+  .scan-corner.tr{top:8px;right:8px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+  .scan-corner.bl{bottom:8px;left:8px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+  .scan-corner.br{bottom:8px;right:8px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+  .scan-hint { position:absolute; bottom:10px; left:0; right:0; text-align:center; color:rgba(255,255,255,0.85); font-size:12px; font-weight:600; z-index:12; }
+  .scan-status { font-size:13px; color:var(--gris); text-align:center; font-weight:500; min-height:18px; }
+  .scan-status.leyendo{color:var(--azul)} .scan-status.error{color:var(--rojo)} .scan-status.ok{color:var(--verde);font-weight:700}
+  .btn-retry { padding:8px 20px; background:rgba(56,96,178,0.08); border:1.5px solid var(--azul-claro); border-radius:8px; color:var(--azul); font-size:13px; font-weight:600; cursor:pointer; display:none; }
+  .divider { display:flex; align-items:center; gap:10px; width:100%; }
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--borde)}
+  .divider span{font-size:11px;color:#aaa;white-space:nowrap}
+  .input-manual { width:100%; padding:13px 14px; border:1.5px solid var(--borde); border-radius:10px; font-family:'Space Mono',monospace; font-size:18px; outline:none; text-align:center; letter-spacing:3px; }
+  .input-manual:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,0.12)}
+  .input-manual::placeholder{letter-spacing:0;font-family:'DM Sans',sans-serif;font-size:13px;color:#bbb}
+  .btn-primary { width:100%; padding:14px; background:var(--azul); color:white; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .btn-primary:hover{background:var(--azul-oscuro)} .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+  .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;transition:transform 0.3s;max-width:90vw;text-align:center}
+  .notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-logo">🔧</div>
+  <div class="splash-title">MANODEOBRA</div>
+  <div class="splash-sub">Reporte de Mano de Obra</div>
+</div>
+
+<div class="login-card">
+  <div class="login-icon">🪪</div>
+  <div class="login-title">Escanea tu carnet</div>
+  <div class="login-sub">Apunta el código de barras a la cámara</div>
+  <div id="video-wrap">
+    <div id="qr-reader"></div>
+    <div class="scan-line"></div>
+    <div class="scan-corner tl"></div><div class="scan-corner tr"></div>
+    <div class="scan-corner bl"></div><div class="scan-corner br"></div>
+    <div class="scan-hint">Mantén el código dentro del recuadro</div>
+  </div>
+  <div class="scan-status leyendo" id="scan-status">📷 Iniciando cámara…</div>
+  <button class="btn-retry" id="btn-retry" onclick="reiniciarScanner()">🔄 Reintentar cámara</button>
+  <div class="divider"><span>o ingresa el código manualmente</span></div>
+  <input class="input-manual" type="text" id="codigo-manual" placeholder="Código de empleado" maxlength="30" onkeydown="if(event.key==='Enter') loginManual()">
+  <button class="btn-primary" id="btn-ingresar" onclick="loginManual()">Ingresar →</button>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+let html5QrCode = null, scannerActivo = false, procesando = false;
+
+window.onload = () => {
+  // Si ya hay sesión activa, redirigir directo
+  const ses = getSession();
+  if (ses) { redirigirPorRol(ses); return; }
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    iniciarScanner();
+  }, 1800);
+};
+
+async function iniciarScanner() {
+  const status = document.getElementById('scan-status');
+  const btnRetry = document.getElementById('btn-retry');
+  status.textContent = '📷 Iniciando cámara…'; status.className = 'scan-status leyendo';
+  btnRetry.style.display = 'none'; procesando = false;
+  if (html5QrCode) { try{await html5QrCode.stop();}catch(e){} try{html5QrCode.clear();}catch(e){} html5QrCode=null; }
+  document.getElementById('qr-reader').innerHTML = '';
+  html5QrCode = new Html5Qrcode('qr-reader', { verbose:false });
+  const config = { fps:15, qrbox:{width:260,height:140}, aspectRatio:1.333, supportedScanTypes:[Html5QrcodeScanType.SCAN_TYPE_CAMERA], formatsToSupport:[Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.QR_CODE] };
+  try {
+    await html5QrCode.start({ facingMode:'environment' }, config, async (txt) => { if(!procesando){procesando=true;await procesarLogin(txt);} }, ()=>{});
+    scannerActivo = true; status.textContent = '📷 Apunta el código de barras'; status.className = 'scan-status leyendo';
+  } catch(e) { status.textContent = '⚠️ Cámara no disponible — usa el código manual'; status.className = 'scan-status error'; btnRetry.style.display = 'block'; }
+}
+async function detenerScanner() { if(html5QrCode&&scannerActivo){try{await html5QrCode.stop();}catch(e){}try{html5QrCode.clear();}catch(e){}html5QrCode=null;scannerActivo=false;} }
+async function reiniciarScanner() { await detenerScanner(); setTimeout(iniciarScanner,600); }
+
+async function loginManual() {
+  const codigo = document.getElementById('codigo-manual').value.trim();
+  if(!codigo){notify('Ingresa tu código','error');return;}
+  await detenerScanner(); await procesarLogin(codigo);
+}
+
+async function procesarLogin(codigoRaw) {
+  const codigo = codigoRaw.trim().slice(0,5);
+  const status = document.getElementById('scan-status');
+  const btn    = document.getElementById('btn-ingresar');
+  btn.disabled = true; status.textContent = '🔍 Verificando…'; status.className = 'scan-status leyendo';
+  try {
+    const { ok, data } = await supaFetch(`Colaboradores?codigo=eq.${encodeURIComponent(codigo)}&select=codigo,nombre,rol`, { method:'GET' });
+    if (!ok || !data || data.length===0) {
+      notify(`Código "${codigo}" no registrado`, 'error');
+      btn.disabled = false; procesando = false;
+      status.textContent = '❌ No encontrado'; status.className = 'scan-status error';
+      setTimeout(()=>{ status.textContent='📷 Apunta el código de barras'; status.className='scan-status leyendo'; procesando=false; },2500);
+      return;
+    }
+    const user = data[0];
+    setSession(user);
+    notify(`¡Bienvenido, ${user.nombre}!`, 'success');
+    await detenerScanner();
+    setTimeout(() => redirigirPorRol(user), 800);
+  } catch(e) {
+    status.textContent = '❌ Error de conexión'; status.className = 'scan-status error';
+    btn.disabled=false; procesando=false;
+  }
+}
+
+function redirigirPorRol(user) {
+  const rol = (user.rol||'').toUpperCase();
+  if (rol === 'SUPERVISOR') { window.location.href = 'menu_supervisor.html'; }
+  else { window.location.href = 'grabar.html'; }
+}
+
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type+' show';clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),4000);}
+</script>
+</body>
+</html>
