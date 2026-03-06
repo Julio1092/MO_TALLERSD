@@ -65,6 +65,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .btn-aprobar{background:var(--verde);color:white;border:none;border-radius:9px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;box-shadow:0 2px 8px rgba(46,158,79,.25);white-space:nowrap}
 .btn-aprobar:hover{background:#276040;transform:translateY(-1px)} .btn-aprobar:disabled{opacity:.5;cursor:wait;transform:none}
 .btn-aprobar.done{background:#e2f8ea;color:#276040;border:1.5px solid #9ae6b4;cursor:default;box-shadow:none}
+.btn-rechazar-todo{background:#fff0f0;color:var(--rojo);border:1.5px solid #fca5a5;border-radius:9px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap}
+.btn-rechazar-todo:hover{background:var(--rojo);color:white;border-color:var(--rojo);transform:translateY(-1px)}
+.btn-rechazar-todo:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
 /* LINES TABLE */
 .lineas-tbl{width:100%;border-collapse:collapse}
@@ -92,7 +95,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .lineas-tbl tr:last-child td{border-bottom:none}
 .td-cod{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
 .td-um{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
-.td-qty-orig{font-family:'Space Mono',monospace;font-weight:700;color:var(--txt3);text-decoration:line-through;font-size:12px}
+.td-qty-orig{font-family:'Space Mono',monospace;font-weight:700;color:var(--txt3);font-size:12px;white-space:nowrap}
+.qty-arrow{font-size:13px;color:#aaa}
 
 /* CANTIDAD EDITABLE */
 .qty-edit{width:80px;padding:6px 8px;border:1.5px solid var(--bord2);border-radius:7px;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:var(--azul-d);text-align:center;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield}
@@ -279,8 +283,9 @@ function renderGrupos(rows) {
         <td class="td-cod">${l.articulosap||'—'}</td>
         <td>${l.descripcion||'—'}</td>
         <td>
-          <div style="display:flex;align-items:center;gap:6px">
-            <span class="td-qty-orig" id="qty-orig-${gid}-${i}">${l.cantidad}</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span class="td-qty-orig" title="Cantidad solicitada">📋 ${l.cantidad}</span>
+            <span class="qty-arrow">→</span>
             <input class="qty-edit" type="number" id="qty-sup-${gid}-${i}"
               value="${l.cantidad}" min="0.01" step="0.01"
               oninput="onQtyChange('${gid}',${i})">
@@ -306,7 +311,10 @@ function renderGrupos(rows) {
           <span class="badge ${g.turno||''}">${g.turno||'—'}</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
         </div>
-        <button class="btn-aprobar" id="ba-${gid}" onclick="aprobarGrupo('${gid}','${g.key}',${g.lineas.length})">✅ Confirmar</button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn-rechazar-todo" id="br-${gid}" onclick="rechazarTodo('${gid}',${g.lineas.length})">✖ Rechazar Todo</button>
+          <button class="btn-aprobar" id="ba-${gid}" onclick="aprobarGrupo('${gid}','${g.key}',${g.lineas.length})">✅ Confirmar</button>
+        </div>
       </div>
       <div style="overflow-x:auto">
         <table class="lineas-tbl" style="width:100%">
@@ -337,6 +345,13 @@ function setEstado(gid, idx, estado) {
     brec.classList.add('active'); bapr.classList.remove('active');
     row.classList.add('linea-rechazada');
   }
+}
+
+function rechazarTodo(gid, numLineas) {
+  for (let i = 0; i < numLineas; i++) {
+    setEstado(gid, i, 'Rechazado');
+  }
+  notify('Todas las líneas marcadas como Rechazado — presiona Confirmar para guardar','warning');
 }
 
 async function aprobarGrupo(gid, key, numLineas) {
