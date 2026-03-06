@@ -85,6 +85,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.22)}
 .notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
 
+
+/* LINEA EDITABLE */
+.lineas-tbl th{padding:8px 12px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);background:var(--bg3);border-bottom:1.5px solid var(--border)}
+.lineas-tbl td{padding:8px 12px;font-size:13px;color:var(--txt2);border-bottom:1px solid var(--border);vertical-align:middle}
+.lineas-tbl tr:last-child td{border-bottom:none}
+.td-cod{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
+.td-um{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
+.td-qty-orig{font-family:'Space Mono',monospace;font-weight:700;color:var(--txt3);text-decoration:line-through;font-size:12px}
+
+/* CANTIDAD EDITABLE */
+.qty-edit{width:80px;padding:6px 8px;border:1.5px solid var(--bord2);border-radius:7px;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:var(--azul-d);text-align:center;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield}
+.qty-edit::-webkit-outer-spin-button,.qty-edit::-webkit-inner-spin-button{-webkit-appearance:none}
+.qty-edit:focus{border-color:var(--azul);box-shadow:0 0 0 2px rgba(56,96,178,.12)}
+.qty-edit.modified{border-color:var(--nrj);background:#fff8f0}
+
+/* TOGGLE APROBADO/RECHAZADO */
+.toggle-wrap{display:flex;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);width:fit-content}
+.toggle-btn{padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;background:#f8fafc;color:var(--txt3)}
+.toggle-btn.apr.active{background:#d1fae5;color:#065f46;border-right:1.5px solid #6ee7b7}
+.toggle-btn.rec.active{background:#fee2e2;color:#7f1d1d}
+.toggle-btn:not(.active):hover{background:#f0f0f0}
+
+/* ROW RECHAZADO */
+.linea-rechazada td{opacity:.45;background:#fff5f5}
+.linea-rechazada .qty-edit{opacity:.4;pointer-events:none}
+
 @media(max-width:700px){.f-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.f-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:1fr}}
 </style>
@@ -232,7 +258,6 @@ function renderKPIs(rows) {
 }
 
 function renderGrupos(rows) {
-  // Agrupar por (fecha_reserva + OT + codigo_operario)
   const groups={};
   rows.forEach(r=>{
     const key=`${r.fecha_reserva}||${r.ot}||${r.codigo_operario}`;
@@ -248,12 +273,28 @@ function renderGrupos(rows) {
     const gid = btoa(g.key).replace(/[^a-zA-Z0-9]/g,'').slice(0,12);
     const div = document.createElement('div');
     div.className='grupo'; div.id=`g-${gid}`;
-    const linRows = g.lineas.map(l=>`
-      <tr>
+
+    const linRows = g.lineas.map((l,i)=>`
+      <tr id="lin-row-${gid}-${i}">
         <td class="td-cod">${l.articulosap||'—'}</td>
         <td>${l.descripcion||'—'}</td>
-        <td class="td-qty">${l.cantidad}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="td-qty-orig" id="qty-orig-${gid}-${i}">${l.cantidad}</span>
+            <input class="qty-edit" type="number" id="qty-sup-${gid}-${i}"
+              value="${l.cantidad}" min="0.01" step="0.01"
+              oninput="onQtyChange('${gid}',${i})">
+          </div>
+        </td>
         <td class="td-um">${l.um||'—'}</td>
+        <td>
+          <div class="toggle-wrap">
+            <button class="toggle-btn apr active" id="tbnapr-${gid}-${i}"
+              onclick="setEstado('${gid}',${i},'Aprobado')">✔ Aprobado</button>
+            <button class="toggle-btn rec" id="tbnrec-${gid}-${i}"
+              onclick="setEstado('${gid}',${i},'Rechazado')">✖ Rechazado</button>
+          </div>
+        </td>
       </tr>`).join('');
 
     div.innerHTML=`
@@ -262,52 +303,91 @@ function renderGrupos(rows) {
           <span class="grupo-ot">OT ${g.ot}</span>
           <span class="grupo-mec">👷 ${g.nombre}</span>
           <span class="grupo-meta">${g.fecha}</span>
-          <span class="badge ${g.turno}">${g.turno||'—'}</span>
+          <span class="badge ${g.turno||''}">${g.turno||'—'}</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
         </div>
-        <button class="btn-aprobar" id="ba-${gid}" onclick="aprobarGrupo('${gid}','${g.key}')">✅ Aprobar</button>
+        <button class="btn-aprobar" id="ba-${gid}" onclick="aprobarGrupo('${gid}','${g.key}',${g.lineas.length})">✅ Confirmar</button>
       </div>
-      <table class="lineas-tbl">
-        <thead><tr><th>Código SAP</th><th>Descripción</th><th>Cantidad</th><th>UM</th></tr></thead>
-        <tbody>${linRows}</tbody>
-      </table>`;
+      <div style="overflow-x:auto">
+        <table class="lineas-tbl" style="width:100%">
+          <thead><tr><th>Código SAP</th><th>Descripción</th><th>Cant. Solicitada → Supervisor</th><th>UM</th><th>Decisión</th></tr></thead>
+          <tbody>${linRows}</tbody>
+        </table>
+      </div>`;
     container.appendChild(div);
   });
 }
 
-async function aprobarGrupo(gid, key) {
+function onQtyChange(gid, idx) {
+  const orig = document.getElementById(`qty-orig-${gid}-${idx}`)?.textContent;
+  const inp  = document.getElementById(`qty-sup-${gid}-${idx}`);
+  if (!inp) return;
+  inp.classList.toggle('modified', parseFloat(inp.value) !== parseFloat(orig));
+}
+
+function setEstado(gid, idx, estado) {
+  const row  = document.getElementById(`lin-row-${gid}-${idx}`);
+  const bapr = document.getElementById(`tbnapr-${gid}-${idx}`);
+  const brec = document.getElementById(`tbnrec-${gid}-${idx}`);
+  if (!row) return;
+  if (estado==='Aprobado') {
+    bapr.classList.add('active'); brec.classList.remove('active');
+    row.classList.remove('linea-rechazada');
+  } else {
+    brec.classList.add('active'); bapr.classList.remove('active');
+    row.classList.add('linea-rechazada');
+  }
+}
+
+async function aprobarGrupo(gid, key, numLineas) {
   const btn = document.getElementById(`ba-${gid}`);
-  btn.disabled=true; btn.innerHTML='<span class="spin" style="border-top-color:#2e9e4f;border-color:rgba(46,158,79,.3)"></span> Aprobando…'; btn.style.background='#f0fff4'; btn.style.color='#276040';
-
   const [fecha, ot, codOp] = key.split('||');
-  try {
-    const res = await fetch(
-      `${SB_URL}/rest/v1/reservas?fecha_reserva=eq.${encodeURIComponent(fecha)}&ot=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}`,
-      { method:'PATCH', headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({sup_aprueba:true}) }
-    );
-    if(!res.ok) throw new Error(await res.text());
 
-    btn.innerHTML='✅ Aprobado'; btn.className='btn-aprobar done';
-    notify(`OT ${ot} aprobada correctamente ✅`,'success');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin" style="border-top-color:#2e9e4f;border-color:rgba(46,158,79,.3)"></span> Guardando…';
+  btn.style.background='#f0fff4'; btn.style.color='#276040';
+
+  try {
+    // First fetch the actual row IDs for this group
+    const rows = await sbGet(`reservas?select=id,articulosap&fecha_reserva=eq.${encodeURIComponent(fecha)}&ot=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}&order=id.asc`);
+
+    // Update each line individually with its decision + quantity
+    const promises = rows.map((row, i) => {
+      const qtyEl  = document.getElementById(`qty-sup-${gid}-${i}`);
+      const aprBtn = document.getElementById(`tbnapr-${gid}-${i}`);
+      const decision = aprBtn?.classList.contains('active') ? 'Aprobado' : 'Rechazado';
+      const cantSup  = parseFloat(qtyEl?.value || row.cantidad);
+      return fetch(
+        `${SB_URL}/rest/v1/reservas?id=eq.${row.id}`,
+        { method:'PATCH', headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},
+          body:JSON.stringify({ verificacionsupervisor: decision, cantidadsupervisor: String(cantSup), sup_aprueba: true }) }
+      ).then(r=>{ if(!r.ok) throw new Error(`Línea ${i+1}: ${r.statusText}`); });
+    });
+
+    await Promise.all(promises);
+
+    btn.innerHTML='✅ Confirmado'; btn.className='btn-aprobar done';
+    notify(`OT ${ot} procesada correctamente ✅`,'success');
 
     setTimeout(()=>{
       document.getElementById(`g-${gid}`)?.remove();
       todosRaw = todosRaw.filter(r=>!(r.fecha_reserva===fecha&&r.ot===ot&&String(r.codigo_operario)===String(codOp)));
       renderKPIs(todosRaw);
-      document.getElementById('res-cnt').textContent=`${document.querySelectorAll('.grupo').length} grupo${document.querySelectorAll('.grupo').length!==1?'s':''}`;
+      const remaining = document.querySelectorAll('.grupo').length;
+      document.getElementById('res-cnt').textContent=`${remaining} grupo${remaining!==1?'s':''}`;
       if(!todosRaw.length){
         document.getElementById('card-res').style.display='none';
         const ev=document.getElementById('evacio');
         ev.querySelector('.e-ico').textContent='😊';
-        ev.querySelector('.e-txt').textContent='¡Todo aprobado!';
+        ev.querySelector('.e-txt').textContent='¡Todo procesado!';
         ev.querySelector('.e-sub').textContent='No quedan reservas pendientes';
         ev.style.display='flex';
       }
     },700);
 
   } catch(e) {
-    btn.disabled=false; btn.innerHTML='✅ Aprobar'; btn.style.background=''; btn.style.color='';
-    notify('Error al aprobar: '+e.message,'error');
+    btn.disabled=false; btn.innerHTML='✅ Confirmar'; btn.style.background=''; btn.style.color='';
+    notify('Error: '+e.message,'error');
   }
 }
 
