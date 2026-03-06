@@ -182,7 +182,7 @@ async function buscar() {
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
   if (mec)    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
-  p.push('order=fecha_reserva.desc,OT.asc');
+  p.push('order=fecha_reserva.desc,ot.asc');
 
   setLoad(true);
   document.getElementById('kpis').style.display='none';
@@ -225,18 +225,18 @@ function setLoad(v){
 }
 
 function renderKPIs(rows) {
-  const ots = new Set(rows.map(r=>r.OT).filter(Boolean));
+  const ots = new Set(rows.map(r=>r.ot).filter(Boolean));
   document.getElementById('k0').textContent = rows.length;
   document.getElementById('k1').textContent = ots.size;
-  document.getElementById('k2').textContent = rows.reduce((s,r)=>s+(parseFloat(r.Cantidad)||0),0).toFixed(0);
+  document.getElementById('k2').textContent = rows.reduce((s,r)=>s+(parseFloat(r.cantidad)||0),0).toFixed(0);
 }
 
 function renderGrupos(rows) {
   // Agrupar por (fecha_reserva + OT + codigo_operario)
   const groups={};
   rows.forEach(r=>{
-    const key=`${r.fecha_reserva}||${r.OT}||${r.codigo_operario}`;
-    if(!groups[key]) groups[key]={key,fecha:r.fecha_reserva,ot:r.OT,turno:r.Turno,cod:r.codigo_operario,nombre:colabs[String(r.codigo_operario)]||r.codigo_operario,lineas:[]};
+    const key=`${r.fecha_reserva}||${r.ot}||${r.codigo_operario}`;
+    if(!groups[key]) groups[key]={key,fecha:r.fecha_reserva,ot:r.ot,turno:r.turno,cod:r.codigo_operario,nombre:colabs[String(r.codigo_operario)]||r.codigo_operario,lineas:[]};
     groups[key].lineas.push(r);
   });
 
@@ -250,10 +250,10 @@ function renderGrupos(rows) {
     div.className='grupo'; div.id=`g-${gid}`;
     const linRows = g.lineas.map(l=>`
       <tr>
-        <td class="td-cod">${l.ArticuloSAP||'—'}</td>
-        <td>${l.Descripcion||'—'}</td>
-        <td class="td-qty">${l.Cantidad}</td>
-        <td class="td-um">${l.UM||'—'}</td>
+        <td class="td-cod">${l.articulosap||'—'}</td>
+        <td>${l.descripcion||'—'}</td>
+        <td class="td-qty">${l.cantidad}</td>
+        <td class="td-um">${l.um||'—'}</td>
       </tr>`).join('');
 
     div.innerHTML=`
@@ -282,7 +282,7 @@ async function aprobarGrupo(gid, key) {
   const [fecha, ot, codOp] = key.split('||');
   try {
     const res = await fetch(
-      `${SB_URL}/rest/v1/reservas?fecha_reserva=eq.${encodeURIComponent(fecha)}&OT=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}`,
+      `${SB_URL}/rest/v1/reservas?fecha_reserva=eq.${encodeURIComponent(fecha)}&ot=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}`,
       { method:'PATCH', headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({sup_aprueba:true}) }
     );
     if(!res.ok) throw new Error(await res.text());
@@ -292,7 +292,7 @@ async function aprobarGrupo(gid, key) {
 
     setTimeout(()=>{
       document.getElementById(`g-${gid}`)?.remove();
-      todosRaw = todosRaw.filter(r=>!(r.fecha_reserva===fecha&&r.OT===ot&&String(r.codigo_operario)===String(codOp)));
+      todosRaw = todosRaw.filter(r=>!(r.fecha_reserva===fecha&&r.ot===ot&&String(r.codigo_operario)===String(codOp)));
       renderKPIs(todosRaw);
       document.getElementById('res-cnt').textContent=`${document.querySelectorAll('.grupo').length} grupo${document.querySelectorAll('.grupo').length!==1?'s':''}`;
       if(!todosRaw.length){
