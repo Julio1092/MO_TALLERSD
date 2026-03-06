@@ -45,7 +45,8 @@
 
   /* LINES */
   .lines-wrap{padding:12px 16px 4px;display:flex;flex-direction:column;gap:10px}
-  .linea{display:grid;grid-template-columns:1fr 90px 72px 36px;gap:8px;align-items:end;padding:10px 12px;background:#fafbff;border:1.5px solid #eef0f8;border-radius:10px;animation:slideIn .2s ease}
+  .linea{display:flex;flex-direction:column;gap:8px;padding:12px;background:#fafbff;border:1.5px solid #eef0f8;border-radius:10px;animation:slideIn .2s ease}
+  .linea-row2{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;align-items:end}
   .linea-num{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:white;background:var(--azul);border-radius:20px;padding:2px 8px;display:inline-block;margin-bottom:4px}
   .um-box{padding:10px 8px;background:#edf2ff;border:1.5px solid #c3d0f0;border-radius:8px;font-size:12px;font-weight:700;color:var(--azul-d);font-family:'Space Mono',monospace;text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center}
 
@@ -86,7 +87,10 @@
   .suc-icon{font-size:80px}.suc-title{color:var(--verde);font-size:26px;font-weight:700}.suc-sub{color:var(--gris);font-size:15px}
   .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 22px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
   .notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.warning{background:var(--nrj)} .notif.success{background:var(--verde)}
-  @media(max-width:560px){.linea{grid-template-columns:1fr 75px 60px 36px}}
+  @media(max-width:640px){
+    .linea{display:flex;flex-direction:column;gap:8px;}
+    .linea-row2{display:grid;grid-template-columns:1fr 70px 36px;gap:8px;align-items:end}
+  }
 </style>
 </head>
 <body>
@@ -198,17 +202,19 @@ function agregarLinea(otId){
         <input type="hidden" id="art-cod-${lid}">
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <label class="fl">Cantidad</label>
-      <input type="number" id="qty-${lid}" min="0.01" step="0.01" placeholder="1"
-        style="text-align:center;font-weight:700;font-family:'Space Mono',monospace;font-size:15px">
-    </div>
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <label class="fl">UM</label>
-      <div class="um-box" id="um-${lid}">—</div>
-    </div>
-    <div style="display:flex;flex-direction:column;justify-content:flex-end">
-      <button class="btn-del-line" onclick="eliminarLinea(${lid},${otId})">✕</button>
+    <div class="linea-row2">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <label class="fl">Cantidad</label>
+        <input type="number" id="qty-${lid}" min="0.01" step="0.01" placeholder="1"
+          style="text-align:center;font-weight:700;font-family:'Space Mono',monospace;font-size:15px">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <label class="fl">UM</label>
+        <div class="um-box" id="um-${lid}">—</div>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:flex-end">
+        <button class="btn-del-line" onclick="eliminarLinea(${lid},${otId})">✕</button>
+      </div>
     </div>`;
   wrap.appendChild(div);
 }
@@ -277,7 +283,7 @@ async function guardar(){
       if(!cod||!desc){document.getElementById(`art-${lid}`)?.classList.add('campo-error');notify('Selecciona un artículo válido en todas las líneas','error');document.getElementById(`art-${lid}`)?.scrollIntoView({behavior:'smooth',block:'center'});hayError=true;break;}
       if(!qty||qty<=0){document.getElementById(`qty-${lid}`)?.classList.add('campo-error');notify('Ingresa una cantidad mayor a 0','error');hayError=true;break;}
       document.getElementById(`qty-${lid}`)?.classList.remove('campo-error');
-      filas.push({Fecha_Reserva:hoy,OT:otVal,ArticuloSAP:cod,Descripcion:desc,Cantidad:qty,UM:um==='—'?null:um,codigo_operario:String(userActual.codigo),sup_aprueba:false});
+      filas.push({fecha_reserva:hoy,OT:otVal,ArticuloSAP:cod,Descripcion:desc,Cantidad:qty,UM:um==='—'?null:um,codigo_operario:String(userActual.codigo),sup_aprueba:false});
     }
     if(hayError)break;
   }

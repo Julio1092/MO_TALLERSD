@@ -179,10 +179,10 @@ async function buscar() {
   const mec    = document.getElementById('f-mec').value;
 
   const p = ['select=*','sup_aprueba=not.is.true'];
-  if (desde) p.push(`Fecha_Reserva=gte.${desde}`);
-  if (hasta)  p.push(`Fecha_Reserva=lte.${hasta}`);
+  if (desde) p.push(`fecha_reserva=gte.${desde}`);
+  if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
   if (mec)    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
-  p.push('order=Fecha_Reserva.desc,OT.asc');
+  p.push('order=fecha_reserva.desc,OT.asc');
 
   setLoad(true);
   document.getElementById('kpis').style.display='none';
@@ -232,11 +232,11 @@ function renderKPIs(rows) {
 }
 
 function renderGrupos(rows) {
-  // Agrupar por (Fecha_Reserva + OT + codigo_operario)
+  // Agrupar por (fecha_reserva + OT + codigo_operario)
   const groups={};
   rows.forEach(r=>{
-    const key=`${r.Fecha_Reserva}||${r.OT}||${r.codigo_operario}`;
-    if(!groups[key]) groups[key]={key,fecha:r.Fecha_Reserva,ot:r.OT,turno:r.Turno,cod:r.codigo_operario,nombre:colabs[String(r.codigo_operario)]||r.codigo_operario,lineas:[]};
+    const key=`${r.fecha_reserva}||${r.OT}||${r.codigo_operario}`;
+    if(!groups[key]) groups[key]={key,fecha:r.fecha_reserva,ot:r.OT,turno:r.Turno,cod:r.codigo_operario,nombre:colabs[String(r.codigo_operario)]||r.codigo_operario,lineas:[]};
     groups[key].lineas.push(r);
   });
 
@@ -282,7 +282,7 @@ async function aprobarGrupo(gid, key) {
   const [fecha, ot, codOp] = key.split('||');
   try {
     const res = await fetch(
-      `${SB_URL}/rest/v1/reservas?Fecha_Reserva=eq.${encodeURIComponent(fecha)}&OT=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}`,
+      `${SB_URL}/rest/v1/reservas?fecha_reserva=eq.${encodeURIComponent(fecha)}&OT=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}`,
       { method:'PATCH', headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({sup_aprueba:true}) }
     );
     if(!res.ok) throw new Error(await res.text());
@@ -292,7 +292,7 @@ async function aprobarGrupo(gid, key) {
 
     setTimeout(()=>{
       document.getElementById(`g-${gid}`)?.remove();
-      todosRaw = todosRaw.filter(r=>!(r.Fecha_Reserva===fecha&&r.OT===ot&&String(r.codigo_operario)===String(codOp)));
+      todosRaw = todosRaw.filter(r=>!(r.fecha_reserva===fecha&&r.OT===ot&&String(r.codigo_operario)===String(codOp)));
       renderKPIs(todosRaw);
       document.getElementById('res-cnt').textContent=`${document.querySelectorAll('.grupo').length} grupo${document.querySelectorAll('.grupo').length!==1?'s':''}`;
       if(!todosRaw.length){
