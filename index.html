@@ -145,6 +145,7 @@ function redirigirPorRol(user) {
   const rol = (user.rol||'').toUpperCase();
   if (rol === 'SUPERVISOR') { window.location.href = 'menu_supervisor.html'; }
   else if (rol === 'CCT') { window.location.href = 'menu_cct.html'; }
+  else if (rol === 'JEFE') { window.location.href = 'menu_jefe.html'; }
   else { window.location.href = 'menu_mecanico.html'; }
 }
 
