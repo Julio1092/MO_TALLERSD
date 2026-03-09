@@ -40,20 +40,27 @@
   label.field-label{display:block;font-size:12px;font-weight:600;color:var(--gris);margin-bottom:5px}
   select,input[type="date"]{width:100%;padding:10px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:#222;background:white;outline:none;-webkit-appearance:none;appearance:none;transition:border-color 0.2s}
   select:focus,input[type="date"]:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,0.12)}
-  input[type="date"][readonly]{background:#f8fafc;color:#555;cursor:default}
   select.campo-error{border-color:var(--rojo)!important;background:#fff5f5!important}
   .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .ot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-  .ot-wrap{position:relative}
-  .ot-lbl{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--azul);font-family:'Space Mono',monospace;pointer-events:none;z-index:1}
-  .ot-input{width:100%;padding:10px 12px 10px 38px;border:1.5px solid var(--borde);border-radius:8px;font-family:'Space Mono',monospace;font-size:14px;color:#222;background:white;outline:none;-moz-appearance:textfield;appearance:textfield}
+
+  /* ── OTs DINÁMICAS ── */
+  .ot-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+  .ot-row{display:flex;align-items:center;gap:8px;animation:slideIn 0.2s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  .ot-badge{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--azul-claro);border-radius:20px;padding:3px 9px;white-space:nowrap;flex-shrink:0}
+  .ot-input{flex:1;padding:10px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--azul-oscuro);background:white;outline:none;-moz-appearance:textfield;appearance:textfield;transition:border-color .2s}
   .ot-input::-webkit-outer-spin-button,.ot-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .ot-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,0.12)}
-  .ot-input.valido{border-color:var(--azul)} .ot-input.invalido{border-color:var(--rojo)}
+  .ot-input.valido{border-color:var(--azul);background:#f0f7ff}
+  .ot-input.invalido{border-color:var(--rojo)}
+  .btn-del-ot{background:none;border:1.5px solid #fed7d7;border-radius:7px;color:#fc8181;cursor:pointer;font-size:14px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;padding:0}
+  .btn-del-ot:hover{background:#fff5f5;border-color:var(--rojo);color:var(--rojo)}
+  .btn-add-ot{display:flex;align-items:center;gap:8px;background:var(--azul-bg);border:2px dashed var(--azul-claro);border-radius:10px;padding:10px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--azul);transition:all 0.2s;width:100%}
+  .btn-add-ot:hover{background:rgba(56,96,178,0.14);border-color:var(--azul)}
+
   .btn-add{display:flex;align-items:center;gap:8px;background:var(--azul-bg);border:2px dashed var(--azul-claro);border-radius:12px;padding:14px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--azul);width:100%;transition:all 0.2s}
   .btn-add:hover{background:rgba(56,96,178,0.14);border-color:var(--azul)} .btn-add:disabled{opacity:0.4;cursor:not-allowed}
   .actividad-card{background:white;border:2px solid var(--borde);border-radius:14px;padding:16px;animation:slideIn 0.25s ease}
-  @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   .act-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .act-num{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-oscuro);background:var(--azul-bg);padding:4px 10px;border-radius:20px}
   .btn-remove{background:none;border:none;cursor:pointer;color:var(--gris);font-size:18px;padding:4px;border-radius:6px;display:flex;align-items:center}
@@ -86,10 +93,9 @@
   .ss-option:hover,.ss-option.active{background:var(--azul-bg);color:var(--azul)}
   .ss-option .ss-match{font-weight:700;color:var(--azul)}
   .ss-empty{padding:10px 14px;font-size:12px;color:#aaa;font-style:italic}
-  .ss-hidden{display:none!important}
   .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.25);z-index:9999;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
   .notif.show{transform:translateX(-50%) translateY(0)} .notif.warning{background:#dd6b20} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
-  @media(max-width:520px){.ot-grid{grid-template-columns:repeat(2,1fr)}.row-2,.time-row{grid-template-columns:1fr}}
+  @media(max-width:520px){.row-2,.time-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -118,33 +124,38 @@
 </div>
 
 <div class="content">
+  <!-- TURNO & FECHA -->
   <div class="card">
     <div class="card-label">Turno &amp; Fecha</div>
     <div class="row-2">
-      <div><label class="field-label">Turno</label>
+      <div>
+        <label class="field-label">Turno</label>
         <select id="turno" onchange="onTurnoChange()">
           <option value="">— Seleccionar —</option>
           <option value="Diurno">Diurno (07:00–19:00 · 12 h)</option>
           <option value="Nocturno">Nocturno (19:00–07:00 · 12 h)</option>
           <option value="Mantenimiento">Mantenimiento (07:00–17:00 · 10 h)</option>
           <option value="Extraordinario">Extraordinario (sin límite)</option>
-        </select></div>
-      <div><label class="field-label">Fecha</label><input type="date" id="fecha" readonly /></div>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Fecha del Reporte</label>
+        <input type="date" id="fecha" onchange="onFechaChange()">
+      </div>
     </div>
   </div>
 
+  <!-- ÓRDENES DE TRABAJO DINÁMICAS -->
   <div class="card">
-    <div class="card-label">Órdenes Trabajadas <span style="font-weight:400;color:#999;font-size:10px;text-transform:none;letter-spacing:0">(exactamente 6 dígitos)</span></div>
-    <div class="ot-grid">
-      <div class="ot-wrap"><span class="ot-lbl">OT1</span><input class="ot-input" type="number" id="OT1" placeholder="000000" oninput="limitarOT(this)" onblur="actualizarOrdenes()"></div>
-      <div class="ot-wrap"><span class="ot-lbl">OT2</span><input class="ot-input" type="number" id="OT2" placeholder="000000" oninput="limitarOT(this)" onblur="actualizarOrdenes()"></div>
-      <div class="ot-wrap"><span class="ot-lbl">OT3</span><input class="ot-input" type="number" id="OT3" placeholder="000000" oninput="limitarOT(this)" onblur="actualizarOrdenes()"></div>
-      <div class="ot-wrap"><span class="ot-lbl">OT4</span><input class="ot-input" type="number" id="OT4" placeholder="000000" oninput="limitarOT(this)" onblur="actualizarOrdenes()"></div>
-      <div class="ot-wrap"><span class="ot-lbl">OT5</span><input class="ot-input" type="number" id="OT5" placeholder="000000" oninput="limitarOT(this)" onblur="actualizarOrdenes()"></div>
-      <div class="ot-wrap"><span class="ot-lbl">OT6</span><input class="ot-input" type="number" id="OT6" placeholder="000000" oninput="limitarOT(this)" onblur="actualizarOrdenes()"></div>
+    <div class="card-label">
+      Órdenes de Trabajo
+      <span style="font-weight:400;color:#999;font-size:10px;text-transform:none;letter-spacing:0">(exactamente 6 dígitos)</span>
     </div>
+    <div class="ot-list" id="ot-list"></div>
+    <button class="btn-add-ot" onclick="agregarOT()">＋ Agregar Orden de Trabajo</button>
   </div>
 
+  <!-- ACTIVIDADES -->
   <div class="card">
     <div class="card-label">Actividades</div>
     <div id="act-container" style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px"></div>
@@ -166,7 +177,11 @@ const MINUTOS = ["00","05","10","15","20","25","30","35","40","45","50","55"];
 let H_ACTIVIDADES = [];
 let H_COMPONENTES = [];
 
-let actIds=[], nextActId=1, ColOrdenes=[], userActual=null;
+// OT state
+let otIds = [], nextOtId = 1;
+// Actividad state
+let actIds = [], nextActId = 1;
+let ColOrdenes = [], userActual = null;
 
 window.onload = async () => {
   userActual = getSession();
@@ -174,6 +189,8 @@ window.onload = async () => {
   document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre}`;
   document.getElementById('fecha').value = isoHoy();
   await Promise.all([cargarActividades(), cargarComponentes()]);
+  // Start with one OT field
+  agregarOT();
 };
 
 const SB_URL_G = 'https://rzcfrjgwxhgwslwvtbbe.supabase.co';
@@ -204,50 +221,110 @@ async function cargarComponentes() {
 function salir() {
   const rol = (userActual?.rol||'').toUpperCase();
   if (rol==='SUPERVISOR') { window.location.href='menu_supervisor.html'; }
+  else if (rol==='CCT') { window.location.href='menu_cct.html'; }
   else { clearSession(); window.location.href='index.html'; }
 }
 
+// ── FECHA CHANGE ──
+function onFechaChange() {
+  const turno = document.getElementById('turno').value;
+  const fecha = document.getElementById('fecha').value;
+  if (turno && fecha) validarDuplicado(turno, fecha);
+}
+
+// ── TURNO CHANGE ──
 async function onTurnoChange(){
-  const t=document.getElementById('turno').value;
-  if(!t) return;
-  const fecha=(t==='Nocturno')?isoAyer():isoHoy();
-  document.getElementById('fecha').value=fecha;
-  if(actIds.length>0){notify('Turno cambiado — se reiniciaron las actividades','warning');limpiarActividades();}
+  const t = document.getElementById('turno').value;
+  const fecha = document.getElementById('fecha').value;
+  if (!t) return;
+  if (actIds.length > 0) { notify('Turno cambiado — se reiniciaron las actividades','warning'); limpiarActividades(); }
   actualizarReloj(0);
-  // Validar si ya existe un registro para este colaborador, fecha y turno
-  await validarDuplicado(t, fecha);
+  if (fecha) await validarDuplicado(t, fecha);
 }
 
 async function validarDuplicado(turno, fecha) {
-  if(!turno || !fecha || !userActual) return;
-  const sel=document.getElementById('turno');
+  if (!turno || !fecha || !userActual) return;
+  const sel = document.getElementById('turno');
   try {
-    const SUPA_URL_G='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
-    const SUPA_KEY_G='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
-    const url=`${SUPA_URL_G}/rest/v1/reportes_mo?Fecha_Reporte=eq.${fecha}&Turno=eq.${encodeURIComponent(turno)}&codigo_operario=eq.${encodeURIComponent(userActual.codigo)}&select=Fecha_Reporte`;
-    const res=await fetch(url,{headers:{apikey:SUPA_KEY_G,Authorization:`Bearer ${SUPA_KEY_G}`}});
-    const data=await res.json();
-    if(data && data.length>0){
-      // Bloquear el formulario
-      sel.style.borderColor='var(--rojo)';
-      sel.style.background='#fff5f5';
+    const url = `${SB_URL_G}/rest/v1/reportes_mo?Fecha_Reporte=eq.${fecha}&Turno=eq.${encodeURIComponent(turno)}&codigo_operario=eq.${encodeURIComponent(userActual.codigo)}&select=Fecha_Reporte`;
+    const res = await fetch(url,{headers:{apikey:SB_KEY_G,Authorization:`Bearer ${SB_KEY_G}`}});
+    const data = await res.json();
+    if (data && data.length > 0) {
+      sel.style.borderColor='var(--rojo)'; sel.style.background='#fff5f5';
       document.getElementById('btn-agregar').disabled=true;
       document.getElementById('btn-guardar').disabled=true;
       notify(`⛔ Ya tienes un registro grabado para el turno ${turno} del ${fecha}. Informa a tu supervisor.`,'error');
     } else {
-      // Limpiar bloqueo si antes estaba bloqueado
-      sel.style.borderColor='';
-      sel.style.background='';
+      sel.style.borderColor=''; sel.style.background='';
       document.getElementById('btn-agregar').disabled=false;
       document.getElementById('btn-guardar').disabled=false;
     }
   } catch(e){ console.warn('validarDuplicado:', e.message); }
 }
 
-function limitarOT(el){let v=el.value.replace(/\D/g,'');if(v.length>6)v=v.slice(0,6);el.value=v;el.classList.remove('valido','invalido');if(!v)return;v.length===6?el.classList.add('valido'):el.classList.add('invalido');}
-function actualizarOrdenes(){ColOrdenes=[];for(let i=1;i<=6;i++){const v=document.getElementById('OT'+i).value.trim();if(v.length===6)ColOrdenes.push({Valor:v});}actIds.forEach(id=>{const s=document.getElementById('act-ot-'+id);if(s)poblarOTSelect(s);});}
-function poblarOTSelect(sel){const cur=sel.value;sel.innerHTML='<option value="">— Elegir Orden —</option>';ColOrdenes.forEach(o=>{const opt=document.createElement('option');opt.value=o.Valor;opt.textContent=o.Valor;if(o.Valor===cur)opt.selected=true;sel.appendChild(opt);});}
+// ── ÓRDENES DE TRABAJO DINÁMICAS ──
+function agregarOT() {
+  const id = nextOtId++;
+  otIds.push(id);
+  const list = document.getElementById('ot-list');
+  const row = document.createElement('div');
+  row.className = 'ot-row';
+  row.id = `ot-row-${id}`;
+  row.innerHTML = `
+    <span class="ot-badge" id="ot-badge-${id}">OT ${otIds.length}</span>
+    <input class="ot-input" type="number" id="ot-${id}" placeholder="000000"
+      oninput="limitarOT(this,${id})" onblur="actualizarOrdenes()">
+    <button class="btn-del-ot" onclick="eliminarOT(${id})" title="Quitar OT">✕</button>`;
+  list.appendChild(row);
+  document.getElementById(`ot-${id}`).focus();
+}
 
+function eliminarOT(id) {
+  if (otIds.length <= 1) { notify('Debe quedar al menos una Orden de Trabajo','warning'); return; }
+  document.getElementById(`ot-row-${id}`)?.remove();
+  otIds = otIds.filter(x => x !== id);
+  // Re-number badges
+  otIds.forEach((oid, i) => {
+    const b = document.getElementById(`ot-badge-${oid}`);
+    if (b) b.textContent = `OT ${i+1}`;
+  });
+  actualizarOrdenes();
+}
+
+function limitarOT(el, id) {
+  let v = el.value.replace(/\D/g,'');
+  if (v.length > 6) v = v.slice(0,6);
+  el.value = v;
+  el.classList.remove('valido','invalido');
+  if (!v) return;
+  v.length === 6 ? el.classList.add('valido') : el.classList.add('invalido');
+}
+
+function actualizarOrdenes() {
+  ColOrdenes = [];
+  otIds.forEach(id => {
+    const v = document.getElementById(`ot-${id}`)?.value.trim();
+    if (v && v.length === 6) ColOrdenes.push({ Valor: v });
+  });
+  // Update OT selects in activities
+  actIds.forEach(id => {
+    const s = document.getElementById('act-ot-'+id);
+    if (s) poblarOTSelect(s);
+  });
+}
+
+function poblarOTSelect(sel) {
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Elegir Orden —</option>';
+  ColOrdenes.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.Valor; opt.textContent = o.Valor;
+    if (o.Valor === cur) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+// ── ACTIVIDADES ──
 function peso(h,t){const n=parseInt(h);return(t==='Nocturno'&&n<=7)?n+24:n;}
 function horasDesde(hMin,t){const c=TURNO_CFG[t];if(!c)return[];return c.horas.filter(h=>peso(h,t)>=peso(hMin,t));}
 function buildOpts(arr,sel){return arr.map(v=>`<option value="${v}"${v===sel?' selected':''}>${v}</option>`).join('');}
@@ -287,7 +364,7 @@ function agregarActividad(){
       <div><label class="field-label">Orden de Trabajo</label><select id="act-ot-${id}" onchange="onSelectChange('act-ot-${id}')"><option value="">— Elegir Orden —</option>${oO}</select></div>
       <div class="row-2">
         <div><label class="field-label">Actividad</label>
-          <div class="ss-wrap" id="ss-act-wrap-${id}">
+          <div class="ss-wrap">
             <input class="ss-input" id="act-act-${id}" type="text" placeholder="Buscar actividad…" autocomplete="off"
               oninput="ssFilter('act-act-${id}','ss-act-dd-${id}',H_ACTIVIDADES)"
               onfocus="ssOpen('act-act-${id}','ss-act-dd-${id}',H_ACTIVIDADES)"
@@ -298,7 +375,7 @@ function agregarActividad(){
           </div>
         </div>
         <div><label class="field-label">Componente</label>
-          <div class="ss-wrap" id="ss-com-wrap-${id}">
+          <div class="ss-wrap">
             <input class="ss-input" id="act-com-${id}" type="text" placeholder="Buscar componente…" autocomplete="off"
               oninput="ssFilter('act-com-${id}','ss-com-dd-${id}',H_COMPONENTES)"
               onfocus="ssOpen('act-com-${id}','ss-com-dd-${id}',H_COMPONENTES)"
@@ -321,6 +398,7 @@ function agregarActividad(){
   onHoraFinChange(id);
   document.getElementById('btn-agregar').disabled=actIds.length>=10;
 }
+
 function eliminarActividad(id){if(actIds[actIds.length-1]!==id){notify('Solo puedes eliminar la última actividad','warning');return;}const el=document.getElementById('act-'+id);el.style.opacity='0';el.style.transform='translateX(30px)';el.style.transition='all 0.2s';setTimeout(()=>{el.remove();actIds.pop();renumerarBadges();calcularTotal();document.getElementById('btn-agregar').disabled=false;},200);}
 function renumerarBadges(){actIds.forEach((id,i)=>{const b=document.querySelector(`#act-${id} .act-num`);if(b)b.textContent=`ACT #${i+1}`;});}
 function limpiarActividades(){actIds.forEach(id=>{const el=document.getElementById('act-'+id);if(el)el.remove();});actIds=[];nextActId=1;calcularTotal();document.getElementById('btn-agregar').disabled=false;}
@@ -333,17 +411,30 @@ function calcularTotal(){let t=0;actIds.forEach(id=>t+=getMinsAct(id));actualiza
 
 function construirTimestamp(fecha,h,m,turno){const hh=parseInt(h),mm=parseInt(m);let f=fecha;if(turno==='Nocturno'&&hh<8){const d=new Date(fecha+'T00:00:00');d.setDate(d.getDate()+1);f=d.toISOString().split('T')[0];}return `${f}T${pad(hh)}:${pad(mm)}:00`;}
 
+// ── GUARDAR ──
 async function guardar(){
   const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
   if(!turno){notify('Selecciona el Turno','error');return;}
+  if(!fecha){notify('Selecciona la Fecha del reporte','error');return;}
   if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
-  for(let i=1;i<=6;i++){const v=document.getElementById('OT'+i).value.trim();if(v&&v.length!==6){notify('Hay órdenes con número de dígitos incorrecto','error');return;}}
+
+  // Validar OTs
+  let otValidas = 0;
+  for (const id of otIds) {
+    const v = document.getElementById(`ot-${id}`)?.value.trim();
+    if (v && v.length !== 6) { notify('Hay órdenes con número de dígitos incorrecto','error'); return; }
+    if (v && v.length === 6) otValidas++;
+  }
+  if (otValidas === 0) { notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error'); return; }
+
   for(const id of actIds){const f=validarActividadCompleta(id);if(f){notify(`Actividad #${actIds.indexOf(id)+1}: debes llenar "${f}"`,'error');document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});return;}}
   const cfg=TURNO_CFG[turno];
   if(cfg&&cfg.limite>0){let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}if(tot<cfg.limite){notify('Ingresaste menos horas de las debidas','warning');return;}}
+
   const fila={'Fecha_Reporte':fecha,'Turno':turno,'codigo_operario':userActual?.codigo||null};
   for(let i=1;i<=10;i++){fila[`OT${i}`]=null;fila[`A${i}`]=null;fila[`FI${i}`]=null;fila[`FF${i}`]=null;fila[`H${i}`]=null;fila[`C${i}`]=null;}
   actIds.forEach((id,idx)=>{const n=idx+1;fila[`OT${n}`]=parseInt(document.getElementById('act-ot-'+id).value);fila[`A${n}`]=document.getElementById('act-act-'+id).value;fila[`FI${n}`]=construirTimestamp(fecha,document.getElementById('act-ki-'+id).value,document.getElementById('act-li-'+id).value,turno);fila[`FF${n}`]=construirTimestamp(fecha,document.getElementById('act-kf-'+id).value,document.getElementById('act-lf-'+id).value,turno);fila[`H${n}`]=parseFloat((getMinsAct(id)/60).toFixed(2));fila[`C${n}`]=document.getElementById('act-com-'+id).value;});
+
   document.getElementById('saving-overlay').classList.add('show');
   document.getElementById('btn-guardar').disabled=true;
   try{
@@ -358,112 +449,57 @@ async function guardar(){
       resetForm();
       const rol=(userActual?.rol||'').toUpperCase();
       if(rol==='SUPERVISOR'){window.location.href='menu_supervisor.html';}
+      else if(rol==='CCT'){window.location.href='menu_cct.html';}
     },3500);
   }catch(err){document.getElementById('saving-overlay').classList.remove('show');document.getElementById('btn-guardar').disabled=false;console.error(err);notify(`Error al guardar: ${err.message}`,'error');}
 }
 
 function resetForm(){
   const sel=document.getElementById('turno');
-  sel.value=''; sel.style.borderColor=''; sel.style.background='';document.getElementById('fecha').value=isoHoy();
-  for(let i=1;i<=6;i++){const el=document.getElementById('OT'+i);el.value='';el.classList.remove('valido','invalido');}
-  ColOrdenes=[];limpiarActividades();document.getElementById('topbar-reloj').style.display='none';document.getElementById('btn-guardar').disabled=false;
+  sel.value=''; sel.style.borderColor=''; sel.style.background='';
+  document.getElementById('fecha').value=isoHoy();
+  // Clear OTs
+  document.getElementById('ot-list').innerHTML='';
+  otIds=[]; nextOtId=1;
+  ColOrdenes=[];
+  limpiarActividades();
+  document.getElementById('topbar-reloj').style.display='none';
+  document.getElementById('btn-guardar').disabled=false;
+  agregarOT();
 }
-
 
 /* ══ SEARCHABLE SELECT ══ */
 function ssRender(ddId, items, query) {
-  const dd = document.getElementById(ddId);
-  if (!dd) return;
+  const dd = document.getElementById(ddId); if (!dd) return;
   const q = (query||'').toLowerCase().trim();
   const filtered = q ? items.filter(i=>i.toLowerCase().includes(q)) : items;
-  if (!filtered.length) {
-    dd.innerHTML = '<div class="ss-empty">Sin resultados</div>';
-  } else {
-    dd.innerHTML = filtered.slice(0,40).map((item,idx) => {
-      let label = item;
-      if (q) {
-        const pos = item.toLowerCase().indexOf(q);
-        if (pos>=0) label = item.slice(0,pos)
-          + `<span class="ss-match">${item.slice(pos,pos+q.length)}</span>`
-          + item.slice(pos+q.length);
-      }
-      return `<div class="ss-option" data-val="${item}" data-idx="${idx}"
-        onmousedown="ssSelect('${ddId}',this)">${label}</div>`;
-    }).join('');
-  }
+  if (!filtered.length) { dd.innerHTML = '<div class="ss-empty">Sin resultados</div>'; return; }
+  dd.innerHTML = filtered.slice(0,40).map((item,idx) => {
+    let label = item;
+    if (q) { const pos=item.toLowerCase().indexOf(q); if(pos>=0) label=item.slice(0,pos)+`<span class="ss-match">${item.slice(pos,pos+q.length)}</span>`+item.slice(pos+q.length); }
+    return `<div class="ss-option" data-val="${item}" data-idx="${idx}" onmousedown="ssSelect('${ddId}',this)">${label}</div>`;
+  }).join('');
 }
-
-function ssOpen(inputId, ddId, items) {
-  const inp = document.getElementById(inputId);
-  const dd  = document.getElementById(ddId);
-  if (!inp||!dd) return;
-  ssRender(ddId, items, inp.value);
-  dd.classList.add('open');
-}
-
-function ssFilter(inputId, ddId, items) {
-  const inp = document.getElementById(inputId);
-  ssRender(ddId, items, inp ? inp.value : '');
-  document.getElementById(ddId)?.classList.add('open');
-  // Clear error style when typing
-  inp?.classList.remove('campo-error');
-}
-
-function ssBlur(ddId) {
-  // Small delay so mousedown fires first
-  setTimeout(()=>document.getElementById(ddId)?.classList.remove('open'), 180);
-}
-
+function ssOpen(inputId, ddId, items) { const inp=document.getElementById(inputId),dd=document.getElementById(ddId); if(!inp||!dd)return; ssRender(ddId,items,inp.value); dd.classList.add('open'); }
+function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); }
+function ssBlur(ddId) { setTimeout(()=>document.getElementById(ddId)?.classList.remove('open'),180); }
 function ssSelect(ddId, optEl) {
-  const val = optEl.dataset.val;
-  // Find the input by looking at the dropdown's sibling
-  const dd  = document.getElementById(ddId);
-  if (!dd) return;
-  // ddId format: ss-act-dd-{id} or ss-com-dd-{id}
-  // corresponding input: act-act-{id} or act-com-{id}
-  const inputId = ddId.replace('ss-act-dd-','act-act-').replace('ss-com-dd-','act-com-');
-  const inp = document.getElementById(inputId);
-  if (inp) { inp.value = val; inp.classList.remove('campo-error'); }
+  const val=optEl.dataset.val, dd=document.getElementById(ddId); if(!dd) return;
+  const inputId=ddId.replace('ss-act-dd-','act-act-').replace('ss-com-dd-','act-com-');
+  const inp=document.getElementById(inputId); if(inp){inp.value=val;inp.classList.remove('campo-error');}
   dd.classList.remove('open');
 }
-
 function ssKey(event, inputId, ddId, items) {
-  const dd = document.getElementById(ddId);
-  if (!dd) return;
-  const opts = dd.querySelectorAll('.ss-option');
-  let cur = dd.querySelector('.ss-option.active');
-  let idx = cur ? parseInt(cur.dataset.idx) : -1;
-  if (event.key==='ArrowDown') {
-    event.preventDefault();
-    if (cur) cur.classList.remove('active');
-    idx = Math.min(idx+1, opts.length-1);
-    opts[idx]?.classList.add('active');
-    opts[idx]?.scrollIntoView({block:'nearest'});
-  } else if (event.key==='ArrowUp') {
-    event.preventDefault();
-    if (cur) cur.classList.remove('active');
-    idx = Math.max(idx-1, 0);
-    opts[idx]?.classList.add('active');
-    opts[idx]?.scrollIntoView({block:'nearest'});
-  } else if (event.key==='Enter') {
-    event.preventDefault();
-    if (cur) { ssSelect(ddId, cur); }
-    else if (opts.length===1) { ssSelect(ddId, opts[0]); }
-  } else if (event.key==='Escape') {
-    dd.classList.remove('open');
-  }
+  const dd=document.getElementById(ddId); if(!dd) return;
+  const opts=dd.querySelectorAll('.ss-option'); let cur=dd.querySelector('.ss-option.active'),idx=cur?parseInt(cur.dataset.idx):-1;
+  if(event.key==='ArrowDown'){event.preventDefault();if(cur)cur.classList.remove('active');idx=Math.min(idx+1,opts.length-1);opts[idx]?.classList.add('active');opts[idx]?.scrollIntoView({block:'nearest'});}
+  else if(event.key==='ArrowUp'){event.preventDefault();if(cur)cur.classList.remove('active');idx=Math.max(idx-1,0);opts[idx]?.classList.add('active');opts[idx]?.scrollIntoView({block:'nearest'});}
+  else if(event.key==='Enter'){event.preventDefault();if(cur)ssSelect(ddId,cur);else if(opts.length===1)ssSelect(ddId,opts[0]);}
+  else if(event.key==='Escape'){dd.classList.remove('open');}
 }
+
 let nTO;
-function notify(msg,type='info'){
-  const el=document.getElementById('notif');
-  el.textContent=msg;
-  // Reset animation by removing and re-adding show class
-  el.className='notif '+type;
-  void el.offsetWidth; // force reflow
-  el.classList.add('show');
-  clearTimeout(nTO);
-  nTO=setTimeout(()=>el.classList.remove('show'),5000);
-}
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
 </script>
 </body>
 </html>
