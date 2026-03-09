@@ -53,6 +53,10 @@
   .ot-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,0.12)}
   .ot-input.valido{border-color:var(--azul);background:#f0f7ff}
   .ot-input.invalido{border-color:var(--rojo)}
+  /* OT de CC — fija, en rojo */
+  .ot-badge-cc{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#c53030;background:#fff5f5;border:1px solid #fca5a5;border-radius:20px;padding:3px 9px;white-space:nowrap;flex-shrink:0}
+  .ot-input-cc{flex:1;padding:10px 12px;border:1.5px solid #fca5a5;border-radius:8px;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#c53030;background:#fff5f5;outline:none;cursor:default;pointer-events:none}
+  .ot-cc-lock{width:34px;height:34px;display:flex;align-items:center;justify-content:center;color:#fca5a5;font-size:16px;flex-shrink:0}
   .btn-del-ot{background:none;border:1.5px solid #fed7d7;border-radius:7px;color:#fc8181;cursor:pointer;font-size:14px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;padding:0}
   .btn-del-ot:hover{background:#fff5f5;border-color:var(--rojo);color:var(--rojo)}
   .btn-add-ot{display:flex;align-items:center;gap:8px;background:var(--azul-bg);border:2px dashed var(--azul-claro);border-radius:10px;padding:10px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--azul);transition:all 0.2s;width:100%}
@@ -188,10 +192,30 @@ window.onload = async () => {
   if (!userActual) { window.location.href='index.html'; return; }
   document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre}`;
   document.getElementById('fecha').value = isoHoy();
-  await Promise.all([cargarActividades(), cargarComponentes()]);
+  await Promise.all([cargarActividades(), cargarComponentes(), cargarCC()]);
   // Start with one OT field
   agregarOT();
 };
+
+async function cargarCC() {
+  try {
+    const data = await sbGet(`Colaboradores?select=CC&codigo=eq.${encodeURIComponent(String(userActual.codigo))}&limit=1`);
+    const cc = data && data[0] && data[0].CC ? String(data[0].CC) : null;
+    if (!cc) return;
+    userActual._CC = cc;
+    const list = document.getElementById('ot-list');
+    const row = document.createElement('div');
+    row.className = 'ot-row';
+    row.id = 'ot-row-cc';
+    row.innerHTML = `
+      <span class="ot-badge-cc">CC</span>
+      <input class="ot-input-cc" type="text" value="${cc}" readonly>
+      <span class="ot-cc-lock" title="OT de Centro de Costo — no editable">🔒</span>`;
+    list.insertBefore(row, list.firstChild);
+    ColOrdenes.unshift({ Valor: cc, esCC: true });
+    actIds.forEach(id => { const s = document.getElementById('act-ot-'+id); if (s) poblarOTSelect(s); });
+  } catch(e) { console.warn('CC:', e.message); }
+}
 
 const SB_URL_G = 'https://rzcfrjgwxhgwslwvtbbe.supabase.co';
 const SB_KEY_G = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
@@ -301,12 +325,13 @@ function limitarOT(el, id) {
 }
 
 function actualizarOrdenes() {
+  const ccEntry = ColOrdenes.find(o => o.esCC);
   ColOrdenes = [];
+  if (ccEntry) ColOrdenes.push(ccEntry);
   otIds.forEach(id => {
     const v = document.getElementById(`ot-${id}`)?.value.trim();
     if (v && v.length === 6) ColOrdenes.push({ Valor: v });
   });
-  // Update OT selects in activities
   actIds.forEach(id => {
     const s = document.getElementById('act-ot-'+id);
     if (s) poblarOTSelect(s);
@@ -318,7 +343,9 @@ function poblarOTSelect(sel) {
   sel.innerHTML = '<option value="">— Elegir Orden —</option>';
   ColOrdenes.forEach(o => {
     const opt = document.createElement('option');
-    opt.value = o.Valor; opt.textContent = o.Valor;
+    opt.value = o.Valor;
+    opt.textContent = o.esCC ? `${o.Valor} (CC)` : o.Valor;
+    if (o.esCC) opt.style.color = '#c53030';
     if (o.Valor === cur) opt.selected = true;
     sel.appendChild(opt);
   });
@@ -428,6 +455,14 @@ async function guardar(){
   if (otValidas === 0) { notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error'); return; }
 
   for(const id of actIds){const f=validarActividadCompleta(id);if(f){notify(`Actividad #${actIds.indexOf(id)+1}: debes llenar "${f}"`,'error');document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});return;}}
+  // Validar que exista una actividad de ALIMENTACION con componente ALIMENTACION y exactamente 1 hora
+  const actAlim = actIds.find(id => {
+    const act = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+    const com = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+    const mins = getMinsAct(id);
+    return act === 'ALIMENTACION' && com === 'ALIMENTACION' && mins === 60;
+  });
+  if(!actAlim){ notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error'); return; }
   const cfg=TURNO_CFG[turno];
   if(cfg&&cfg.limite>0){let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}if(tot<cfg.limite){notify('Ingresaste menos horas de las debidas','warning');return;}}
 
@@ -466,6 +501,7 @@ function resetForm(){
   document.getElementById('topbar-reloj').style.display='none';
   document.getElementById('btn-guardar').disabled=false;
   agregarOT();
+  cargarCC();
 }
 
 /* ══ SEARCHABLE SELECT ══ */
