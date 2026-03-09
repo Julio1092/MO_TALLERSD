@@ -238,9 +238,12 @@ let todos=[],filtrados=[],colabs={};
 let cMec=null,cTurno=null,cAct=null;
 let pag=1;const PPG=15;
 let sCol='fecha',sDir=-1;
+let mecPermitidos=null; // null = sin restricción (JEFE), Set = solo estos códigos
+let userActual=null;
 
 window.onload=async()=>{
   const u=getSession();if(!u){window.location.href='index.html';return;}
+  userActual=u;
   document.getElementById('tb-user').textContent=u.nombre;
   const hoy=new Date(),d7=new Date();d7.setDate(hoy.getDate()-7);
   document.getElementById('f-desde').value=d7.toISOString().slice(0,10);
@@ -250,9 +253,15 @@ window.onload=async()=>{
 
 async function cargarColabs(){
   try{
-    const data=await sbGet('Colaboradores?select=codigo,nombre&order=nombre.asc');
+    const rol=(userActual?.rol||'').toUpperCase();
+    const esJefe=rol==='JEFE';
+    const query=esJefe
+      ?'Colaboradores?select=codigo,nombre&rol=eq.MECANICO&order=nombre.asc'
+      :`Colaboradores?select=codigo,nombre&rol=eq.MECANICO&Jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
+    const data=await sbGet(query);
     const sel=document.getElementById('f-mec');sel.innerHTML='<option value="">— Todos —</option>';
     (data||[]).forEach(c=>{colabs[String(c.codigo)]=c.nombre;const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o);});
+    mecPermitidos=esJefe?null:new Set((data||[]).map(c=>String(c.codigo)));
   }catch(e){console.warn('colabs:',e.message);}
 }
 
@@ -265,7 +274,11 @@ async function buscar(){
   if(desde)p.push(`Fecha_Reporte=gte.${desde}`);
   if(hasta)p.push(`Fecha_Reporte=lte.${hasta}`);
   if(turno)p.push(`Turno=eq.${encodeURIComponent(turno)}`);
-  if(mec)p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
+  if(mec){
+    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
+  } else if(mecPermitidos&&mecPermitidos.size>0){
+    p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
+  }
   // Mostrar solo pendientes (sup_autoriza no es true aún)
   p.push('sup_autoriza=not.is.true');
   p.push('order=Fecha_Reporte.desc');

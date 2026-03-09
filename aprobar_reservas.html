@@ -141,12 +141,15 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 async function sbGet(p){ const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
 
 let colabs={}, grupos={};
+let mecPermitidos=null; // null = sin restricción (JEFE), Set = solo estos códigos
+let userActual=null;
 // grupos = { gid: { key, fecha, ot, cod, nombre, lineas:[{id, ...row}] } }
 
 window.onload = async () => {
   const u = getSession();
   if (!u) { window.location.href='index.html'; return; }
-  if ((u.rol||'').toUpperCase()!=='SUPERVISOR') { window.location.href='menu_mecanico.html'; return; }
+  if ((u.rol||'').toUpperCase()!=='SUPERVISOR'&&(u.rol||'').toUpperCase()!=='JEFE') { window.location.href='menu_mecanico.html'; return; }
+  userActual=u;
   document.getElementById('tb-user').textContent = u.nombre;
   const hoy=new Date(), d7=new Date(); d7.setDate(hoy.getDate()-7);
   document.getElementById('f-desde').value = d7.toISOString().slice(0,10);
@@ -156,9 +159,15 @@ window.onload = async () => {
 
 async function cargarColabs() {
   try {
-    const data = await sbGet('Colaboradores?select=codigo,nombre&order=nombre.asc');
+    const rol=(userActual?.rol||'').toUpperCase();
+    const esJefe=rol==='JEFE';
+    const query=esJefe
+      ?'Colaboradores?select=codigo,nombre&rol=eq.MECANICO&order=nombre.asc'
+      :`Colaboradores?select=codigo,nombre&rol=eq.MECANICO&Jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
+    const data = await sbGet(query);
     const sel = document.getElementById('f-mec');
     (data||[]).forEach(c=>{ colabs[String(c.codigo)]=c.nombre; const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o); });
+    mecPermitidos=esJefe?null:new Set((data||[]).map(c=>String(c.codigo)));
   } catch(e){ console.warn('colabs',e.message); }
 }
 
@@ -170,7 +179,11 @@ async function buscar() {
   const p = ['select=*','sup_aprueba=not.is.true'];
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
-  if (mec)    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
+  if (mec){
+    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
+  } else if(mecPermitidos&&mecPermitidos.size>0){
+    p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
+  }
   p.push('order=fecha_reserva.desc,ot.asc,id.asc');
 
   setLoad(true);
