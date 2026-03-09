@@ -149,7 +149,15 @@ window.onload=async()=>{
 
 async function cargarArticulos(){
   try{
-    articulos=await sbGet('Articulos_SAP?select=ArticuloSAP,Descripcion,UM&order=Descripcion.asc');
+    // Paginación automática — trae TODOS sin importar cuántos haya
+    const LIMIT=1000;
+    let offset=0, resultado=[], pagina=[];
+    do {
+      pagina=await sbGet(`Articulos_SAP?select=ArticuloSAP,Descripcion,UM&order=Descripcion.asc&limit=${LIMIT}&offset=${offset}`);
+      if(pagina&&pagina.length) resultado=resultado.concat(pagina);
+      offset+=LIMIT;
+    } while(pagina&&pagina.length===LIMIT);
+    articulos=resultado;
   }catch(e){console.warn('SAP:',e.message);notify('No se pudieron cargar los artículos','warning');}
 }
 
