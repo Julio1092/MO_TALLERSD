@@ -10,23 +10,18 @@
 :root{--bg:#f0f4fb;--bg2:#fff;--bg3:#f8fafc;--border:#e2e8f0;--bord2:#bac8e2;--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--verde:#2e9e4f;--nrj:#c05621;--rojo:#c53030;--txt:#1a202c;--txt2:#2d3748;--txt3:#718096;--shadow:0 2px 12px rgba(56,96,178,0.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
-
 .topbar{position:sticky;top:0;z-index:200;background:var(--azul-d);display:flex;align-items:center;gap:12px;padding:0 24px;height:58px;box-shadow:0 2px 12px rgba(0,18,107,0.22)}
 .tb-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
 .tb-back:hover{background:rgba(255,255,255,0.22)}
 .tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
 .tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
-
 .page{padding:24px;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
 .page-title{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--azul-d)}
 .page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
-
 .card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
 .card-hdr{padding:13px 20px;border-bottom:1.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between}
 .card-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);display:flex;align-items:center;gap:7px}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-/* FILTROS */
 .f-grid{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .f-grp{display:flex;flex-direction:column;gap:5px}
 .f-lbl{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px}
@@ -37,8 +32,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .btn-b:hover{background:var(--azul-d);transform:translateY(-1px)} .btn-b:disabled{opacity:.6;transform:none;cursor:wait}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* KPIs */
 .kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .kpi{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);animation:fadeUp .4s ease both;position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
@@ -47,8 +40,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .kpi.a .kpi-val{color:var(--azul)} .kpi.v .kpi-val{color:var(--verde)} .kpi.n .kpi-val{color:var(--nrj)}
 .kpi-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* GRUPOS POR OT */
 .grupos{padding:16px 20px;display:flex;flex-direction:column;gap:16px}
 .grupo{border:1.5px solid var(--border);border-radius:14px;overflow:hidden}
 .grupo-hdr{background:var(--bg3);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1.5px solid var(--border)}
@@ -57,39 +48,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .grupo-mec{font-size:13px;font-weight:600;color:var(--txt2)}
 .grupo-meta{font-size:12px;color:var(--txt3)}
 .badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-family:'Space Mono',monospace}
-.badge.Diurno,.badge.diurno{background:#fef3c7;color:#92400e;border:1px solid#fcd34d}
-.badge.Nocturno{background:#ede9fe;color:#4c1d95;border:1px solid#c4b5fd}
-.badge.Mantenimiento{background:#d1fae5;color:#064e3b;border:1px solid#6ee7b7}
-.badge.Extraordinario{background:#fee2e2;color:#7f1d1d;border:1px solid#fca5a5}
-
 .btn-aprobar{background:var(--verde);color:white;border:none;border-radius:9px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;box-shadow:0 2px 8px rgba(46,158,79,.25);white-space:nowrap}
 .btn-aprobar:hover{background:#276040;transform:translateY(-1px)} .btn-aprobar:disabled{opacity:.5;cursor:wait;transform:none}
 .btn-aprobar.done{background:#e2f8ea;color:#276040;border:1.5px solid #9ae6b4;cursor:default;box-shadow:none}
 .btn-rechazar-todo{background:#fff0f0;color:var(--rojo);border:1.5px solid #fca5a5;border-radius:9px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap}
 .btn-rechazar-todo:hover{background:var(--rojo);color:white;border-color:var(--rojo);transform:translateY(-1px)}
 .btn-rechazar-todo:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-/* LINES TABLE */
 .lineas-tbl{width:100%;border-collapse:collapse}
-.lineas-tbl th{padding:8px 16px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);background:var(--bg3);border-bottom:1.5px solid var(--border)}
-.lineas-tbl td{padding:10px 16px;font-size:13px;color:var(--txt2);border-bottom:1px solid var(--border)}
-.lineas-tbl tr:last-child td{border-bottom:none}
-.lineas-tbl tr:hover td{background:var(--azul-bg)}
-.td-cod{font-family:'Space Mono',monospace;font-size:12px;color:var(--txt3)}
-.td-qty{font-family:'Space Mono',monospace;font-weight:700;color:var(--azul)}
-.td-um{font-family:'Space Mono',monospace;font-size:12px;color:var(--txt3)}
-
-/* EMPTY */
-.estado{padding:56px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
-.e-ico{font-size:48px;opacity:.35}
-.e-txt{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--txt3)}
-.e-sub{font-size:13px;color:var(--txt3);opacity:.7}
-
-.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.22)}
-.notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
-
-
-/* LINEA EDITABLE */
 .lineas-tbl th{padding:8px 12px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);background:var(--bg3);border-bottom:1.5px solid var(--border)}
 .lineas-tbl td{padding:8px 12px;font-size:13px;color:var(--txt2);border-bottom:1px solid var(--border);vertical-align:middle}
 .lineas-tbl tr:last-child td{border-bottom:none}
@@ -97,24 +62,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .td-um{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
 .td-qty-orig{font-family:'Space Mono',monospace;font-weight:700;color:var(--txt3);font-size:12px;white-space:nowrap}
 .qty-arrow{font-size:13px;color:#aaa}
-
-/* CANTIDAD EDITABLE */
 .qty-edit{width:80px;padding:6px 8px;border:1.5px solid var(--bord2);border-radius:7px;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:var(--azul-d);text-align:center;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield}
 .qty-edit::-webkit-outer-spin-button,.qty-edit::-webkit-inner-spin-button{-webkit-appearance:none}
 .qty-edit:focus{border-color:var(--azul);box-shadow:0 0 0 2px rgba(56,96,178,.12)}
 .qty-edit.modified{border-color:var(--nrj);background:#fff8f0}
-
-/* TOGGLE APROBADO/RECHAZADO */
 .toggle-wrap{display:flex;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);width:fit-content}
 .toggle-btn{padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;background:#f8fafc;color:var(--txt3)}
 .toggle-btn.apr.active{background:#d1fae5;color:#065f46;border-right:1.5px solid #6ee7b7}
 .toggle-btn.rec.active{background:#fee2e2;color:#7f1d1d}
 .toggle-btn:not(.active):hover{background:#f0f0f0}
-
-/* ROW RECHAZADO */
 .linea-rechazada td{opacity:.45;background:#fff5f5}
 .linea-rechazada .qty-edit{opacity:.4;pointer-events:none}
-
+.estado{padding:56px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:48px;opacity:.35}.e-txt{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--txt3)}.e-sub{font-size:13px;color:var(--txt3);opacity:.7}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.22)}
+.notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
 @media(max-width:700px){.f-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.f-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:1fr}}
 </style>
@@ -133,12 +95,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
     <div class="page-sub">Revisa y aprueba las solicitudes pendientes de los mecánicos</div>
   </div>
 
-  <!-- FILTROS -->
   <div class="card">
     <div class="card-hdr"><div class="card-ttl"><span class="dot" style="background:var(--azul)"></span> Filtros</div></div>
     <div class="f-grid">
       <div class="f-grp"><label class="f-lbl">Fecha Desde</label><input type="date" id="f-desde" class="f-inp"></div>
-      <div class="f-grp"><label class="f-lbl">Fecha Hasta</label> <input type="date" id="f-hasta" class="f-inp"></div>
+      <div class="f-grp"><label class="f-lbl">Fecha Hasta</label><input type="date" id="f-hasta" class="f-inp"></div>
       <div class="f-grp"><label class="f-lbl">Mecánico</label>
         <select id="f-mec" class="f-inp"><option value="">— Todos —</option></select>
       </div>
@@ -150,14 +111,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
     </div>
   </div>
 
-  <!-- KPIs -->
   <div class="kpi-row" id="kpis" style="display:none">
-    <div class="kpi a" style="animation-delay:.00s"><div class="kpi-val" id="k0">0</div><div class="kpi-lbl">Solicitudes</div></div>
-    <div class="kpi n" style="animation-delay:.08s"><div class="kpi-val" id="k1">0</div><div class="kpi-lbl">OTs involucradas</div></div>
-    <div class="kpi v" style="animation-delay:.16s"><div class="kpi-val" id="k2">0</div><div class="kpi-lbl">Artículos totales</div></div>
+    <div class="kpi a"><div class="kpi-val" id="k0">0</div><div class="kpi-lbl">Solicitudes</div></div>
+    <div class="kpi n"><div class="kpi-val" id="k1">0</div><div class="kpi-lbl">OTs involucradas</div></div>
+    <div class="kpi v"><div class="kpi-val" id="k2">0</div><div class="kpi-lbl">Artículos totales</div></div>
   </div>
 
-  <!-- RESULTADOS -->
   <div class="card" id="card-res" style="display:none">
     <div class="card-hdr">
       <div class="card-ttl"><span class="dot" style="background:var(--nrj)"></span> Reservas Pendientes</div>
@@ -166,7 +125,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
     <div class="grupos" id="grupos"></div>
   </div>
 
-  <!-- ESTADO VACÍO -->
   <div class="estado" id="evacio">
     <div class="e-ico">🔍</div>
     <div class="e-txt">Selecciona un rango y presiona Buscar</div>
@@ -182,7 +140,8 @@ const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 
 async function sbGet(p){ const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
 
-let colabs={}, todosRaw=[];
+let colabs={}, grupos={};
+// grupos = { gid: { key, fecha, ot, cod, nombre, lineas:[{id, ...row}] } }
 
 window.onload = async () => {
   const u = getSession();
@@ -212,7 +171,7 @@ async function buscar() {
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
   if (mec)    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
-  p.push('order=fecha_reserva.desc,ot.asc');
+  p.push('order=fecha_reserva.desc,ot.asc,id.asc');
 
   setLoad(true);
   document.getElementById('kpis').style.display='none';
@@ -220,30 +179,44 @@ async function buscar() {
   document.getElementById('evacio').style.display='none';
 
   try {
-    todosRaw = await sbGet(`reservas?${p.join('&')}`);
+    const rows = await sbGet(`reservas?${p.join('&')}`);
     setLoad(false);
 
-    if (!todosRaw.length) {
-      document.getElementById('evacio').querySelector('.e-ico').textContent='😊';
-      document.getElementById('evacio').querySelector('.e-txt').textContent='Sin reservas pendientes';
-      document.getElementById('evacio').querySelector('.e-sub').textContent='Todas las solicitudes han sido aprobadas';
-      document.getElementById('evacio').style.display='flex';
+    grupos = {};
+    (rows||[]).forEach(r => {
+      // Clave única por fecha + ot + operario
+      const key = `${r.fecha_reserva}__${r.ot}__${r.codigo_operario}`;
+      if (!grupos[key]) {
+        grupos[key] = {
+          key,
+          gid: key, // usamos la key directamente como gid — sin btoa()
+          fecha: r.fecha_reserva,
+          ot: r.ot,
+          cod: String(r.codigo_operario),
+          nombre: colabs[String(r.codigo_operario)] || r.codigo_operario || '—',
+          lineas: []
+        };
+      }
+      grupos[key].lineas.push(r); // cada linea conserva su id real de BD
+    });
+
+    const listaGrupos = Object.values(grupos);
+
+    if (!listaGrupos.length) {
+      setEstado('😊','Sin reservas pendientes','Todas las solicitudes han sido aprobadas');
       document.getElementById('kpis').style.display='grid';
       renderKPIs([]);
       return;
     }
 
-    renderKPIs(todosRaw);
-    renderGrupos(todosRaw);
+    renderKPIs(rows||[]);
+    renderGrupos(listaGrupos);
     document.getElementById('kpis').style.display='grid';
     document.getElementById('card-res').style.display='block';
 
   } catch(e) {
     setLoad(false);
-    document.getElementById('evacio').querySelector('.e-ico').textContent='❌';
-    document.getElementById('evacio').querySelector('.e-txt').textContent='Error al consultar';
-    document.getElementById('evacio').querySelector('.e-sub').textContent=e.message;
-    document.getElementById('evacio').style.display='flex';
+    setEstado('❌','Error al consultar',e.message);
     notify(e.message,'error');
   }
 }
@@ -261,43 +234,48 @@ function renderKPIs(rows) {
   document.getElementById('k2').textContent = rows.reduce((s,r)=>s+(parseFloat(r.cantidad)||0),0).toFixed(0);
 }
 
-function renderGrupos(rows) {
-  const groups={};
-  rows.forEach(r=>{
-    const key=`${r.fecha_reserva}||${r.ot}||${r.codigo_operario}`;
-    if(!groups[key]) groups[key]={key,fecha:r.fecha_reserva,ot:r.ot,turno:r.turno,cod:r.codigo_operario,nombre:colabs[String(r.codigo_operario)]||r.codigo_operario,lineas:[]};
-    groups[key].lineas.push(r);
-  });
+function setEstado(ico,txt,sub){
+  const el=document.getElementById('evacio');
+  el.querySelector('.e-ico').textContent=ico;
+  el.querySelector('.e-txt').textContent=txt;
+  el.querySelector('.e-sub').textContent=sub;
+  el.style.display='flex';
+}
 
+// ── Sanitiza la key para usarla como id de elemento HTML ──
+function keyToHtmlId(key){
+  return key.replace(/[^a-zA-Z0-9]/g,'_');
+}
+
+function renderGrupos(listaGrupos) {
   const container = document.getElementById('grupos');
   container.innerHTML='';
-  document.getElementById('res-cnt').textContent = `${Object.keys(groups).length} grupo${Object.keys(groups).length!==1?'s':''}`;
+  document.getElementById('res-cnt').textContent = `${listaGrupos.length} grupo${listaGrupos.length!==1?'s':''}`;
 
-  Object.values(groups).forEach(g=>{
-    const gid = btoa(g.key).replace(/[^a-zA-Z0-9]/g,'').slice(0,12);
+  listaGrupos.forEach(g => {
+    const hid = keyToHtmlId(g.key); // ID seguro para HTML
     const div = document.createElement('div');
-    div.className='grupo'; div.id=`g-${gid}`;
+    div.className='grupo'; div.id=`g-${hid}`;
 
-    const linRows = g.lineas.map((l,i)=>`
-      <tr id="lin-row-${gid}-${i}">
+    const linRows = g.lineas.map((l, i) => `
+      <tr id="lin-row-${hid}-${i}">
         <td class="td-cod">${l.articulosap||'—'}</td>
         <td>${l.descripcion||'—'}</td>
         <td>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <span class="td-qty-orig" title="Cantidad solicitada">📋 ${l.cantidad}</span>
             <span class="qty-arrow">→</span>
-            <input class="qty-edit" type="number" id="qty-sup-${gid}-${i}"
-              value="${l.cantidad}" min="0.01" step="0.01"
-              oninput="onQtyChange('${gid}',${i})">
+            <input class="qty-edit" type="number" id="qty-sup-${hid}-${i}"
+              value="${l.cantidad}" min="0.01" step="0.01">
           </div>
         </td>
         <td class="td-um">${l.um||'—'}</td>
         <td>
           <div class="toggle-wrap">
-            <button class="toggle-btn apr active" id="tbnapr-${gid}-${i}"
-              onclick="setEstado('${gid}',${i},'Aprobado')">✔ Aprobado</button>
-            <button class="toggle-btn rec" id="tbnrec-${gid}-${i}"
-              onclick="setEstado('${gid}',${i},'Rechazado')">✖ Rechazado</button>
+            <button class="toggle-btn apr active" id="tbnapr-${hid}-${i}"
+              onclick="setEstadoLinea('${hid}',${i},'Aprobado')">✔ Aprobado</button>
+            <button class="toggle-btn rec" id="tbnrec-${hid}-${i}"
+              onclick="setEstadoLinea('${hid}',${i},'Rechazado')">✖ Rechazado</button>
           </div>
         </td>
       </tr>`).join('');
@@ -308,16 +286,15 @@ function renderGrupos(rows) {
           <span class="grupo-ot">OT ${g.ot}</span>
           <span class="grupo-mec">👷 ${g.nombre}</span>
           <span class="grupo-meta">${g.fecha}</span>
-          <span class="badge ${g.turno||''}">${g.turno||'—'}</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="btn-rechazar-todo" id="br-${gid}" onclick="rechazarTodo('${gid}',${g.lineas.length})">✖ Rechazar Todo</button>
-          <button class="btn-aprobar" id="ba-${gid}" onclick="aprobarGrupo('${gid}','${g.key}',${g.lineas.length})">✅ Confirmar</button>
+          <button class="btn-rechazar-todo" onclick="rechazarTodo('${hid}',${g.lineas.length})">✖ Rechazar Todo</button>
+          <button class="btn-aprobar" id="ba-${hid}" onclick="aprobarGrupo('${hid}')">✅ Confirmar</button>
         </div>
       </div>
       <div style="overflow-x:auto">
-        <table class="lineas-tbl" style="width:100%">
+        <table class="lineas-tbl">
           <thead><tr><th>Código SAP</th><th>Descripción</th><th>Cant. Solicitada → Supervisor</th><th>UM</th><th>Decisión</th></tr></thead>
           <tbody>${linRows}</tbody>
         </table>
@@ -326,17 +303,10 @@ function renderGrupos(rows) {
   });
 }
 
-function onQtyChange(gid, idx) {
-  const orig = document.getElementById(`qty-orig-${gid}-${idx}`)?.textContent;
-  const inp  = document.getElementById(`qty-sup-${gid}-${idx}`);
-  if (!inp) return;
-  inp.classList.toggle('modified', parseFloat(inp.value) !== parseFloat(orig));
-}
-
-function setEstado(gid, idx, estado) {
-  const row  = document.getElementById(`lin-row-${gid}-${idx}`);
-  const bapr = document.getElementById(`tbnapr-${gid}-${idx}`);
-  const brec = document.getElementById(`tbnrec-${gid}-${idx}`);
+function setEstadoLinea(hid, idx, estado) {
+  const row  = document.getElementById(`lin-row-${hid}-${idx}`);
+  const bapr = document.getElementById(`tbnapr-${hid}-${idx}`);
+  const brec = document.getElementById(`tbnrec-${hid}-${idx}`);
   if (!row) return;
   if (estado==='Aprobado') {
     bapr.classList.add('active'); brec.classList.remove('active');
@@ -347,62 +317,75 @@ function setEstado(gid, idx, estado) {
   }
 }
 
-function rechazarTodo(gid, numLineas) {
-  for (let i = 0; i < numLineas; i++) {
-    setEstado(gid, i, 'Rechazado');
-  }
+function rechazarTodo(hid, numLineas) {
+  for (let i=0; i<numLineas; i++) setEstadoLinea(hid, i, 'Rechazado');
   notify('Todas las líneas marcadas como Rechazado — presiona Confirmar para guardar','warning');
 }
 
-async function aprobarGrupo(gid, key, numLineas) {
-  const btn = document.getElementById(`ba-${gid}`);
-  const [fecha, ot, codOp] = key.split('||');
-
+async function aprobarGrupo(hid) {
+  const btn = document.getElementById(`ba-${hid}`);
   btn.disabled=true;
   btn.innerHTML='<span class="spin" style="border-top-color:#2e9e4f;border-color:rgba(46,158,79,.3)"></span> Guardando…';
   btn.style.background='#f0fff4'; btn.style.color='#276040';
 
-  try {
-    // First fetch the actual row IDs for this group
-    const rows = await sbGet(`reservas?select=id,articulosap&fecha_reserva=eq.${encodeURIComponent(fecha)}&ot=eq.${encodeURIComponent(ot)}&codigo_operario=eq.${encodeURIComponent(codOp)}&order=id.asc`);
+  // Reconstruir la key original desde el hid (reemplazar _ de vuelta)
+  // En realidad lo más simple: buscar el grupo por su hid en el objeto grupos
+  const grupoKey = Object.keys(grupos).find(k => keyToHtmlId(k) === hid);
+  if (!grupoKey) { notify('Error: grupo no encontrado','error'); btn.disabled=false; return; }
+  const g = grupos[grupoKey];
 
-    // Update each line individually with its decision + quantity
-    const promises = rows.map((row, i) => {
-      const qtyEl  = document.getElementById(`qty-sup-${gid}-${i}`);
-      const aprBtn = document.getElementById(`tbnapr-${gid}-${i}`);
-      const decision = aprBtn?.classList.contains('active') ? 'Aprobado' : 'Rechazado';
-      const cantSup  = parseFloat(qtyEl?.value || row.cantidad);
+  try {
+    // Actualizar cada línea usando su id real de BD — no hay confusión de orden
+    const promises = g.lineas.map((row, i) => {
+      const qtyEl  = document.getElementById(`qty-sup-${hid}-${i}`);
+      const aprBtn = document.getElementById(`tbnapr-${hid}-${i}`);
+      const decision  = aprBtn?.classList.contains('active') ? 'Aprobado' : 'Rechazado';
+      const cantSup   = parseFloat(qtyEl?.value || row.cantidad);
+
       return fetch(
-        `${SB_URL}/rest/v1/reservas?id=eq.${row.id}`,
-        { method:'PATCH', headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},
-          body:JSON.stringify({ verificacionsupervisor: decision, cantidadsupervisor: String(cantSup), sup_aprueba: true }) }
-      ).then(r=>{ if(!r.ok) throw new Error(`Línea ${i+1}: ${r.statusText}`); });
+        `${SB_URL}/rest/v1/reservas?id=eq.${row.id}`,  // ← usa el id real de BD
+        {
+          method: 'PATCH',
+          headers: { apikey:SB_KEY, Authorization:`Bearer ${SB_KEY}`,
+            'Content-Type':'application/json', Prefer:'return=minimal' },
+          body: JSON.stringify({
+            verificacionsupervisor: decision,
+            cantidadsupervisor: String(cantSup),
+            sup_aprueba: true
+          })
+        }
+      ).then(r => { if(!r.ok) throw new Error(`Línea ${i+1}: ${r.statusText}`); });
     });
 
     await Promise.all(promises);
 
     btn.innerHTML='✅ Confirmado'; btn.className='btn-aprobar done';
-    notify(`OT ${ot} procesada correctamente ✅`,'success');
+    notify(`OT ${g.ot} procesada correctamente ✅`, 'success');
 
-    setTimeout(()=>{
-      document.getElementById(`g-${gid}`)?.remove();
-      todosRaw = todosRaw.filter(r=>!(r.fecha_reserva===fecha&&r.ot===ot&&String(r.codigo_operario)===String(codOp)));
-      renderKPIs(todosRaw);
-      const remaining = document.querySelectorAll('.grupo').length;
-      document.getElementById('res-cnt').textContent=`${remaining} grupo${remaining!==1?'s':''}`;
-      if(!todosRaw.length){
+    // Quitar el grupo del DOM y del objeto grupos
+    setTimeout(() => {
+      document.getElementById(`g-${hid}`)?.remove();
+      delete grupos[grupoKey];
+
+      const restantes = Object.values(grupos);
+      // Recalcular KPIs con las líneas que quedan
+      const todasLineas = restantes.flatMap(gr => gr.lineas);
+      renderKPIs(todasLineas);
+
+      const numGrupos = restantes.length;
+      document.getElementById('res-cnt').textContent = `${numGrupos} grupo${numGrupos!==1?'s':''}`;
+
+      if (numGrupos === 0) {
         document.getElementById('card-res').style.display='none';
-        const ev=document.getElementById('evacio');
-        ev.querySelector('.e-ico').textContent='😊';
-        ev.querySelector('.e-txt').textContent='¡Todo procesado!';
-        ev.querySelector('.e-sub').textContent='No quedan reservas pendientes';
-        ev.style.display='flex';
+        setEstado('😊','¡Todo procesado!','No quedan reservas pendientes');
       }
-    },700);
+    }, 700);
 
   } catch(e) {
-    btn.disabled=false; btn.innerHTML='✅ Confirmar'; btn.style.background=''; btn.style.color='';
-    notify('Error: '+e.message,'error');
+    btn.disabled=false;
+    btn.innerHTML='✅ Confirmar';
+    btn.style.background=''; btn.style.color='';
+    notify('Error: '+e.message, 'error');
   }
 }
 
