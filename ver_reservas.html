@@ -11,20 +11,17 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .topbar{position:sticky;top:0;z-index:200;background:var(--lila);display:flex;align-items:center;gap:12px;padding:0 24px;height:58px;box-shadow:0 2px 12px rgba(45,31,94,0.3)}
-.tb-back{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:white;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
 .tb-back:hover{background:rgba(255,255,255,0.25)}
 .tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
 .tb-user{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
-
 .page{padding:24px;max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
 .page-title{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--lila)}
 .page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
-
 .card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
 .card-hdr{padding:13px 20px;border-bottom:1.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between}
 .card-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);display:flex;align-items:center;gap:7px}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
 .f-grid{padding:18px 20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .f-grp{display:flex;flex-direction:column;gap:5px}
 .f-lbl{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px}
@@ -37,24 +34,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 .btn-exp-csv:hover{background:#2c9e7a;color:white}
 .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* KPIs */
-.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .kpi{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
-.kpi.a::before{background:var(--lila)} .kpi.b::before{background:var(--azul)} .kpi.v::before{background:var(--verde)}
+.kpi.a::before{background:var(--lila)} .kpi.b::before{background:var(--azul)} .kpi.v::before{background:var(--verde)} .kpi.n::before{background:var(--rojo)}
 .kpi-val{font-family:'Space Mono',monospace;font-size:30px;font-weight:700}
-.kpi.a .kpi-val{color:var(--lila)} .kpi.b .kpi-val{color:var(--azul)} .kpi.v .kpi-val{color:var(--verde)}
+.kpi.a .kpi-val{color:var(--lila)} .kpi.b .kpi-val{color:var(--azul)} .kpi.v .kpi-val{color:var(--verde)} .kpi.n .kpi-val{color:var(--rojo)}
 .kpi-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:4px}
-
-/* TABLE */
 .tbl-toolbar{padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1.5px solid var(--border);flex-wrap:wrap}
 .srch{flex:1;min-width:180px;padding:9px 13px;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
-.srch:focus{border-color:var(--lila);box-shadow:0 0 0 3px rgba(85,60,154,.10)}
+.srch:focus{border-color:var(--lila)}
 .tbl-cnt{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3);white-space:nowrap}
 table{width:100%;border-collapse:collapse}
 th{padding:10px 14px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);background:var(--bg3);border-bottom:1.5px solid var(--border);white-space:nowrap}
-td{padding:10px 14px;font-size:13px;color:var(--txt2);border-bottom:1px solid var(--border);vertical-align:middle}
+td{padding:10px 14px;font-size:13px;color:var(--txt2);border-bottom:1px solid var(--border);vertical-align:top}
 tbody tr:hover td{background:rgba(85,60,154,.04)}
 .td-cod{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
 .td-qty{font-family:'Space Mono',monospace;font-weight:700;color:var(--azul)}
@@ -62,25 +55,32 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
 .td-mec{font-weight:600}
 .td-ot{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d)}
 .td-fecha{font-family:'Space Mono',monospace;font-size:12px;color:var(--txt3)}
-
-/* DECISION BADGES */
 .dec{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:'Space Mono',monospace;white-space:nowrap}
 .dec.Aprobado{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
 .dec.Rechazado{background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5}
 .dec.pendiente{background:#fef9c3;color:#713f12;border:1px solid #fde047}
 
-/* PAG */
+/* ── GRABADO CELL ── */
+.grab-cell{display:flex;flex-direction:column;gap:6px;min-width:180px}
+.btn-grabado{padding:6px 12px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-grabado.no{background:#e8f0fe;color:var(--azul);border:1.5px solid var(--bord2)}
+.btn-grabado.no:hover{background:var(--azul);color:white}
+.btn-grabado.si{background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;cursor:default}
+.btn-grabado:disabled{opacity:.6;cursor:wait}
+.comentario-input{width:100%;padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--txt);outline:none;resize:none;transition:border-color .2s}
+.comentario-input:focus{border-color:var(--lila)}
+.comentario-guardado{font-size:11px;color:var(--txt3);font-style:italic;padding:4px 2px}
+
 #pag{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .pag-info{font-size:12px;color:var(--txt3);font-family:'Space Mono',monospace}
 .pag-btns{display:flex;gap:4px}
 .pb{min-width:32px;height:32px;border:1.5px solid var(--border);border-radius:7px;background:white;font-size:13px;font-weight:600;cursor:pointer;color:var(--txt2);transition:all .15s}
 .pb:hover{border-color:var(--lila);color:var(--lila)} .pb.active{background:var(--lila);color:white;border-color:var(--lila)} .pb:disabled{opacity:.4;cursor:default}
-
 .estado{padding:56px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
 .e-ico{font-size:48px;opacity:.35}.e-txt{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--txt3)}.e-sub{font-size:13px;color:var(--txt3);opacity:.7}
 .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
 .notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
-@media(max-width:700px){.f-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr}}
+@media(max-width:700px){.f-grid{grid-template-columns:1fr 1fr}.kpi-row{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.f-grid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -93,8 +93,8 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
 
 <div class="page">
   <div>
-    <div class="page-title">Reservas de Materiales Aprobadas</div>
-    <div class="page-sub">Solicitudes procesadas por el supervisor</div>
+    <div class="page-title">Reservas de Materiales</div>
+    <div class="page-sub">Reservas aprobadas — confirma cuáles se grabaron en el sistema</div>
   </div>
 
   <div class="card">
@@ -110,14 +110,15 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
   </div>
 
   <div class="kpi-row" id="kpis" style="display:none">
-    <div class="kpi a"><div class="kpi-val" id="k0">0</div><div class="kpi-lbl">Líneas totales</div></div>
+    <div class="kpi a"><div class="kpi-val" id="k0">0</div><div class="kpi-lbl">Líneas</div></div>
     <div class="kpi b"><div class="kpi-val" id="k1">0</div><div class="kpi-lbl">OTs distintas</div></div>
-    <div class="kpi v"><div class="kpi-val" id="k2">0</div><div class="kpi-lbl">Aprobadas</div></div>
+    <div class="kpi v"><div class="kpi-val" id="k2">0</div><div class="kpi-lbl">Grabadas</div></div>
+    <div class="kpi n"><div class="kpi-val" id="k3">0</div><div class="kpi-lbl">Sin grabar</div></div>
   </div>
 
   <div class="card" id="cardTbl" style="display:none">
     <div class="card-hdr">
-      <div class="card-ttl"><span class="dot" style="background:var(--verde)"></span>Detalle de Reservas</div>
+      <div class="card-ttl"><span class="dot" style="background:var(--verde)"></span>Detalle de Reservas Aprobadas</div>
       <button class="btn-exp-csv" onclick="exportar()">⬇ Exportar CSV</button>
     </div>
     <div class="tbl-toolbar">
@@ -132,10 +133,11 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
           <th>Mecánico</th>
           <th>Cód. SAP</th>
           <th>Descripción</th>
-          <th>Cant. Solicitada</th>
-          <th>Cant. Supervisor</th>
+          <th>Cant. Sol.</th>
+          <th>Cant. Sup.</th>
           <th>UM</th>
           <th>Decisión</th>
+          <th>Grabado en sistema</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -155,8 +157,12 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
 const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
 async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(tabla,id,body){
+  const r=await fetch(`${SB_URL}/rest/v1/${tabla}?id=eq.${id}`,{method:'PATCH',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error(await r.text());
+}
 
-let colabs={}, todos=[], filtrados=[], pag=1;
+let colabs={},todos=[],filtrados=[],pag=1;
 const PPG=30;
 
 window.onload=async()=>{
@@ -178,7 +184,7 @@ async function buscar(){
   const desde=document.getElementById('f-desde').value;
   const hasta=document.getElementById('f-hasta').value;
   const mec=document.getElementById('f-mec').value;
-  const p=['select=*','sup_aprueba=is.true']; // only approved
+  const p=['select=*','sup_aprueba=is.true','verificacionsupervisor=eq.Aprobado'];
   if(desde)p.push(`fecha_reserva=gte.${desde}`);
   if(hasta)p.push(`fecha_reserva=lte.${hasta}`);
   if(mec)p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
@@ -203,10 +209,11 @@ function setEstado(ico,txt,sub){const el=document.getElementById('evacio');el.qu
 
 function renderKPIs(r){
   const ots=new Set(r.map(x=>x.ot).filter(Boolean));
-  const apr=r.filter(x=>x.verificacionsupervisor==='Aprobado').length;
+  const grab=r.filter(x=>x.cct_grabado===true).length;
   document.getElementById('k0').textContent=r.length;
   document.getElementById('k1').textContent=ots.size;
-  document.getElementById('k2').textContent=apr;
+  document.getElementById('k2').textContent=grab;
+  document.getElementById('k3').textContent=r.length-grab;
 }
 
 function filtrar(q){
@@ -222,20 +229,63 @@ function renderTabla(){
   filtrados.slice(ini,fin).forEach(r=>{
     const dec=r.verificacionsupervisor||'pendiente';
     const cantS=r.cantidadsupervisor||r.cantidad;
+    const yaGrabado=r.cct_grabado===true;
+    const rowId=`row-${r.id}`;
+
+    // Celda de grabado
+    let grabCell='';
+    if(dec==='Aprobado'){
+      if(yaGrabado){
+        grabCell=`<div class="grab-cell">
+          <button class="btn-grabado si" disabled>✅ Grabado</button>
+          ${r.cct_comentario?`<div class="comentario-guardado">💬 ${r.cct_comentario}</div>`:''}
+        </div>`;
+      } else {
+        grabCell=`<div class="grab-cell">
+          <textarea class="comentario-input" id="com-${r.id}" rows="2" placeholder="Comentario opcional…">${r.cct_comentario||''}</textarea>
+          <button class="btn-grabado no" id="btn-grab-${r.id}" onclick="marcarGrabado(${r.id})">📥 Marcar como grabado</button>
+        </div>`;
+      }
+    } else {
+      grabCell=`<span style="font-size:11px;color:var(--txt3)">—</span>`;
+    }
+
     const tr=document.createElement('tr');
+    tr.id=rowId;
     tr.innerHTML=`
       <td class="td-fecha">${r.fecha_reserva||'—'}</td>
       <td class="td-ot">${r.ot||'—'}</td>
       <td class="td-mec">${r._nom}</td>
       <td class="td-cod">${r.articulosap||'—'}</td>
-      <td style="max-width:220px">${r.descripcion||'—'}</td>
+      <td style="max-width:200px">${r.descripcion||'—'}</td>
       <td class="td-qty">${r.cantidad}</td>
       <td class="td-qtyS">${cantS}</td>
       <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
-      <td><span class="dec ${dec}">${dec}</span></td>`;
+      <td><span class="dec ${dec}">${dec}</span></td>
+      <td>${grabCell}</td>`;
     tb.appendChild(tr);
   });
   renderPag(total,ini,fin);
+}
+
+async function marcarGrabado(id){
+  const btn=document.getElementById(`btn-grab-${id}`);
+  const comentario=(document.getElementById(`com-${id}`)?.value||'').trim();
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spin" style="border-top-color:#3860b2;border-color:rgba(56,96,178,.2)"></span>';}
+  try{
+    await sbPatch('reservas',id,{cct_grabado:true,cct_comentario:comentario||null});
+    // Actualizar en memoria
+    const idx=todos.findIndex(x=>x.id===id);
+    if(idx>=0){todos[idx].cct_grabado=true;todos[idx].cct_comentario=comentario||null;}
+    const idx2=filtrados.findIndex(x=>x.id===id);
+    if(idx2>=0){filtrados[idx2].cct_grabado=true;filtrados[idx2].cct_comentario=comentario||null;}
+    renderKPIs(todos);
+    renderTabla();
+    notify('Marcado como grabado ✅','success');
+  }catch(e){
+    if(btn){btn.disabled=false;btn.innerHTML='📥 Marcar como grabado';}
+    notify('Error: '+e.message,'error');
+  }
 }
 
 function renderPag(total,ini,fin){
@@ -249,11 +299,10 @@ function renderPag(total,ini,fin){
 }
 function goPag(p){const tp=Math.ceil(filtrados.length/PPG);if(p<1||p>tp)return;pag=p;renderTabla();document.getElementById('cardTbl').scrollIntoView({behavior:'smooth',block:'start'});}
 
-/* ══ EXPORTAR CSV ══ */
 function exportar(){
   if(!filtrados.length){notify('No hay datos para exportar','warning');return;}
-  const cols=['fecha_reserva','ot','_nom','articulosap','descripcion','cantidad','cantidadsupervisor','um','verificacionsupervisor'];
-  const heads=['Fecha','OT','Mecánico','Cód.SAP','Descripción','Cant.Solicitada','Cant.Supervisor','UM','Decisión'];
+  const cols=['fecha_reserva','ot','_nom','articulosap','descripcion','cantidad','cantidadsupervisor','um','verificacionsupervisor','cct_grabado','cct_comentario'];
+  const heads=['Fecha','OT','Mecánico','Cód.SAP','Descripción','Cant.Sol.','Cant.Sup.','UM','Decisión','Grabado','Comentario'];
   const filas=[heads.join(',')];
   filtrados.forEach(r=>{
     filas.push(cols.map(c=>{
@@ -262,8 +311,7 @@ function exportar(){
     }).join(','));
   });
   const blob=new Blob([filas.join('\n')],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download=`Reservas_aprobadas_${isoHoy()}.csv`;a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Reservas_${isoHoy()}.csv`;a.click();
   notify('CSV descargado ✅','success');
 }
 
