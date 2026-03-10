@@ -122,7 +122,7 @@ async function procesarLogin(codigoRaw) {
   const btn    = document.getElementById('btn-ingresar');
   btn.disabled = true; status.textContent = '🔍 Verificando…'; status.className = 'scan-status leyendo';
   try {
-    const { ok, data } = await supaFetch(`Colaboradores?codigo=eq.${encodeURIComponent(codigo)}&select=codigo,nombre,rol`, { method:'GET' });
+    const { ok, data } = await supaFetch(`Colaboradores?codigo=eq.${encodeURIComponent(codigo)}&select=codigo,nombre,rol,CC`, { method:'GET' });
     if (!ok || !data || data.length===0) {
       notify(`Código "${codigo}" no registrado`, 'error');
       btn.disabled = false; procesando = false;
@@ -145,7 +145,6 @@ function redirigirPorRol(user) {
   const rol = (user.rol||'').toUpperCase();
   if (rol === 'SUPERVISOR') { window.location.href = 'menu_supervisor.html'; }
   else if (rol === 'CCT') { window.location.href = 'menu_cct.html'; }
-  else if (rol === 'JEFE') { window.location.href = 'menu_jefe.html'; }
   else { window.location.href = 'menu_mecanico.html'; }
 }
 
