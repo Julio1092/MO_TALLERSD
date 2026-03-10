@@ -200,7 +200,7 @@ async function buscar(){
     setLoad(false);
     todos=(raw||[]).map(r=>{
       let hTot=0,nAct=0;const ots=new Set(),acts=[];
-      for(let i=1;i<=10;i++){if(r[`H${i}`]!=null)hTot+=parseFloat(r[`H${i}`]||0);if(r[`A${i}`]){nAct++;acts.push(r[`A${i}`]);}if(r[`OT${i}`])ots.add(String(r[`OT${i}`]));}
+      for(let i=1;i<=20;i++){if(r[`H${i}`]!=null)hTot+=parseFloat(r[`H${i}`]||0);if(r[`A${i}`]){nAct++;acts.push(r[`A${i}`]);}if(r[`OT${i}`])ots.add(String(r[`OT${i}`]));}
       const cod=String(r.codigo_operario||'');
       return{...r,_h:hTot,_n:nAct,_ots:[...ots],_acts:acts,_nom:colabs[cod]||cod||'—'};
     });
@@ -263,7 +263,7 @@ function renderTabla(){
       <td><button class="btn-ver" onclick="tog('${rid}',this)">Ver ▸</button></td>`;
     tb.appendChild(tr);
     let aRows='';
-    for(let j=1;j<=10;j++){
+    for(let j=1;j<=20;j++){
       if(!r[`A${j}`])continue;
       const fi=r[`FI${j}`]?r[`FI${j}`].slice(11,16):'--:--';
       const ff=r[`FF${j}`]?r[`FF${j}`].slice(11,16):'--:--';

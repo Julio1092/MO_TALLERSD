@@ -378,7 +378,7 @@ function agregarActividad(){
   const turno=document.getElementById('turno').value;
   if(!turno){notify('Primero selecciona el Turno','error');return;}
   if(!ColOrdenes.length){notify('Ingresa al menos una Orden válida (6 dígitos)','warning');return;}
-  if(actIds.length>=10){notify('Máximo 10 actividades','warning');return;}
+  if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
   if(actIds.length>0){const f=validarActividadCompleta(actIds[actIds.length-1]);if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}}
   const cfg=TURNO_CFG[turno],id=nextActId++;actIds.push(id);
   let hIni,mIni;
@@ -423,7 +423,7 @@ function agregarActividad(){
     </div>`;
   document.getElementById('act-container').appendChild(div);
   onHoraFinChange(id);
-  document.getElementById('btn-agregar').disabled=actIds.length>=10;
+  document.getElementById('btn-agregar').disabled=actIds.length>=20;
 }
 
 function eliminarActividad(id){if(actIds[actIds.length-1]!==id){notify('Solo puedes eliminar la última actividad','warning');return;}const el=document.getElementById('act-'+id);el.style.opacity='0';el.style.transform='translateX(30px)';el.style.transition='all 0.2s';setTimeout(()=>{el.remove();actIds.pop();renumerarBadges();calcularTotal();document.getElementById('btn-agregar').disabled=false;},200);}
@@ -467,7 +467,7 @@ async function guardar(){
   if(cfg&&cfg.limite>0){let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}if(tot<cfg.limite){notify('Ingresaste menos horas de las debidas','warning');return;}}
 
   const fila={'Fecha_Reporte':fecha,'Turno':turno,'codigo_operario':userActual?.codigo||null};
-  for(let i=1;i<=10;i++){fila[`OT${i}`]=null;fila[`A${i}`]=null;fila[`FI${i}`]=null;fila[`FF${i}`]=null;fila[`H${i}`]=null;fila[`C${i}`]=null;}
+  for(let i=1;i<=20;i++){fila[`OT${i}`]=null;fila[`A${i}`]=null;fila[`FI${i}`]=null;fila[`FF${i}`]=null;fila[`H${i}`]=null;fila[`C${i}`]=null;}
   actIds.forEach((id,idx)=>{const n=idx+1;fila[`OT${n}`]=parseInt(document.getElementById('act-ot-'+id).value);fila[`A${n}`]=document.getElementById('act-act-'+id).value;fila[`FI${n}`]=construirTimestamp(fecha,document.getElementById('act-ki-'+id).value,document.getElementById('act-li-'+id).value,turno);fila[`FF${n}`]=construirTimestamp(fecha,document.getElementById('act-kf-'+id).value,document.getElementById('act-lf-'+id).value,turno);fila[`H${n}`]=parseFloat((getMinsAct(id)/60).toFixed(2));fila[`C${n}`]=document.getElementById('act-com-'+id).value;});
 
   document.getElementById('saving-overlay').classList.add('show');
