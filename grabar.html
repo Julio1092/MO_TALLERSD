@@ -381,9 +381,18 @@ function agregarActividad(){
   if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
   if(actIds.length>0){const f=validarActividadCompleta(actIds[actIds.length-1]);if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}}
   const cfg=TURNO_CFG[turno],id=nextActId++;actIds.push(id);
+  const esExtr = turno === 'Extraordinario';
   let hIni,mIni;
   if(actIds.length===1){hIni=cfg.inicio;mIni=cfg.inicioMin||"00";}else{const p=actIds[actIds.length-2];hIni=document.getElementById('act-kf-'+p).value;mIni=document.getElementById('act-lf-'+p).value;}
   const hF=horasDesde(hIni,turno),oO=ColOrdenes.map(o=>`<option value="${o.Valor}">${o.Valor}</option>`).join('');
+
+  // Para Extraordinario primera actividad: hora inicio es editable con todos las horas
+  const esInicioLibre = esExtr && actIds.length === 1;
+  const HORAS_ALL = cfg.horas; // todas las 24 horas para Extraordinario
+  const inicioHtml = esInicioLibre
+    ? `<div class="time-picker"><select id="act-ki-${id}" onchange="onHoraIniChange(${id})">${buildOpts(HORAS_ALL,hIni)}</select><span class="colon">:</span><select id="act-li-${id}" onchange="onMinIniChange(${id})">${buildOpts(MINUTOS,mIni)}</select></div>`
+    : `<div class="time-picker locked"><select id="act-ki-${id}" disabled><option value="${hIni}">${hIni}</option></select><span class="colon">:</span><select id="act-li-${id}" disabled><option value="${mIni}">${mIni}</option></select></div>`;
+
   const div=document.createElement('div');div.className='actividad-card';div.id='act-'+id;
   div.innerHTML=`
     <div class="act-header"><span class="act-num">ACT #${actIds.length}</span><button class="btn-remove" onclick="eliminarActividad(${id})">✕</button></div>
@@ -414,8 +423,8 @@ function agregarActividad(){
         </div>
       </div>
       <div class="time-row">
-        <div class="time-group"><label class="field-label">Hora de Inicio</label>
-          <div class="time-picker locked"><select id="act-ki-${id}" disabled><option value="${hIni}">${hIni}</option></select><span class="colon">:</span><select id="act-li-${id}" disabled><option value="${mIni}">${mIni}</option></select></div></div>
+        <div class="time-group"><label class="field-label">Hora de Inicio${esInicioLibre?' <span style="font-size:10px;color:var(--azul);font-weight:600">(libre)</span>':''}</label>
+          ${inicioHtml}</div>
         <div class="time-group"><label class="field-label">Hora de Fin</label>
           <div class="time-picker"><select id="act-kf-${id}" onchange="onHoraFinChange(${id})">${buildOpts(hF,hIni)}</select><span class="colon">:</span><select id="act-lf-${id}" onchange="onMinFinChange(${id})">${buildOpts(MINUTOS,mIni)}</select></div></div>
       </div>
@@ -429,6 +438,31 @@ function agregarActividad(){
 function eliminarActividad(id){if(actIds[actIds.length-1]!==id){notify('Solo puedes eliminar la última actividad','warning');return;}const el=document.getElementById('act-'+id);el.style.opacity='0';el.style.transform='translateX(30px)';el.style.transition='all 0.2s';setTimeout(()=>{el.remove();actIds.pop();renumerarBadges();calcularTotal();document.getElementById('btn-agregar').disabled=false;},200);}
 function renumerarBadges(){actIds.forEach((id,i)=>{const b=document.querySelector(`#act-${id} .act-num`);if(b)b.textContent=`ACT #${i+1}`;});}
 function limpiarActividades(){actIds.forEach(id=>{const el=document.getElementById('act-'+id);if(el)el.remove();});actIds=[];nextActId=1;calcularTotal();document.getElementById('btn-agregar').disabled=false;}
+function onHoraIniChange(id){
+  // Solo aplica a la primera actividad Extraordinario con hora libre
+  const turno=document.getElementById('turno').value;
+  const hI=document.getElementById('act-ki-'+id).value;
+  const mI=document.getElementById('act-li-'+id).value;
+  const hF=horasDesde(hI,turno);
+  const sKF=document.getElementById('act-kf-'+id);
+  sKF.innerHTML=buildOpts(hF,hF[0]);
+  onHoraFinChange(id);
+}
+function onMinIniChange(id){
+  const turno=document.getElementById('turno').value;
+  const hI=document.getElementById('act-ki-'+id).value;
+  const mI=document.getElementById('act-li-'+id).value;
+  const hF=horasDesde(hI,turno);
+  const sKF=document.getElementById('act-kf-'+id);
+  const selLF=document.getElementById('act-lf-'+id);
+  // Recalcular minutos fin si misma hora
+  const hFv=document.getElementById('act-kf-'+id).value;
+  const misma=hFv===hI;
+  const mD=misma?MINUTOS.filter(m=>parseInt(m)>parseInt(mI)):MINUTOS;
+  selLF.innerHTML=buildOpts(mD.length?mD:MINUTOS,mD[0]||MINUTOS[0]);
+  calcularHora(id);
+  propagarInicio(id);
+}
 function onHoraFinChange(id){const hI=document.getElementById('act-ki-'+id).value,mI=document.getElementById('act-li-'+id).value,hF=document.getElementById('act-kf-'+id).value,selLF=document.getElementById('act-lf-'+id),curM=selLF.value,misma=hF===hI,mD=misma?MINUTOS.filter(m=>parseInt(m)>=parseInt(mI)):MINUTOS;selLF.innerHTML=buildOpts(mD,mD.includes(curM)?curM:mD[0]);calcularHora(id);propagarInicio(id);}
 function onMinFinChange(id){calcularHora(id);propagarInicio(id);}
 function propagarInicio(id){const t=document.getElementById('turno').value,idx=actIds.indexOf(id);if(idx<0||idx===actIds.length-1)return;const hF=document.getElementById('act-kf-'+id).value,mF=document.getElementById('act-lf-'+id).value,nId=actIds[idx+1];document.getElementById('act-ki-'+nId).innerHTML=`<option value="${hF}">${hF}</option>`;document.getElementById('act-li-'+nId).innerHTML=`<option value="${mF}">${mF}</option>`;const hF2=horasDesde(hF,t),sKF=document.getElementById('act-kf-'+nId);sKF.innerHTML=buildOpts(hF2,hF2.includes(sKF.value)?sKF.value:hF2[0]);onHoraFinChange(nId);}
@@ -436,7 +470,27 @@ function calcularHora(id){const hI=parseInt(document.getElementById('act-ki-'+id
 function getMinsAct(id){const hI=parseInt(document.getElementById('act-ki-'+id)?.value||0),mI=parseInt(document.getElementById('act-li-'+id)?.value||0),hF=parseInt(document.getElementById('act-kf-'+id)?.value||0),mF=parseInt(document.getElementById('act-lf-'+id)?.value||0);let m=(hF*60+mF)-(hI*60+mI);if(m<0)m+=1440;return m;}
 function calcularTotal(){let t=0;actIds.forEach(id=>t+=getMinsAct(id));actualizarReloj(t);}
 
-function construirTimestamp(fecha,h,m,turno){const hh=parseInt(h),mm=parseInt(m);let f=fecha;if(turno==='Nocturno'&&hh<8){const d=new Date(fecha+'T00:00:00');d.setDate(d.getDate()+1);f=d.toISOString().split('T')[0];}return `${f}T${pad(hh)}:${pad(mm)}:00`;}
+function getHoraInicioExtr(){
+  // Devuelve la hora de inicio de la primera actividad en Extraordinario
+  if(!actIds.length)return 0;
+  return parseInt(document.getElementById('act-ki-'+actIds[0])?.value||0);
+}
+
+function construirTimestamp(fecha,h,m,turno){
+  const hh=parseInt(h),mm=parseInt(m);
+  let f=fecha;
+  if(turno==='Nocturno'&&hh<8){
+    const d=new Date(fecha+'T00:00:00');d.setDate(d.getDate()+1);f=d.toISOString().split('T')[0];
+  } else if(turno==='Extraordinario'){
+    // Si esta hora es menor que la hora de inicio de la primera actividad
+    // significa que ya cruzó medianoche → día siguiente
+    const hInicio=getHoraInicioExtr();
+    if(hh<hInicio){
+      const d=new Date(fecha+'T00:00:00');d.setDate(d.getDate()+1);f=d.toISOString().split('T')[0];
+    }
+  }
+  return `${f}T${pad(hh)}:${pad(mm)}:00`;
+}
 
 // ── GUARDAR ──
 async function guardar(){
