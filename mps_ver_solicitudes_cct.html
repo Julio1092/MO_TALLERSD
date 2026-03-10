@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS – Solicitudes OT · CCT</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--lila:#553c9a;--lila-d:#2d1f5e;--gold:#ffd700;--gold-bg:rgba(255,215,0,0.08);--bg:#f0f4fb;--bg2:#ffffff;--bg3:#f8fafc;--border:#e2e8f0;--bord2:#bac8e2;--azul:#3860b2;--verde:#2e9e4f;--rojo:#c53030;--txt:#1a202c;--txt2:#2d3748;--txt3:#718096;--shadow:0 2px 12px rgba(85,60,154,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:var(--lila-d);display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;box-shadow:0 2px 12px rgba(45,31,94,0.3)}
+.tb-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:6px 13px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back:hover{background:rgba(255,255,255,0.22)}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.page{padding:24px;max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.page-title{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--lila)}
+.page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.a::before{background:linear-gradient(90deg,#553c9a,#b794f4)}
+.kpi.v::before{background:linear-gradient(90deg,#2e9e4f,#68d391)}
+.kpi.n::before{background:linear-gradient(90deg,#c05621,#f6ad55)}
+.kpi-val{font-family:'Space Mono',monospace;font-size:28px;font-weight:700}
+.kpi.a .kpi-val{color:#553c9a}.kpi.v .kpi-val{color:#2e9e4f}.kpi.n .kpi-val{color:#c05621}
+.kpi-lbl{font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.card-hdr{padding:12px 18px;border-bottom:1.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;justify-content:space-between}
+.card-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--lila);display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.btn-reload{padding:6px 13px;background:rgba(85,60,154,.08);border:1.5px solid #bac8e2;color:var(--lila);border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-reload:hover{background:rgba(85,60,154,.15)}
+/* Lista solicitudes */
+.sol-list{display:flex;flex-direction:column;gap:0}
+.sol-item{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px;transition:background .15s}
+.sol-item:last-child{border-bottom:none}
+.sol-item:hover{background:#fafbff}
+.sol-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sol-info{display:flex;flex-direction:column;gap:3px}
+.sol-id{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
+.sol-nombre{font-size:14px;font-weight:700;color:var(--txt)}
+.sol-meta{font-size:12px;color:var(--txt3)}
+.sol-fecha{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
+.chip{display:inline-flex;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:700;font-family:'Space Mono',monospace;border:1px solid}
+.chip-cc{background:#fef3c7;color:#92400e;border-color:#fcd34d}
+.chip-rep{background:#ede9fe;color:#4c1d95;border-color:#c4b5fd}
+.chip-disp{background:#fee2e2;color:#7f1d1d;border-color:#fca5a5}
+/* Input + botón */
+.orden-row{display:flex;gap:10px;align-items:center}
+.inp-orden{padding:10px 14px;background:white;border:1.5px solid var(--border);border-radius:9px;font-family:'Space Mono',monospace;font-size:14px;color:var(--txt);outline:none;width:160px;letter-spacing:2px;transition:border-color .2s}
+.inp-orden:focus{border-color:var(--lila)}
+.inp-orden.invalid{border-color:var(--rojo);background:#fff5f5}
+.inp-orden.valid{border-color:var(--verde);background:#f0faf4}
+.inp-hint{font-size:11px;color:var(--txt3)}
+.btn-asignar{padding:10px 18px;background:var(--lila);color:white;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-asignar:hover{background:var(--lila-d)}
+.btn-asignar:disabled{opacity:.5;cursor:wait}
+.estado{padding:60px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:48px;opacity:.35}.e-txt{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--txt3)}.e-sub{font-size:13px;color:var(--txt3);opacity:.7}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:#276040}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="tb-back" onclick="window.location.href='menu_mps.html'">← MPS</button>
+  <div class="tb-logo">MPS · SOLICITUDES OT</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<div class="page">
+  <div>
+    <div class="page-title">📥 Solicitudes de Órdenes – Servicio Rápido</div>
+    <div class="page-sub">Asigna el número de orden a cada solicitud pendiente</div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi a"><div class="kpi-val" id="k-total">—</div><div class="kpi-lbl">Total Pendientes</div></div>
+    <div class="kpi v"><div class="kpi-val" id="k-hoy">—</div><div class="kpi-lbl">Recibidas Hoy</div></div>
+    <div class="kpi n"><div class="kpi-val" id="k-mecs">—</div><div class="kpi-lbl">Mecánicos</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-ttl"><span class="dot" style="color:var(--lila)"></span> Pendientes de Asignación</div>
+      <button class="btn-reload" onclick="cargar()">↺ Actualizar</button>
+    </div>
+    <div id="lista-body">
+      <div class="estado"><div class="e-ico">⏳</div><div class="e-txt">Cargando…</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(p,body){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'PATCH',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());}
+
+let userActual=null;
+let solicitudes=[];
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  if((u.rol||'').toUpperCase()!=='CCT'){window.location.href='index.html';return;}
+  userActual=u;
+  document.getElementById('tb-user').textContent=u.nombre;
+  await cargar();
+};
+
+async function cargar(){
+  document.getElementById('lista-body').innerHTML=`<div class="estado"><div class="e-ico">⏳</div><div class="e-txt">Cargando…</div></div>`;
+  try{
+    const data=await sbGet('mps_solicitudes_ot?procesado=eq.false&order=fecha_creacion.desc');
+    solicitudes=data||[];
+    renderKPIs();
+    renderLista();
+  }catch(e){
+    document.getElementById('lista-body').innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">Error al cargar</div><div class="e-sub">${e.message}</div></div>`;
+  }
+}
+
+function renderKPIs(){
+  const hoy=new Date().toISOString().slice(0,10);
+  const hoyCount=solicitudes.filter(s=>s.fecha_creacion&&s.fecha_creacion.startsWith(hoy)).length;
+  const mecs=new Set(solicitudes.map(s=>s.codigo_operario)).size;
+  document.getElementById('k-total').textContent=solicitudes.length;
+  document.getElementById('k-hoy').textContent=hoyCount;
+  document.getElementById('k-mecs').textContent=mecs;
+}
+
+function renderLista(){
+  if(!solicitudes.length){
+    document.getElementById('lista-body').innerHTML=`<div class="estado"><div class="e-ico">✅</div><div class="e-txt">Sin solicitudes pendientes</div><div class="e-sub">Todas las solicitudes han sido procesadas</div></div>`;
+    return;
+  }
+  const html=solicitudes.map(s=>{
+    const fecha=s.fecha_creacion?s.fecha_creacion.slice(0,16).replace('T',' '):'—';
+    return `
+    <div class="sol-item" id="si-${s.id}">
+      <div class="sol-top">
+        <div class="sol-info">
+          <div class="sol-id">ID #${s.id}</div>
+          <div class="sol-nombre">${s.nombre_operario||'—'}</div>
+          <div class="sol-meta">Código: ${s.codigo_operario} &nbsp;·&nbsp; Responsable: ${s.responsable||'—'}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+            <span class="chip chip-cc">CC: ${s.centro_costo||'—'}</span>
+            <span class="chip chip-rep">Reporte: ${s.reporte||'—'}</span>
+            <span class="chip chip-disp">${s.disponibilidad||'—'}</span>
+          </div>
+        </div>
+        <div class="sol-fecha">${fecha}</div>
+      </div>
+      <div class="orden-row">
+        <input type="text" class="inp-orden" id="ord-${s.id}" maxlength="6" placeholder="000000"
+          oninput="validarOrden(${s.id})" onkeydown="if(event.key==='Enter')asignar(${s.id})">
+        <div>
+          <div class="inp-hint">Solo 6 dígitos numéricos</div>
+        </div>
+        <button class="btn-asignar" id="btn-${s.id}" onclick="asignar(${s.id})" disabled>
+          <span id="bico-${s.id}">✓</span> <span id="btxt-${s.id}">Asignar N° Orden</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('lista-body').innerHTML=`<div class="sol-list">${html}</div>`;
+}
+
+function validarOrden(id){
+  const inp=document.getElementById(`ord-${id}`);
+  const val=inp.value;
+  const ok=/^\d{6}$/.test(val);
+  inp.className='inp-orden'+(ok?' valid':val.length>0?' invalid':'');
+  document.getElementById(`btn-${id}`).disabled=!ok;
+}
+
+async function asignar(id){
+  const inp=document.getElementById(`ord-${id}`);
+  const numOrden=inp.value.trim();
+  if(!/^\d{6}$/.test(numOrden)){notify('El número de orden debe tener exactamente 6 dígitos','error');return;}
+  const btn=document.getElementById(`btn-${id}`);
+  const bico=document.getElementById(`bico-${id}`);
+  const btxt=document.getElementById(`btxt-${id}`);
+  btn.disabled=true;
+  bico.innerHTML='<span class="spin"></span>';
+  btxt.textContent=' Guardando…';
+  try{
+    await sbPatch(`mps_solicitudes_ot?id=eq.${id}`,{
+      numero_orden:numOrden,
+      procesado:true,
+      procesado_en:new Date().toISOString(),
+      procesado_por:String(userActual.codigo)
+    });
+    notify(`N° Orden ${numOrden} asignado correctamente`,'success');
+    // Animar salida
+    const item=document.getElementById(`si-${id}`);
+    item.style.transition='opacity .5s, transform .5s';
+    item.style.opacity='0';item.style.transform='translateX(20px)';
+    setTimeout(()=>{
+      solicitudes=solicitudes.filter(s=>s.id!==id);
+      renderKPIs();
+      renderLista();
+    },500);
+  }catch(e){
+    btn.disabled=false;
+    bico.textContent='✓';btxt.textContent='Asignar N° Orden';
+    notify('Error: '+e.message,'error');
+  }
+}
+
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type+' show';clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),4000);}
+</script>
+</body>
+</html>

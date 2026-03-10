@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS – Crear Grupo</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);
+  --border:#e2e8f0;--bord2:#bac8e2;--verde:#2e9e4f;--rojo:#c53030;
+  --txt:#1a202c;--txt2:#2d3748;--txt3:#718096;
+  --bg:#f0f4fb;--bg2:#ffffff;--bg3:#f8fafc;
+  --shadow:0 2px 12px rgba(56,96,178,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:var(--azul-d);display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;box-shadow:0 2px 12px rgba(0,18,107,0.22)}
+.tb-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:6px 13px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back:hover{background:rgba(255,255,255,0.22)}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.page{padding:24px;max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.page-title{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--azul-d)}
+.page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.card-hdr{padding:12px 18px;border-bottom:1.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:8px}
+.card-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul)}
+.card-body{padding:18px}
+.f-grp{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.f-lbl{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px}
+.turno-btns{display:flex;gap:10px}
+.turno-btn{flex:1;padding:14px;border:1.5px solid var(--border);border-radius:12px;background:transparent;color:var(--txt2);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.turno-btn:hover{border-color:var(--azul);color:var(--azul);background:var(--azul-bg)}
+.turno-btn.active{background:var(--azul-bg);border-color:var(--azul);color:var(--azul)}
+.input-row{display:flex;gap:10px;align-items:stretch}
+.f-inp{flex:1;padding:11px 14px;background:white;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s}
+.f-inp:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.12)}
+.f-inp::placeholder{color:var(--txt3)}
+.btn-buscar{padding:11px 18px;background:var(--azul-bg);border:1.5px solid var(--border2);color:var(--azul);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-buscar:hover{background:rgba(56,96,178,.15)}
+.nombre-preview{padding:10px 14px;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;font-size:13px;color:var(--txt3);min-height:42px;display:flex;align-items:center}
+.nombre-preview.found{color:#68d391;border-color:#2e9e4f}
+.nombre-preview.not-found{color:#fc8181;border-color:var(--rojo)}
+.btn-agregar{width:100%;padding:12px;background:rgba(46,158,79,0.15);border:1.5px solid #2e9e4f;color:#68d391;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px}
+.btn-agregar:hover{background:rgba(46,158,79,0.28)}
+.btn-agregar:disabled{opacity:.4;cursor:not-allowed}
+.lista-mecs{display:flex;flex-direction:column;gap:8px}
+.mec-item{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px}
+.mec-info{display:flex;flex-direction:column;gap:2px}
+.mec-nombre{font-size:14px;font-weight:600}
+.mec-codigo{font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)}
+.btn-quitar{background:rgba(197,48,48,0.15);border:1px solid rgba(197,48,48,0.4);color:#fc8181;padding:5px 10px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-quitar:hover{background:rgba(197,48,48,0.3)}
+.empty-mecs{padding:24px;text-align:center;color:var(--txt3);font-size:13px}
+.btn-guardar{width:100%;padding:15px;background:var(--azul);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-guardar:hover{background:var(--azul-d);transform:translateY(-1px)}
+.btn-guardar:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.alerta{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:none}
+.alerta.warn{background:rgba(197,140,48,0.2);border:1px solid rgba(197,140,48,0.5);color:#f6d860}
+.alerta.err{background:rgba(197,48,48,0.15);border:1px solid rgba(197,48,48,0.4);color:#fc8181}
+.alerta.ok{background:rgba(46,158,79,0.15);border:1px solid #2e9e4f;color:#68d391}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.grupo-activo{background:#fffbeb;border:1.5px solid #fcd34d;border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ga-info{display:flex;flex-direction:column;gap:3px}
+.ga-ttl{font-family:'Space Mono',monospace;font-size:11px;color:var(--azul);font-weight:700}
+.ga-sub{font-size:13px;color:var(--txt3)}
+.btn-cerrar-grupo{padding:8px 14px;background:rgba(197,48,48,0.15);border:1px solid rgba(197,48,48,0.4);color:#fc8181;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-cerrar-grupo:hover{background:rgba(197,48,48,0.3)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="tb-back" onclick="window.location.href='menu_mps.html'">← MPS</button>
+  <div class="tb-logo">MPS · GRUPO</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<div class="page">
+  <div>
+    <div class="page-title">👥 Crear Grupo de Turno</div>
+    <div class="page-sub">Define el turno y los mecánicos que participan</div>
+  </div>
+
+  <!-- Grupo activo existente -->
+  <div id="seccion-activo" style="display:none">
+    <div class="grupo-activo">
+      <div class="ga-info">
+        <div class="ga-ttl">⚡ GRUPO ACTIVO</div>
+        <div class="ga-sub" id="ga-desc">—</div>
+      </div>
+      <button class="btn-cerrar-grupo" onclick="cerrarGrupoActivo()">Cerrar Grupo</button>
+    </div>
+  </div>
+
+  <div id="alerta" class="alerta"></div>
+
+  <!-- Formulario nuevo grupo -->
+  <div class="card" id="form-nuevo">
+    <div class="card-hdr"><div class="card-ttl">🔧 Nuevo Grupo</div></div>
+    <div class="card-body">
+
+      <div class="f-grp">
+        <div class="f-lbl">Turno</div>
+        <div class="turno-btns">
+          <button class="turno-btn" id="btn-diurno" onclick="selTurno('Diurno')">☀️ Diurno</button>
+          <button class="turno-btn" id="btn-nocturno" onclick="selTurno('Nocturno')">🌙 Nocturno</button>
+        </div>
+      </div>
+
+      <div class="f-grp">
+        <div class="f-lbl">Agregar Mecánico por Código</div>
+        <div class="input-row">
+          <input type="text" class="f-inp" id="inp-codigo" placeholder="Ej: 12345" maxlength="20"
+            onkeydown="if(event.key==='Enter')buscarMecanico()">
+          <button class="btn-buscar" onclick="buscarMecanico()">🔍 Buscar</button>
+        </div>
+        <div class="nombre-preview" id="preview-nombre">Escribe un código y presiona Buscar</div>
+        <button class="btn-agregar" id="btn-agregar" onclick="agregarMecanico()" disabled>+ Agregar al Grupo</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Lista mecánicos agregados -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-ttl">👷 Mecánicos en el Grupo</div>
+      <span id="cnt-mecs" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt2)">0</span>
+    </div>
+    <div class="card-body" id="lista-mecs">
+      <div class="empty-mecs">Aún no hay mecánicos agregados</div>
+    </div>
+  </div>
+
+  <button class="btn-guardar" id="btn-guardar" onclick="guardarGrupo()" disabled>
+    <span id="g-ico">💾</span> <span id="g-txt">Guardar Grupo</span>
+  </button>
+</div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(p,body){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(p,body){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'PATCH',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());}
+
+let userActual=null;
+let turnoSeleccionado=null;
+let mecActual=null; // {codigo, nombre} del buscado
+let mecanicos=[]; // lista acumulada
+let grupoActivo=null;
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  if((u.rol||'').toUpperCase()!=='MECANICO'||String(u.CC)!=='8013090'){window.location.href='index.html';return;}
+  userActual=u;
+  document.getElementById('tb-user').textContent=u.nombre;
+  await verificarGrupoActivo();
+};
+
+async function verificarGrupoActivo(){
+  try{
+    const hoy=new Date().toISOString().slice(0,10);
+    const data=await sbGet(`mps_grupos?estado=eq.activo&fecha=eq.${hoy}&creado_por=eq.${encodeURIComponent(String(userActual.codigo))}&order=id.desc&limit=1`);
+    if(data&&data.length){
+      grupoActivo=data[0];
+      const sec=document.getElementById('seccion-activo');
+      sec.style.display='block';
+      document.getElementById('ga-desc').textContent=`${grupoActivo.turno} · ${grupoActivo.fecha} · ID ${grupoActivo.id}`;
+      mostrarAlerta(`Ya tienes un grupo ${grupoActivo.turno} activo. Ciérralo para crear uno nuevo.`,'warn');
+      document.getElementById('form-nuevo').style.display='none';
+      document.getElementById('btn-guardar').style.display='none';
+    }
+  }catch(e){console.warn(e);}
+}
+
+function selTurno(t){
+  turnoSeleccionado=t;
+  document.getElementById('btn-diurno').classList.toggle('active',t==='Diurno');
+  document.getElementById('btn-nocturno').classList.toggle('active',t==='Nocturno');
+  actualizarBtnGuardar();
+}
+
+async function buscarMecanico(){
+  const cod=document.getElementById('inp-codigo').value.trim();
+  if(!cod){return;}
+  const prev=document.getElementById('preview-nombre');
+  const btnA=document.getElementById('btn-agregar');
+  prev.className='nombre-preview';
+  prev.textContent='Buscando…';
+  btnA.disabled=true;
+  mecActual=null;
+  try{
+    const data=await sbGet(`Colaboradores?codigo=eq.${encodeURIComponent(cod)}&rol=eq.MECANICO&limit=1`);
+    if(data&&data.length){
+      mecActual={codigo:String(data[0].codigo),nombre:data[0].nombre};
+      prev.className='nombre-preview found';
+      prev.textContent='✓ '+data[0].nombre;
+      // Verificar que no esté ya en la lista
+      if(mecanicos.find(m=>m.codigo===mecActual.codigo)){
+        prev.className='nombre-preview not-found';
+        prev.textContent='⚠ Este mecánico ya está en el grupo';
+        mecActual=null;
+      } else {
+        btnA.disabled=false;
+      }
+    } else {
+      prev.className='nombre-preview not-found';
+      prev.textContent='✗ Mecánico no encontrado';
+    }
+  }catch(e){prev.className='nombre-preview not-found';prev.textContent='Error: '+e.message;}
+}
+
+function agregarMecanico(){
+  if(!mecActual)return;
+  mecanicos.push({...mecActual});
+  mecActual=null;
+  document.getElementById('inp-codigo').value='';
+  document.getElementById('preview-nombre').className='nombre-preview';
+  document.getElementById('preview-nombre').textContent='Escribe un código y presiona Buscar';
+  document.getElementById('btn-agregar').disabled=true;
+  renderLista();
+  actualizarBtnGuardar();
+}
+
+function quitarMecanico(codigo){
+  mecanicos=mecanicos.filter(m=>m.codigo!==codigo);
+  renderLista();
+  actualizarBtnGuardar();
+}
+
+function renderLista(){
+  const cnt=document.getElementById('cnt-mecs');
+  cnt.textContent=mecanicos.length;
+  const lista=document.getElementById('lista-mecs');
+  if(!mecanicos.length){lista.innerHTML='<div class="empty-mecs">Aún no hay mecánicos agregados</div>';return;}
+  lista.innerHTML=mecanicos.map(m=>`
+    <div class="mec-item">
+      <div class="mec-info">
+        <div class="mec-nombre">${m.nombre}</div>
+        <div class="mec-codigo">${m.codigo}</div>
+      </div>
+      <button class="btn-quitar" onclick="quitarMecanico('${m.codigo}')">✕ Quitar</button>
+    </div>`).join('');
+}
+
+function actualizarBtnGuardar(){
+  document.getElementById('btn-guardar').disabled=!(turnoSeleccionado&&mecanicos.length>0);
+}
+
+async function guardarGrupo(){
+  if(!turnoSeleccionado||!mecanicos.length)return;
+  // Verificar que no haya grupo activo del mismo turno hoy
+  try{
+    const hoy=new Date().toISOString().slice(0,10);
+    const existe=await sbGet(`mps_grupos?estado=eq.activo&turno=eq.${encodeURIComponent(turnoSeleccionado)}&fecha=eq.${hoy}&limit=1`);
+    if(existe&&existe.length){
+      mostrarAlerta(`Ya existe un grupo ${turnoSeleccionado} activo para hoy. Solo puede haber uno por turno.`,'err');
+      return;
+    }
+    setGuardando(true);
+    // Crear grupo
+    const grupos=await sbPost('mps_grupos',{turno:turnoSeleccionado,fecha:hoy,estado:'activo',creado_por:String(userActual.codigo)});
+    const grupoId=grupos[0].id;
+    // Insertar mecánicos
+    const rows=mecanicos.map(m=>({grupo_id:grupoId,codigo_mecanico:m.codigo,nombre_mecanico:m.nombre}));
+    await sbPost('mps_grupos_mecanicos',rows);
+    setGuardando(false);
+    mostrarAlerta(`✅ Grupo ${turnoSeleccionado} creado con ${mecanicos.length} mecánico(s).`,'ok');
+    setTimeout(()=>window.location.href='menu_mps.html',1500);
+  }catch(e){setGuardando(false);mostrarAlerta('Error: '+e.message,'err');}
+}
+
+async function cerrarGrupoActivo(){
+  if(!grupoActivo)return;
+  if(!confirm(`¿Cerrar el grupo ${grupoActivo.turno} del ${grupoActivo.fecha}?`))return;
+  try{
+    await sbPatch(`mps_grupos?id=eq.${grupoActivo.id}`,{estado:'cerrado'});
+    grupoActivo=null;
+    document.getElementById('seccion-activo').style.display='none';
+    document.getElementById('form-nuevo').style.display='block';
+    document.getElementById('btn-guardar').style.display='block';
+    document.getElementById('alerta').style.display='none';
+  }catch(e){mostrarAlerta('Error: '+e.message,'err');}
+}
+
+function setGuardando(v){
+  document.getElementById('g-ico').innerHTML=v?'<span class="spin"></span>':'💾';
+  document.getElementById('g-txt').textContent=v?'Guardando…':'Guardar Grupo';
+  document.getElementById('btn-guardar').disabled=v;
+}
+
+function mostrarAlerta(msg,tipo){
+  const el=document.getElementById('alerta');
+  el.textContent=msg;
+  el.className='alerta '+tipo;
+  el.style.display='block';
+}
+</script>
+</body>
+</html>

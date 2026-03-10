@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS – Solicitar OT</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);
+  --border:#e2e8f0;--bord2:#bac8e2;--verde:#2e9e4f;--rojo:#c53030;
+  --txt:#1a202c;--txt2:#2d3748;--txt3:#718096;
+  --bg:#f0f4fb;--bg2:#ffffff;--bg3:#f8fafc;
+  --shadow:0 2px 12px rgba(56,96,178,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:var(--azul-d);display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;box-shadow:0 2px 12px rgba(0,18,107,0.22)}
+.tb-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:6px 13px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back:hover{background:rgba(255,255,255,0.22)}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.page{padding:24px;max-width:580px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.page-title{font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--azul-d)}
+.page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
+.card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.card-hdr{padding:12px 18px;border-bottom:1.5px solid var(--border);background:var(--bg3);display:flex;align-items:center;gap:8px}
+.card-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul)}
+.card-body{padding:20px;display:flex;flex-direction:column;gap:16px}
+.f-grp{display:flex;flex-direction:column;gap:6px}
+.f-lbl{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px}
+.f-inp{width:100%;padding:12px 14px;background:white;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--txt);outline:none;transition:border-color .2s}
+.f-inp:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.12)}
+.f-inp::placeholder{color:var(--txt3)}
+.f-readonly{width:100%;padding:12px 14px;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--txt3);cursor:default}
+.badge-readonly{display:inline-block;padding:4px 10px;background:var(--azul-bg);border:1px solid var(--bord2);border-radius:6px;font-size:12px;font-weight:700;color:var(--azul-d);font-family:'Space Mono',monospace}
+.divider{height:1px;background:var(--border);margin:4px 0}
+.section-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--txt3);font-family:'Space Mono',monospace;padding:0 2px}
+.btn-guardar{width:100%;padding:15px;background:var(--azul);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-guardar:hover{background:var(--azul-d);transform:translateY(-1px)}
+.btn-guardar:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.alerta{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:none}
+.alerta.ok{background:#f0faf4;border:1px solid #9ae6b4;color:#276040}
+.alerta.err{background:#fff5f5;border:1px solid #fca5a5;color:#c53030}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="tb-back" onclick="window.location.href='menu_mps.html'">← MPS</button>
+  <div class="tb-logo">MPS · SOLICITAR OT</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<div class="page">
+  <div>
+    <div class="page-title">📋 Solicitar Orden de Trabajo</div>
+    <div class="page-sub">Completa el formulario para generar una solicitud de servicio rápido</div>
+  </div>
+
+  <div id="alerta" class="alerta"></div>
+
+  <div class="card">
+    <div class="card-hdr"><div class="card-ttl">📝 Datos del Aviso</div></div>
+    <div class="card-body">
+
+      <div class="section-lbl">Información a llenar</div>
+
+      <div class="f-grp">
+        <div class="f-lbl">Centro de Costo</div>
+        <input type="text" class="f-inp" id="centro-costo" placeholder="Ej: 8013090" maxlength="30">
+      </div>
+
+      <div class="divider"></div>
+      <div class="section-lbl">Información automática (solo lectura)</div>
+
+      <div class="f-grp">
+        <div class="f-lbl">Código / Nombre del Solicitante</div>
+        <div class="f-readonly" id="campo-operario">—</div>
+      </div>
+
+      <div class="f-grp">
+        <div class="f-lbl">Disponibilidad</div>
+        <div class="f-readonly"><span class="badge-readonly">No puede laborar</span></div>
+      </div>
+
+      <div class="f-grp">
+        <div class="f-lbl">Responsable (Jefe)</div>
+        <div class="f-readonly" id="campo-responsable">—</div>
+      </div>
+
+      <div class="f-grp">
+        <div class="f-lbl">Reporte</div>
+        <div class="f-readonly"><span class="badge-readonly">MP</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <button class="btn-guardar" id="btn-guardar" onclick="guardar()">
+    <span id="g-ico">💾</span><span id="g-txt"> Guardar Solicitud</span>
+  </button>
+</div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(p,body){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());return r.json();}
+
+let userActual=null;
+let jefeCodigo=null;
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  if((u.rol||'').toUpperCase()!=='MECANICO'||String(u.CC)!=='8013090'){window.location.href='index.html';return;}
+  userActual=u;
+  document.getElementById('tb-user').textContent=u.nombre;
+  document.getElementById('campo-operario').textContent=`${u.codigo} · ${u.nombre}`;
+  // Buscar jefe_codigo del usuario
+  try{
+    const data=await sbGet(`Colaboradores?codigo=eq.${encodeURIComponent(String(u.codigo))}&limit=1`);
+    if(data&&data.length&&data[0].jefe_codigo){
+      jefeCodigo=data[0].jefe_codigo;
+      document.getElementById('campo-responsable').textContent=jefeCodigo;
+    } else {
+      document.getElementById('campo-responsable').textContent='No asignado';
+    }
+  }catch(e){document.getElementById('campo-responsable').textContent='Error al cargar';}
+};
+
+async function guardar(){
+  const cc=document.getElementById('centro-costo').value.trim();
+  if(!cc){mostrarAlerta('Por favor ingresa el Centro de Costo.','err');return;}
+  setGuardando(true);
+  try{
+    await sbPost('mps_solicitudes_ot',{
+      centro_costo:cc,
+      codigo_operario:String(userActual.codigo),
+      nombre_operario:userActual.nombre,
+      responsable:jefeCodigo||'',
+      disponibilidad:'No puede laborar',
+      reporte:'MP'
+    });
+    setGuardando(false);
+    mostrarAlerta('✅ Solicitud guardada correctamente.','ok');
+    setTimeout(()=>window.location.href='menu_mps.html',1500);
+  }catch(e){setGuardando(false);mostrarAlerta('Error: '+e.message,'err');}
+}
+
+function setGuardando(v){
+  document.getElementById('g-ico').innerHTML=v?'<span class="spin"></span>':'💾';
+  document.getElementById('g-txt').textContent=v?' Guardando…':' Guardar Solicitud';
+  document.getElementById('btn-guardar').disabled=v;
+}
+function mostrarAlerta(msg,tipo){
+  const el=document.getElementById('alerta');
+  el.textContent=msg;el.className='alerta '+tipo;el.style.display='block';
+  if(tipo==='ok')setTimeout(()=>el.style.display='none',3000);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MPS – Hoja de Notificación</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);
+  --border:#e2e8f0;--bord2:#bac8e2;--verde:#2e9e4f;--rojo:#c53030;
+  --txt:#1a202c;--txt2:#2d3748;--txt3:#718096;
+  --bg:#f0f4fb;--bg2:#ffffff;--bg3:#f8fafc;
+  --shadow:0 2px 12px rgba(56,96,178,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+.topbar{position:sticky;top:0;z-index:100;background:var(--azul-d);display:flex;align-items:center;gap:12px;padding:0 20px;height:56px;box-shadow:0 2px 12px rgba(0,18,107,0.22)}
+.tb-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:6px 13px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back:hover{background:rgba(255,255,255,0.22)}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+.page{padding:20px;max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.page-title{font-family:'Space Mono',monospace;font-size:17px;font-weight:700;color:var(--azul-d)}
+.page-sub{font-size:13px;color:var(--txt3);margin-top:3px}
+.info-bar{display:flex;gap:12px;flex-wrap:wrap}
+.info-chip{background:white;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--txt3);font-family:'Space Mono',monospace;box-shadow:var(--shadow)}
+.info-chip span{color:var(--azul);font-weight:700}
+/* Tabla */
+.tbl-wrap{overflow-x:auto;border-radius:14px;border:1.5px solid var(--border);background:var(--bg2);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;min-width:700px}
+thead th{padding:10px 12px;text-align:center;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt3);border-bottom:1.5px solid var(--border);background:var(--bg3);white-space:nowrap}
+thead th.th-ot{text-align:left;min-width:120px}
+thead th.th-fecha{min-width:160px}
+tbody tr{border-bottom:1px solid var(--border)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--azul-bg)}
+tbody td{padding:10px 12px;font-size:13px;color:var(--txt2);vertical-align:middle;text-align:center}
+tbody td.td-ot{text-align:left;font-family:'Space Mono',monospace;font-size:12px;color:var(--azul-d);font-weight:700}
+tbody td.td-cc{text-align:left;font-size:12px;color:var(--txt3)}
+/* Checkbox */
+.cb-wrap{display:flex;align-items:center;justify-content:center}
+.cb{width:20px;height:20px;accent-color:var(--azul);cursor:pointer;border-radius:4px}
+/* Datetime */
+.dt-inp{padding:7px 10px;background:white;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--txt);outline:none;transition:border-color .2s;width:175px}
+.dt-inp:focus{border-color:var(--azul)}
+.dt-ini{background:var(--bg3);border-color:var(--border);color:var(--txt3);cursor:default}
+/* Botones */
+.btn-bar{display:flex;gap:12px;flex-wrap:wrap}
+.btn-parcial{flex:1;min-width:160px;padding:14px;background:var(--azul);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-parcial:hover{background:var(--azul-d);transform:translateY(-1px)}
+.btn-parcial:disabled{opacity:.4;cursor:wait}
+.btn-cerrar{flex:1;min-width:160px;padding:14px;background:rgba(197,48,48,0.12);border:1.5px solid rgba(197,48,48,0.35);color:#fc8181;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-cerrar:hover{background:rgba(197,48,48,0.22)}
+.alerta{padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;display:none}
+.alerta.ok{background:#f0faf4;border:1px solid #9ae6b4;color:#276040}
+.alerta.err{background:#fff5f5;border:1px solid #fca5a5;color:#c53030}
+.alerta.warn{background:#fffbeb;border:1px solid #fcd34d;color:#92400e}
+.estado{padding:60px 24px;text-align:center;color:var(--txt3);display:flex;flex-direction:column;gap:10px;align-items:center}
+.e-ico{font-size:48px;opacity:.4}
+.e-txt{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.e-sub{font-size:13px;opacity:.7}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.badge-cerrado{display:inline-block;padding:3px 10px;background:#fff5f5;border:1px solid #fca5a5;color:#c53030;border-radius:6px;font-size:11px;font-weight:700;font-family:'Space Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="tb-back" onclick="salirConGuardado()">← MPS</button>
+  <div class="tb-logo">MPS · HOJA NOTIF.</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<div class="page">
+  <div>
+    <div class="page-title">📊 Hoja de Notificación</div>
+    <div class="page-sub">Registra la participación por Orden de Trabajo y mecánico</div>
+  </div>
+
+  <div class="info-bar" id="info-bar"></div>
+  <div id="alerta" class="alerta"></div>
+
+  <div id="contenido">
+    <div class="estado"><div class="e-ico">⏳</div><div class="e-txt">Cargando…</div></div>
+  </div>
+
+  <div class="btn-bar" id="btn-bar" style="display:none">
+    <button class="btn-parcial" id="btn-parcial" onclick="grabarParcial()">
+      <span id="p-ico">💾</span><span id="p-txt"> Grabar Parcial</span>
+    </button>
+    <button class="btn-cerrar" onclick="cerrarTurno()">🔒 Cerrar Turno</button>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(p,body){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(p,body){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'PATCH',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());}
+async function sbDelete(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{method:'DELETE',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());}
+
+let userActual=null;
+let grupoActual=null;
+let mecanicos=[];
+let solicitudesOT=[];
+let hojaId=null;
+let filasIds={}; // ot_id -> fila_id
+let esCerrado=false;
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  if((u.rol||'').toUpperCase()!=='MECANICO'||String(u.CC)!=='8013090'){window.location.href='index.html';return;}
+  userActual=u;
+  document.getElementById('tb-user').textContent=u.nombre;
+  await cargarDatos();
+};
+
+async function cargarDatos(){
+  try{
+    const hoy=new Date().toISOString().slice(0,10);
+    // 1. Grupo activo de hoy
+    const grupos=await sbGet(`mps_grupos?estado=eq.activo&fecha=eq.${hoy}&creado_por=eq.${encodeURIComponent(String(userActual.codigo))}&order=id.desc&limit=1`);
+    if(!grupos||!grupos.length){
+      setEstado('👥','Sin grupo activo',`Crea primero un grupo de turno para hoy (${hoy})`);
+      return;
+    }
+    grupoActual=grupos[0];
+    // 2. Mecánicos del grupo
+    const mecs=await sbGet(`mps_grupos_mecanicos?grupo_id=eq.${grupoActual.id}&order=id.asc`);
+    mecanicos=mecs||[];
+    // 3. Solicitudes OT con número de orden asignado (procesadas por CCT)
+    const ots=await sbGet(`mps_solicitudes_ot?procesado=eq.true&codigo_operario=eq.${encodeURIComponent(String(userActual.codigo))}&order=fecha_creacion.desc`);
+    solicitudesOT=ots||[];
+    if(!solicitudesOT.length){
+      setEstado('📋','Sin órdenes activas','El CCT aún no ha procesado ninguna solicitud de OT');
+      renderInfoBar();
+      return;
+    }
+    // 4. Hoja de notificación (buscar existente o crear nueva)
+    const hojas=await sbGet(`mps_hoja_notif?grupo_id=eq.${grupoActual.id}&order=id.desc&limit=1`);
+    if(hojas&&hojas.length){
+      hojaId=hojas[0].id;
+      esCerrado=hojas[0].cerrado;
+    } else {
+      const h=await sbPost('mps_hoja_notif',{grupo_id:grupoActual.id,cerrado:false});
+      hojaId=h[0].id;
+      esCerrado=false;
+    }
+    // 5. Cargar filas existentes
+    const filas=await sbGet(`mps_hoja_notif_filas?hoja_id=eq.${hojaId}`);
+    (filas||[]).forEach(f=>{filasIds[String(f.solicitud_ot_id)]=f.id;});
+
+    renderInfoBar();
+    renderTabla();
+    if(!esCerrado) document.getElementById('btn-bar').style.display='flex';
+  }catch(e){setEstado('❌','Error al cargar',e.message);}
+}
+
+function renderInfoBar(){
+  const bar=document.getElementById('info-bar');
+  bar.innerHTML=`
+    <div class="info-chip">Grupo: <span>${grupoActual?.id||'—'}</span></div>
+    <div class="info-chip">Turno: <span>${grupoActual?.turno||'—'}</span></div>
+    <div class="info-chip">Fecha: <span>${grupoActual?.fecha||'—'}</span></div>
+    <div class="info-chip">Mecánicos: <span>${mecanicos.length}</span></div>
+    <div class="info-chip">OTs: <span>${solicitudesOT.length}</span></div>
+    ${esCerrado?'<div class="info-chip"><span class="badge-cerrado">🔒 CERRADO</span></div>':''}`;
+}
+
+function renderTabla(){
+  if(!mecanicos.length||!solicitudesOT.length){
+    setEstado('📊','Sin datos suficientes','Necesitas al menos un mecánico y una OT activa');
+    return;
+  }
+  // Cabecera de mecánicos
+  const thMecs=mecanicos.map(m=>`<th title="${m.nombre_mecanico}">${m.nombre_mecanico.split(' ')[0]}<br><span style="font-size:9px;opacity:.6">${m.codigo_mecanico}</span></th>`).join('');
+  const thead=`<thead><tr>
+    <th class="th-ot">OT / N° Orden</th>
+    <th class="th-ot">Centro Costo</th>
+    <th class="th-fecha">Fecha Inicio</th>
+    <th class="th-fecha">Fecha Fin</th>
+    ${thMecs}
+  </tr></thead>`;
+
+  // Filas de OTs
+  const rows=solicitudesOT.map(ot=>{
+    const otKey=String(ot.id);
+    const filaId=filasIds[otKey];
+    const storKey=`hoja_${hojaId}_ot_${ot.id}`;
+    const saved=JSON.parse(localStorage.getItem(storKey)||'{}');
+    const fecIni=ot.fecha_creacion?ot.fecha_creacion.slice(0,16).replace('T',' '):'—';
+    const fecFinVal=saved.fecha_fin||'';
+    const disabled=esCerrado?'disabled':'';
+
+    const cbMecs=mecanicos.map(m=>{
+      const checked=saved[`cb_${m.codigo_mecanico}`]?'checked':'';
+      return `<td class="cb-wrap"><input type="checkbox" class="cb" id="cb_${ot.id}_${m.codigo_mecanico}" ${checked} ${disabled} onchange="guardarLocal(${ot.id})"></td>`;
+    }).join('');
+
+    return `<tr>
+      <td class="td-ot">${ot.numero_orden||'—'}</td>
+      <td class="td-cc">${ot.centro_costo||'—'}</td>
+      <td><div class="dt-inp dt-ini" style="display:inline-flex;align-items:center;padding:7px 10px">${fecIni}</div></td>
+      <td><input type="datetime-local" class="dt-inp" id="ff_${ot.id}" value="${fecFinVal}" ${disabled} onchange="guardarLocal(${ot.id})"></td>
+      ${cbMecs}
+    </tr>`;
+  }).join('');
+
+  document.getElementById('contenido').innerHTML=`
+    <div class="tbl-wrap">
+      <table>${thead}<tbody>${rows}</tbody></table>
+    </div>`;
+}
+
+function guardarLocal(otId){
+  const storKey=`hoja_${hojaId}_ot_${otId}`;
+  const obj={};
+  const ff=document.getElementById(`ff_${otId}`);
+  if(ff)obj.fecha_fin=ff.value;
+  mecanicos.forEach(m=>{
+    const cb=document.getElementById(`cb_${otId}_${m.codigo_mecanico}`);
+    if(cb)obj[`cb_${m.codigo_mecanico}`]=cb.checked;
+  });
+  localStorage.setItem(storKey,JSON.stringify(obj));
+}
+
+async function grabarParcial(){
+  setParcialLoad(true);
+  try{
+    for(const ot of solicitudesOT){
+      const otKey=String(ot.id);
+      const storKey=`hoja_${hojaId}_ot_${ot.id}`;
+      const saved=JSON.parse(localStorage.getItem(storKey)||'{}');
+      const ffEl=document.getElementById(`ff_${ot.id}`);
+      const fechaFin=ffEl?ffEl.value||null:saved.fecha_fin||null;
+      let filaId=filasIds[otKey];
+      if(!filaId){
+        // Crear fila
+        const f=await sbPost('mps_hoja_notif_filas',{
+          hoja_id:hojaId,
+          solicitud_ot_id:ot.id,
+          centro_costo:ot.centro_costo,
+          fecha_inicio:ot.fecha_creacion,
+          fecha_fin:fechaFin||null
+        });
+        filaId=f[0].id;
+        filasIds[otKey]=filaId;
+      } else {
+        // Actualizar fecha_fin
+        await sbPatch(`mps_hoja_notif_filas?id=eq.${filaId}`,{fecha_fin:fechaFin||null});
+      }
+      // Guardar detalle (borrar y reinsertar)
+      await sbDelete(`mps_hoja_notif_detalle?fila_id=eq.${filaId}`);
+      const detalles=mecanicos.map(m=>({
+        fila_id:filaId,
+        codigo_mecanico:m.codigo_mecanico,
+        nombre_mecanico:m.nombre_mecanico,
+        participo:!!(saved[`cb_${m.codigo_mecanico}`]||(document.getElementById(`cb_${ot.id}_${m.codigo_mecanico}`)?.checked))
+      }));
+      if(detalles.length) await sbPost('mps_hoja_notif_detalle',detalles);
+    }
+    setParcialLoad(false);
+    mostrarAlerta('✅ Guardado parcial completado.','ok');
+  }catch(e){setParcialLoad(false);mostrarAlerta('Error: '+e.message,'err');}
+}
+
+async function salirConGuardado(){
+  if(!esCerrado&&hojaId&&solicitudesOT.length){
+    await grabarParcial();
+  }
+  window.location.href='menu_mps.html';
+}
+
+function cerrarTurno(){
+  alert('Función Cerrar Turno próximamente disponible. Usa Grabar Parcial para guardar el avance.');
+}
+
+function setParcialLoad(v){
+  document.getElementById('p-ico').innerHTML=v?'<span class="spin"></span>':'💾';
+  document.getElementById('p-txt').textContent=v?' Guardando…':' Grabar Parcial';
+  document.getElementById('btn-parcial').disabled=v;
+}
+function setEstado(ico,txt,sub){
+  document.getElementById('contenido').innerHTML=`<div class="estado"><div class="e-ico">${ico}</div><div class="e-txt">${txt}</div><div class="e-sub">${sub}</div></div>`;
+}
+function mostrarAlerta(msg,tipo){
+  const el=document.getElementById('alerta');
+  el.textContent=msg;el.className='alerta '+tipo;el.style.display='block';
+  if(tipo==='ok')setTimeout(()=>el.style.display='none',3000);
+}
+</script>
+</body>
+</html>
