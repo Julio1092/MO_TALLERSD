@@ -242,7 +242,10 @@ let mecPermitidos=null; // null = sin restricción (JEFE), Set = solo estos cód
 let userActual=null;
 
 window.onload=async()=>{
-  const u=getSession();if(!u){window.location.href='index.html';return;}
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  const rol=(u.rol||'').toUpperCase();
+  if(rol!=='SUPERVISOR'&&rol!=='JEFE'){window.location.href='index.html';return;}
   userActual=u;
   document.getElementById('tb-user').textContent=u.nombre;
   const hoy=new Date(),d7=new Date();d7.setDate(hoy.getDate()-7);
@@ -255,13 +258,27 @@ async function cargarColabs(){
   try{
     const rol=(userActual?.rol||'').toUpperCase();
     const esJefe=rol==='JEFE';
-    const query=esJefe
-      ?'Colaboradores?select=codigo,nombre&rol=eq.MECANICO&order=nombre.asc'
-      :`Colaboradores?select=codigo,nombre&rol=eq.MECANICO&Jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
+    let query;
+    if(esJefe){
+      query='Colaboradores?select=codigo,nombre&rol=eq.MECANICO&order=nombre.asc';
+    } else {
+      query=`Colaboradores?select=codigo,nombre&rol=eq.MECANICO&jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
+    }
     const data=await sbGet(query);
-    const sel=document.getElementById('f-mec');sel.innerHTML='<option value="">— Todos —</option>';
-    (data||[]).forEach(c=>{colabs[String(c.codigo)]=c.nombre;const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o);});
+    const sel=document.getElementById('f-mec');
+    sel.innerHTML='<option value="">— Todos mis mecanicos —</option>';
+    (data||[]).forEach(c=>{
+      colabs[String(c.codigo)]=c.nombre;
+      const o=document.createElement('option');
+      o.value=c.codigo;
+      o.textContent=c.nombre;
+      sel.appendChild(o);
+    });
     mecPermitidos=esJefe?null:new Set((data||[]).map(c=>String(c.codigo)));
+    if(!esJefe&&mecPermitidos.size===0){
+      notify('No tienes mecanicos asignados. Contacta al administrador.','warning');
+      document.getElementById('btnB').disabled=true;
+    }
   }catch(e){console.warn('colabs:',e.message);}
 }
 
