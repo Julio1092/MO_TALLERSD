@@ -121,6 +121,14 @@ tbody td{padding:11px 16px;font-size:13px;color:var(--txt2);vertical-align:middl
 .dec-badge.Aprobado{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7}
 .dec-badge.Rechazado{background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5}
 .dec-badge.pendiente{background:#fef9c3;color:#713f12;border:1px solid #fde047}
+/* BANDEJA AUTORIZADOS */
+.section-divider{display:flex;align-items:center;gap:12px;margin:4px 0}
+.section-divider span{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--txt3);white-space:nowrap}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1.5px;background:var(--border)}
+.card-apr{background:var(--bg2);border:1.5px solid #a5d6b7;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(46,158,79,0.10)}
+.card-apr .card-hdr{background:#f0faf4;border-bottom:1.5px solid #a5d6b7}
+.card-apr .card-ttl{color:var(--verde)}
+tbody tr.row-apr:hover{background:rgba(46,158,79,.04)}
 
 @media(max-width:900px){.ch-grid{grid-template-columns:1fr}.kpi-grid{grid-template-columns:1fr 1fr}.f-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.f-grid{grid-template-columns:1fr}.page{padding:14px}}
@@ -219,6 +227,36 @@ tbody td{padding:11px 16px;font-size:13px;color:var(--txt2);vertical-align:middl
     <div class="pag" id="pag"></div>
   </div>
 
+  <!-- BANDEJA AUTORIZADOS -->
+  <div id="section-apr" style="display:none">
+    <div class="section-divider"><span>✅ Ya Autorizados / Rechazados</span></div>
+  </div>
+  <div class="card-apr card" id="cardApr" style="display:none">
+    <div class="card-hdr">
+      <div class="card-ttl"><span class="dot" style="color:var(--verde);background:var(--verde)"></span> Registros Procesados <span id="aprCnt" style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txt3);margin-left:8px"></span></div>
+      <div class="srch-wrap">
+        <span class="srch-ico">🔎</span>
+        <input type="text" class="srch" id="srch-apr" placeholder="Buscar…" oninput="filtrarTablaApr()">
+      </div>
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr>
+          <th onclick="sortByApr('nombre')" id="ha-nombre">Mecánico ↕</th>
+          <th onclick="sortByApr('fecha')"  id="ha-fecha" class="sorted">Fecha ↓</th>
+          <th onclick="sortByApr('turno')"  id="ha-turno">Turno ↕</th>
+          <th>OTs</th>
+          <th onclick="sortByApr('horas')"  id="ha-horas">Horas ↕</th>
+          <th>Acts.</th>
+          <th>Decisión</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-apr"></tbody>
+      </table>
+    </div>
+    <div class="pag" id="pag-apr"></div>
+  </div>
+
   <div class="estado" id="evacio">
     <div class="e-ico">🔍</div>
     <div class="e-txt">Selecciona filtros y presiona Buscar</div>
@@ -235,10 +273,12 @@ async function sbGet(path){const r=await fetch(`${SB_URL}/rest/v1/${path}`,{head
 
 const PAL=['#3860b2','#2e9e4f','#c05621','#553c9a','#0987a0','#c53030','#b7791f','#2c7a7b','#97266d','#2a69ac'];
 let todos=[],filtrados=[],colabs={};
+let todosPend=[],todosApr=[],filtradosApr=[];
 let cMec=null,cTurno=null,cAct=null;
-let pag=1;const PPG=15;
+let pag=1,pagApr=1;const PPG=15;
 let sCol='fecha',sDir=-1;
-let mecPermitidos=null; // null = sin restricción (JEFE), Set = solo estos códigos
+let sColApr='fecha',sDirApr=-1;
+let mecPermitidos=null;
 let userActual=null;
 
 window.onload=async()=>{
@@ -296,8 +336,7 @@ async function buscar(){
   } else if(mecPermitidos&&mecPermitidos.size>0){
     p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
   }
-  // Mostrar solo pendientes (sup_autoriza no es true aún)
-  p.push('sup_autoriza=not.is.true');
+  // Traer todos (pendientes + procesados) — se separan en el cliente
   p.push('order=Fecha_Reporte.desc');
   setLoad(true);hide();
   try{
@@ -309,18 +348,52 @@ async function buscar(){
       const cod=String(r.codigo_operario||'');
       return{...r,_h:hTot,_n:nAct,_ots:[...ots],_acts:acts,_nom:colabs[cod]||cod||'—'};
     });
-    if(!todos.length){setEstado('😕','Sin resultados','Prueba con otros filtros');renderKPIs([]);show('kpis');return;}
+    // Separar en pendientes y procesados
+    todosPend=(raw||[]).filter(r=>!r.sup_autoriza).map(r=>{
+      let hTot=0,nAct=0;const ots=new Set(),acts=[];
+      for(let i=1;i<=20;i++){if(r[`H${i}`]!=null)hTot+=parseFloat(r[`H${i}`]||0);if(r[`A${i}`]){nAct++;acts.push(r[`A${i}`]);}if(r[`OT${i}`])ots.add(String(r[`OT${i}`]));}
+      const cod=String(r.codigo_operario||'');
+      return{...r,_h:hTot,_n:nAct,_ots:[...ots],_acts:acts,_nom:colabs[cod]||cod||'—'};
+    });
+    todosApr=(raw||[]).filter(r=>r.sup_autoriza===true).map(r=>{
+      let hTot=0,nAct=0;const ots=new Set(),acts=[];
+      for(let i=1;i<=20;i++){if(r[`H${i}`]!=null)hTot+=parseFloat(r[`H${i}`]||0);if(r[`A${i}`]){nAct++;acts.push(r[`A${i}`]);}if(r[`OT${i}`])ots.add(String(r[`OT${i}`]));}
+      const cod=String(r.codigo_operario||'');
+      return{...r,_h:hTot,_n:nAct,_ots:[...ots],_acts:acts,_nom:colabs[cod]||cod||'—'};
+    });
+    todos=[...todosPend];
+
     document.getElementById('srch').value='';
-    filtrados=[...todos];pag=1;sCol='fecha';sDir=-1;syncHeaders();
-    renderKPIs(todos);renderCharts(todos);renderTabla();
-    show('kpis');show('chg1');show('chg2');show('cardTbl');
+    document.getElementById('srch-apr').value='';
+    filtrados=[...todosPend];filtradosApr=[...todosApr];
+    pag=1;pagApr=1;sCol='fecha';sDir=-1;sColApr='fecha';sDirApr=-1;
+    syncHeaders();syncHeadersApr();
+
+    const allData=[...todosPend,...todosApr];
+    if(allData.length){
+      renderKPIs(allData);renderCharts(allData);
+      show('kpis');show('chg1');show('chg2');
+    } else {
+      setEstado('😕','Sin resultados','Prueba con otros filtros');renderKPIs([]);show('kpis');return;
+    }
+
+    if(todosPend.length){show('cardTbl');}else{document.getElementById('cardTbl').style.display='none';}
+    if(todosApr.length){
+      document.getElementById('section-apr').style.display='block';
+      show('cardApr');
+      renderTablaApr();
+    } else {
+      document.getElementById('section-apr').style.display='none';
+      document.getElementById('cardApr').style.display='none';
+    }
+    renderTabla();
     document.getElementById('evacio').style.display='none';
   }catch(e){setLoad(false);setEstado('❌','Error al consultar','Verifica tu conexión');notify(e.message,'error');}
 }
 
 function setLoad(v){document.getElementById('bico').innerHTML=v?'<span class="spin"></span>':'🔍';document.getElementById('btxt').textContent=v?' Cargando…':' Buscar Registros';document.getElementById('btnB').disabled=v;}
 function show(id){const el=document.getElementById(id);el.style.display=(id==='kpis'||id==='chg1'||id==='chg2')?'grid':'block';}
-function hide(){['kpis','chg1','chg2','cardTbl'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('evacio').style.display='none';}
+function hide(){['kpis','chg1','chg2','cardTbl','cardApr','section-apr'].forEach(id=>document.getElementById(id).style.display='none');document.getElementById('evacio').style.display='none';}
 function setEstado(ico,txt,sub){const el=document.getElementById('evacio');el.querySelector('.e-ico').textContent=ico;el.querySelector('.e-txt').textContent=txt;el.querySelector('.e-sub').textContent=sub;el.style.display='flex';}
 
 function renderKPIs(r){
@@ -437,22 +510,37 @@ async function procesarRegistro(rid, rowId, decision) {
     );
     if(!res.ok)throw new Error(await res.text()||res.status);
 
-    // Actualizar UI
     btnA.disabled=true; btnR.disabled=true;
     if(esApr){btnA.innerHTML='✅ Autorizado';btnA.className='btn-autorizar done-apr';}
     else{btnR.innerHTML='❌ Rechazado';btnR.className='btn-rechazar';btnR.style.background='var(--rojo)';btnR.style.color='white';}
-
     notify(`Registro ${esApr?'autorizado':'rechazado'} correctamente`,'success');
 
-    // Quitar del array y re-renderizar tras animación
     setTimeout(()=>{
-      todos=todos.filter(x=>x.id!==rowId);
-      filtrados=filtrados.filter(x=>x.id!==rowId);
-      renderKPIs(todos);
-      if(todos.length)renderCharts(todos);
+      // Mover de pendientes → autorizados
+      const registro=todosPend.find(x=>x.id===rowId);
+      if(registro){
+        const updated={...registro,sup_autoriza:true,sup_decision:decision};
+        todosPend=todosPend.filter(x=>x.id!==rowId);
+        todosApr=[updated,...todosApr];
+        todos=[...todosPend];
+        filtrados=filtrados.filter(x=>x.id!==rowId);
+        filtradosApr=[updated,...filtradosApr];
+      }
+      const allData=[...todosPend,...todosApr];
+      renderKPIs(allData);
+      if(allData.length)renderCharts(allData);
       pag=Math.min(pag,Math.max(1,Math.ceil(filtrados.length/PPG)));
       renderTabla();
-      if(!todos.length){hide();setEstado('😊','Sin registros pendientes','Todos los reportes han sido procesados');}
+      // Mostrar/ocultar bandejas
+      if(!todosPend.length){
+        document.getElementById('cardTbl').style.display='none';
+        if(!todosApr.length){hide();setEstado('😊','Sin registros pendientes','Todos los reportes han sido procesados');}
+      }
+      if(todosApr.length){
+        document.getElementById('section-apr').style.display='block';
+        document.getElementById('cardApr').style.display='block';
+        renderTablaApr();
+      }
     },800);
 
   }catch(e){
@@ -471,6 +559,71 @@ function limpiar(){
   hide();setEstado('🔍','Selecciona filtros y presiona Buscar','Filtra por fecha, turno o mecánico');
   todos=[];filtrados=[];
 }
+
+/* ══ BANDEJA AUTORIZADOS ══ */
+function filtrarTablaApr(){
+  const q=document.getElementById('srch-apr').value.toLowerCase().trim();
+  filtradosApr=q?todosApr.filter(r=>r._nom.toLowerCase().includes(q)||r._ots.some(o=>o.includes(q))):[...todosApr];
+  pagApr=1;renderTablaApr();
+}
+function sortByApr(col){if(sColApr===col)sDirApr*=-1;else{sColApr=col;sDirApr=-1;}syncHeadersApr();pagApr=1;renderTablaApr();}
+function syncHeadersApr(){
+  const labels={nombre:'Mecánico',fecha:'Fecha',turno:'Turno',horas:'Horas'};
+  Object.keys(labels).forEach(c=>{const el=document.getElementById('ha-'+c);if(!el)return;el.textContent=labels[c]+' '+(sColApr===c?(sDirApr>0?'↑':'↓'):'↕');el.className=sColApr===c?'sorted':'';});
+}
+function renderTablaApr(){
+  const sorted=[...filtradosApr].sort((a,b)=>{
+    if(sColApr==='nombre')return sDirApr*(a._nom||'').localeCompare(b._nom||'');
+    if(sColApr==='fecha')return sDirApr*(a.Fecha_Reporte||'').localeCompare(b.Fecha_Reporte||'');
+    if(sColApr==='turno')return sDirApr*(a.Turno||'').localeCompare(b.Turno||'');
+    if(sColApr==='horas')return sDirApr*(a._h-b._h);return 0;
+  });
+  const total=sorted.length,ini=(pagApr-1)*PPG,fin=Math.min(ini+PPG,total);
+  document.getElementById('aprCnt').textContent=`${total} registro${total!==1?'s':''}`;
+  const tb=document.getElementById('tbody-apr');tb.innerHTML='';
+  sorted.slice(ini,fin).forEach((r,i)=>{
+    const rid=`da-${ini+i}`,t=r.Turno||'';
+    const dec=r.sup_decision||'pendiente';
+    const tr=document.createElement('tr');tr.className='row-apr';
+    tr.innerHTML=`
+      <td class="td-mec">${r._nom}</td>
+      <td class="td-fecha">${r.Fecha_Reporte||'—'}</td>
+      <td><span class="badge ${t}">${t||'—'}</span></td>
+      <td class="td-ots">${r._ots.join(' · ')||'—'}</td>
+      <td class="td-h">${r._h.toFixed(1)} h</td>
+      <td style="font-size:12px;color:var(--txt3);font-family:'Space Mono',monospace">${r._n}</td>
+      <td><span class="dec-badge ${dec}">${dec}</span></td>
+      <td><button class="btn-exp" onclick="togApr('${rid}',this)">Ver ▸</button></td>`;
+    tb.appendChild(tr);
+    let aRows='';
+    for(let j=1;j<=20;j++){
+      if(!r[`A${j}`])continue;
+      const fi=r[`FI${j}`]?r[`FI${j}`].slice(11,16):'--:--';
+      const ff=r[`FF${j}`]?r[`FF${j}`].slice(11,16):'--:--';
+      aRows+=`<tr><td>${j}</td><td>${r[`OT${j}`]||'—'}</td><td>${r[`A${j}`]||'—'}</td><td>${r[`C${j}`]||'—'}</td><td class="dt">${fi} → ${ff}</td><td class="dh">${(r[`H${j}`]||0).toFixed(2)} h</td></tr>`;
+    }
+    const td=document.createElement('tr');td.className='tr-det';td.id=rid;
+    td.innerHTML=`<td colspan="8"><div class="det-inner">
+      <table class="det-tbl">
+        <thead><tr><th>#</th><th>OT</th><th>Actividad</th><th>Componente</th><th>Horario</th><th>Horas</th></tr></thead>
+        <tbody>${aRows||'<tr><td colspan="6" style="text-align:center;color:var(--txt3);padding:10px">Sin actividades</td></tr>'}</tbody>
+      </table>
+    </div></td>`;
+    tb.appendChild(td);
+  });
+  renderPagApr(total,ini,fin);
+}
+function togApr(id,btn){const row=document.getElementById(id);if(!row)return;btn.textContent=row.classList.toggle('open')?'Ocultar ▾':'Ver ▸';}
+function renderPagApr(total,ini,fin){
+  const tp=Math.ceil(total/PPG),el=document.getElementById('pag-apr');
+  if(tp<=1){el.innerHTML='';return;}
+  let h=`<div class="pag-info">Mostrando ${ini+1}–${fin} de ${total}</div><div class="pag-btns">`;
+  h+=`<button class="pb" onclick="goPagApr(${pagApr-1})" ${pagApr<=1?'disabled':''}>‹</button>`;
+  for(let p=1;p<=tp;p++){if(p===1||p===tp||Math.abs(p-pagApr)<=1)h+=`<button class="pb ${p===pagApr?'active':''}" onclick="goPagApr(${p})">${p}</button>`;else if(Math.abs(p-pagApr)===2)h+=`<span style="padding:4px 2px;color:var(--txt3)">…</span>`;}
+  h+=`<button class="pb" onclick="goPagApr(${pagApr+1})" ${pagApr>=tp?'disabled':''}>›</button></div>`;
+  el.innerHTML=h;
+}
+function goPagApr(p){const tp=Math.ceil(filtradosApr.length/PPG);if(p<1||p>tp)return;pagApr=p;renderTablaApr();document.getElementById('cardApr').scrollIntoView({behavior:'smooth',block:'start'});}
 
 let nTO;
 function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type+' show';clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
