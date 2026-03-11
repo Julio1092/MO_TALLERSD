@@ -98,6 +98,13 @@ tbody tr:hover td.td-mec{background:#f7fdf9}
 .kpi.w .kpi-val{color:#ea580c}
 .kpi.t .kpi-val{color:var(--verde-d)}
 
+.badge-correcto{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#dcfce7;border:1px solid #86efac;border-radius:20px;font-size:11px;font-weight:700;color:#15803d;white-space:nowrap}
+.badge-pendiente{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#fff7ed;border:1px solid #fdba74;border-radius:20px;font-size:11px;font-weight:700;color:#c2410c;white-space:nowrap}
+thead th.th-estado{text-align:center;min-width:130px;position:sticky;right:0;background:var(--bg3);z-index:2;border-left:1.5px solid var(--border)}
+tbody td.td-estado{text-align:center;position:sticky;right:0;background:white;z-index:1;border-left:1.5px solid var(--border);padding:0 10px}
+tbody tr:hover td.td-estado{background:#f7fdf9}
+.btn-csv{padding:9px 16px;background:white;color:var(--verde-d);border:1.5px solid var(--border2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;align-self:flex-end;white-space:nowrap}
+.btn-csv:hover{background:var(--verde-l);border-color:var(--verde-acc)}
 @media(max-width:600px){
   .filtros-wrap{gap:8px}
   .f-grp{min-width:calc(50% - 4px)}
@@ -142,7 +149,16 @@ tbody tr:hover td.td-mec{background:#f7fdf9}
     <div class="f-lbl">Mecánico</div>
     <input type="text" class="f-inp" id="f-mecanico" placeholder="Nombre o código" style="width:180px">
   </div>
+  <div class="f-grp">
+    <div class="f-lbl">Estado General</div>
+    <select class="f-sel" id="f-estado" style="width:160px">
+      <option value="">Todos</option>
+      <option value="correcto">✅ En Estado Correcto</option>
+      <option value="pendiente">⚠️ Estado Pendiente</option>
+    </select>
+  </div>
   <button class="btn-filtrar" id="btn-filtrar" onclick="aplicarFiltros()">🔍 Aplicar</button>
+  <button class="btn-csv" id="btn-csv" onclick="descargarCSV()" style="display:none">⬇️ CSV</button>
 </div>
 
 <!-- LEYENDA -->
@@ -176,6 +192,7 @@ async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{a
 let userActual=null;
 let colaboradores=[];
 let supervisores=[];
+let csvData=[];  // para exportar
 
 // Genera array de fechas entre dos fechas ISO
 function rangeFechas(ini, fin){
@@ -277,8 +294,11 @@ async function aplicarFiltros(){
       porSup[sk].push(m);
     });
 
+    const estadoFiltro=document.getElementById('f-estado').value;
+
     // KPIs globales
-    let kTotal=0,kOk=0,kPend=0,kRech=0,kNr=0;
+    let kTotal=0,kOk=0,kPend=0,kRech=0,kNr=0,kCorr=0,kPendGen=0;
+    csvData=[];
 
     // Render
     let html='';
@@ -293,7 +313,8 @@ async function aplicarFiltros(){
       const thFechas=fechas.map(f=>`<th class="th-fecha">${formatFecha(f)}<br><span style="font-size:8px;opacity:.5">${['Do','Lu','Ma','Mi','Ju','Vi','Sa'][new Date(f+'T12:00:00').getDay()]}</span></th>`).join('');
 
       // Rows mecánicos
-      const rows=mecsSup.map(m=>{
+      const rowsArr=mecsSup.map(m=>{
+        let mecCorr=true; // asume correcto hasta encontrar problema
         const celdas=fechas.map(f=>{
           const k=`${m.codigo}__${f}`;
           const esFuturo=f>hoy;
@@ -302,8 +323,10 @@ async function aplicarFiltros(){
           if(esFuturo){ico='';cls='futuro';}
           else if(idx[k]){
             if(idx[k].autorizado){ico='✅';cls='grabado';}
-            else if(idx[k].rechazado){ico='⛔';cls='rechazado';}
-            else{ico='❔';cls='pendiente';}
+            else if(idx[k].rechazado){ico='⛔';cls='rechazado';mecCorr=false;}
+            else{ico='❔';cls='pendiente';mecCorr=false;}
+          } else if(!esFuturo){
+            mecCorr=false; // no grabado = no correcto
           }
           // KPIs
           if(!esFuturo){
@@ -315,35 +338,67 @@ async function aplicarFiltros(){
           }
           return `<td><div class="cel ${cls}${esHoy?' hoy':''}" title="${m.nombre} · ${f}">${ico}</div></td>`;
         }).join('');
+
+        const estadoGen=mecCorr?'correcto':'pendiente';
+        if(mecCorr)kCorr++;else kPendGen++;
+
+        // Filtro por estado general
+        if(estadoFiltro && estadoFiltro!==estadoGen) return null;
+
+        const badgeEstado=mecCorr
+          ?`<span class="badge-correcto">✅ Correcto</span>`
+          :`<span class="badge-pendiente">⚠️ Pendiente</span>`;
+
+        // CSV row
+        csvData.push({
+          supervisor:supNombre,
+          codigo:m.codigo,
+          nombre:m.nombre,
+          estado:mecCorr?'Correcto':'Pendiente',
+          ...Object.fromEntries(fechas.map(f=>{
+            const k=`${m.codigo}__${f}`;
+            const ef=f>hoy;
+            if(ef) return [f,'Futuro'];
+            if(!idx[k]) return [f,'Sin grabar'];
+            if(idx[k].autorizado) return [f,'Autorizado'];
+            if(idx[k].rechazado) return [f,'Rechazado'];
+            return [f,'Pendiente'];
+          }))
+        });
+
         return `<tr>
           <td class="td-mec">
             <div class="mec-nombre">${m.nombre}</div>
             <div class="mec-codigo">${m.codigo}</div>
           </td>
           ${celdas}
+          <td class="td-estado">${badgeEstado}</td>
         </tr>`;
-      }).join('');
+      }).filter(r=>r!==null);
+
+      if(!rowsArr.length) return; // skip sección si filtro la vacía
 
       html+=`
       <div class="sup-section">
         <div class="sup-hdr">
           <span class="sup-ico">👔</span>
           <span class="sup-nombre">${supNombre}</span>
-          <span class="sup-count">${mecsSup.length} mecánicos</span>
+          <span class="sup-count">${rowsArr.length} mecánicos</span>
         </div>
         <div class="tbl-outer">
           <table>
             <thead><tr>
               <th class="th-mec">Mecánico</th>
               ${thFechas}
+              <th class="th-estado">Estado General</th>
             </tr></thead>
-            <tbody>${rows}</tbody>
+            <tbody>${rowsArr.join('')}</tbody>
           </table>
         </div>
       </div>`;
     });
 
-    contenido.innerHTML=html||`<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin datos</div></div>`;
+    contenido.innerHTML=html||`<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin resultados</div><div class="e-sub">Prueba cambiando los filtros</div></div>`;
 
     // KPIs
     document.getElementById('k-total').textContent=kTotal;
@@ -351,12 +406,42 @@ async function aplicarFiltros(){
     document.getElementById('k-pend').textContent=kPend;
     document.getElementById('k-rech').textContent=kRech;
     document.getElementById('k-nr').textContent=kNr;
-    document.getElementById('kpi-bar').style.display='flex';
+    // KPI extra estado general
+    let kpiBar=document.getElementById('kpi-bar');
+    kpiBar.style.display='flex';
+    // Actualizar o crear KPIs estado general
+    let kc=document.getElementById('k-corr');
+    let kpg=document.getElementById('k-pendgen');
+    if(!kc){
+      kpiBar.innerHTML+=`<div class="kpi v" style="border-top:3px solid #16a34a"><div class="kpi-val" id="k-corr" style="color:#16a34a">${kCorr}</div><div class="kpi-lbl">✅ Estado Correcto</div></div>`;
+      kpiBar.innerHTML+=`<div class="kpi w" style="border-top:3px solid #ea580c"><div class="kpi-val" id="k-pendgen" style="color:#ea580c">${kPendGen}</div><div class="kpi-lbl">⚠️ Estado Pendiente</div></div>`;
+    }else{kc.textContent=kCorr;kpg.textContent=kPendGen;}
+    if(csvData.length) document.getElementById('btn-csv').style.display='block';
 
   }catch(e){
     document.getElementById('contenido').innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">Error al cargar</div><div class="e-sub">${e.message}</div></div>`;
   }
   btn.disabled=false;btn.textContent='🔍 Aplicar';
+}
+
+function descargarCSV(){
+  if(!csvData.length){alert('Primero aplica los filtros.');return;}
+  const ini=document.getElementById('f-ini').value;
+  const fin=document.getElementById('f-fin').value;
+  // Headers
+  const keys=Object.keys(csvData[0]);
+  const header=keys.join(',');
+  const rows=csvData.map(row=>keys.map(k=>{
+    const v=String(row[k]||'').replace(/"/g,'\"');
+    return `"${v}"`;
+  }).join(','));
+  const csv='﻿'+[header,...rows].join('\n'); // BOM para Excel
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`control_reportes_${ini}_${fin}.csv`;
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);URL.revokeObjectURL(url);
 }
 </script>
 </body>
