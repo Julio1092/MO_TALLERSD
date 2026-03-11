@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Reporte – Jefe</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{
+  --dark:#1a1a2e;--dark2:#16213e;--gold:#ffd700;--gold2:#ffb300;
+  --azul:#3860b2;--azul-d:#00126b;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,215,0,0.30);
+  --txt:rgba(255,255,255,0.92);--txt2:rgba(255,255,255,0.55);
+  --verde:#2e9e4f;--rojo:#c53030;--amber:#c05621;--pending:#7b5ea7;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--txt);min-height:100vh}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(26,26,46,0.98);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;padding:0 20px;height:56px;backdrop-filter:blur(10px)}
+.tb-back{background:rgba(255,215,0,0.10);border:1px solid var(--border2);color:var(--gold);padding:6px 13px;border-radius:7px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;transition:all .2s}
+.tb-back:hover{background:rgba(255,215,0,0.2)}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:var(--gold);flex:1}
+.tb-user{background:rgba(255,215,0,0.08);border:1px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,215,0,.85)}
+
+/* FILTROS */
+.filtros-wrap{padding:16px 20px;background:rgba(22,33,62,0.7);border-bottom:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.f-grp{display:flex;flex-direction:column;gap:5px}
+.f-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt2);font-family:'Space Mono',monospace}
+.f-inp,.f-sel{padding:8px 12px;background:rgba(255,255,255,0.06);border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.f-inp:focus,.f-sel:focus{border-color:var(--gold)}
+.f-sel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23ffd700' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.f-sel option{background:#1a1a2e;color:white}
+.btn-filtrar{padding:9px 20px;background:var(--gold);color:#1a1a2e;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;align-self:flex-end;white-space:nowrap}
+.btn-filtrar:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-filtrar:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* LEYENDA */
+.leyenda{padding:10px 20px;display:flex;gap:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:rgba(22,33,62,0.4)}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt2)}
+.leg-ico{font-size:14px}
+
+/* CONTENIDO */
+.page{padding:20px;display:flex;flex-direction:column;gap:24px}
+
+/* SECCIÓN SUPERVISOR */
+.sup-section{background:rgba(255,255,255,0.03);border:1.5px solid var(--border);border-radius:16px;overflow:hidden}
+.sup-hdr{padding:12px 18px;background:rgba(255,215,0,0.06);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sup-ico{font-size:18px}
+.sup-nombre{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.sup-count{background:rgba(255,215,0,0.15);border:1px solid var(--border2);border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700;color:var(--gold);font-family:'Space Mono',monospace}
+
+/* TABLA */
+.tbl-outer{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;min-width:600px;width:100%}
+thead th{padding:8px 6px;font-family:'Space Mono',monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--txt2);border-bottom:1px solid var(--border);background:rgba(255,255,255,0.02);white-space:nowrap;text-align:center;min-width:80px}
+thead th.th-mec{text-align:left;min-width:150px;padding-left:18px;position:sticky;left:0;background:#1c1e35;z-index:2}
+thead th.th-fecha{cursor:default}
+
+tbody tr{border-bottom:1px solid rgba(255,255,255,0.05)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:rgba(255,215,0,0.03)}
+tbody td{padding:0;text-align:center;vertical-align:middle;height:46px}
+tbody td.td-mec{text-align:left;padding:0 18px;position:sticky;left:0;background:#1a1a2e;z-index:1;min-width:150px}
+tbody tr:hover td.td-mec{background:#1e2040}
+.mec-nombre{font-size:13px;font-weight:600;color:var(--txt);line-height:1.2}
+.mec-codigo{font-family:'Space Mono',monospace;font-size:10px;color:var(--txt2)}
+
+/* CELDA ESTADO */
+.cel{width:100%;height:46px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:default;transition:background .15s;border-left:1px solid rgba(255,255,255,0.05)}
+.cel:hover{background:rgba(255,255,255,0.05)}
+.cel.grabado{background:rgba(46,158,79,0.12)}
+.cel.rechazado{background:rgba(197,48,48,0.12)}
+.cel.pendiente{background:rgba(123,94,167,0.12)}
+.cel.noreportado{background:rgba(192,86,33,0.08)}
+.cel.futuro{background:rgba(255,255,255,0.02);opacity:.4}
+.cel.hoy{outline:2px solid var(--gold);outline-offset:-2px;background:rgba(255,215,0,0.08)}
+
+/* ESTADO */
+.estado{padding:48px 24px;text-align:center;color:var(--txt2);display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:42px;opacity:.4}
+.e-txt{font-family:'Space Mono',monospace;font-size:13px;font-weight:700}
+.e-sub{font-size:13px;opacity:.7}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(255,215,0,.25);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* KPI BAR */
+.kpi-bar{display:flex;gap:12px;flex-wrap:wrap;padding:0 20px}
+.kpi{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;flex-direction:column;gap:3px;min-width:110px}
+.kpi-val{font-family:'Space Mono',monospace;font-size:22px;font-weight:700}
+.kpi-lbl{font-size:10px;color:var(--txt2);font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+.kpi.v .kpi-val{color:#4ade80}
+.kpi.r .kpi-val{color:#f87171}
+.kpi.p .kpi-val{color:#c084fc}
+.kpi.w .kpi-val{color:#fb923c}
+.kpi.t .kpi-val{color:var(--gold)}
+
+@media(max-width:600px){
+  .filtros-wrap{gap:8px}
+  .f-grp{min-width:calc(50% - 4px)}
+  .kpi-bar{gap:8px}
+  .kpi{min-width:calc(50% - 4px)}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="tb-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
+  <div class="tb-logo">CONTROL DE REPORTES</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<!-- FILTROS -->
+<div class="filtros-wrap">
+  <div class="f-grp">
+    <div class="f-lbl">Fecha Inicio</div>
+    <input type="date" class="f-inp" id="f-ini" style="width:150px">
+  </div>
+  <div class="f-grp">
+    <div class="f-lbl">Fecha Fin</div>
+    <input type="date" class="f-inp" id="f-fin" style="width:150px">
+  </div>
+  <div class="f-grp">
+    <div class="f-lbl">Turno</div>
+    <select class="f-sel" id="f-turno" style="width:140px">
+      <option value="">Todos</option>
+      <option value="Diurno">Diurno</option>
+      <option value="Nocturno">Nocturno</option>
+    </select>
+  </div>
+  <div class="f-grp">
+    <div class="f-lbl">Supervisor</div>
+    <select class="f-sel" id="f-supervisor" style="width:180px">
+      <option value="">Todos</option>
+    </select>
+  </div>
+  <div class="f-grp">
+    <div class="f-lbl">Mecánico</div>
+    <input type="text" class="f-inp" id="f-mecanico" placeholder="Nombre o código" style="width:180px">
+  </div>
+  <button class="btn-filtrar" id="btn-filtrar" onclick="aplicarFiltros()">🔍 Aplicar</button>
+</div>
+
+<!-- LEYENDA -->
+<div class="leyenda">
+  <div class="leg-item"><span class="leg-ico">✅</span> Grabado y autorizado</div>
+  <div class="leg-item"><span class="leg-ico">⛔</span> Rechazado</div>
+  <div class="leg-item"><span class="leg-ico">❔</span> Pendiente de autorizar</div>
+  <div class="leg-item"><span class="leg-ico">⚠️</span> No grabado</div>
+</div>
+
+<!-- KPIs -->
+<div class="page" style="gap:16px">
+  <div class="kpi-bar" id="kpi-bar" style="display:none">
+    <div class="kpi t"><div class="kpi-val" id="k-total">—</div><div class="kpi-lbl">Esperados</div></div>
+    <div class="kpi v"><div class="kpi-val" id="k-ok">—</div><div class="kpi-lbl">✅ Autorizados</div></div>
+    <div class="kpi p"><div class="kpi-val" id="k-pend">—</div><div class="kpi-lbl">❔ Pendientes</div></div>
+    <div class="kpi r"><div class="kpi-val" id="k-rech">—</div><div class="kpi-lbl">⛔ Rechazados</div></div>
+    <div class="kpi w"><div class="kpi-val" id="k-nr">—</div><div class="kpi-lbl">⚠️ Sin grabar</div></div>
+  </div>
+
+  <div id="contenido">
+    <div class="estado"><div class="e-ico">📅</div><div class="e-txt">Selecciona un rango de fechas</div><div class="e-sub">y presiona Aplicar para ver el control</div></div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+
+let userActual=null;
+let colaboradores=[];
+let supervisores=[];
+
+// Genera array de fechas entre dos fechas ISO
+function rangeFechas(ini, fin){
+  const out=[];
+  const d=new Date(ini+'T12:00:00');
+  const e=new Date(fin+'T12:00:00');
+  while(d<=e){out.push(d.toISOString().slice(0,10));d.setDate(d.getDate()+1);}
+  return out;
+}
+
+function formatFecha(iso){
+  const [y,m,d]=iso.split('-');
+  return `${d}/${m}`;
+}
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  if((u.rol||'').toUpperCase()!=='JEFE'){window.location.href='index.html';return;}
+  userActual=u;
+  document.getElementById('tb-user').textContent=u.nombre;
+
+  // Fechas por defecto: semana actual
+  const hoy=new Date();
+  const lun=new Date(hoy);
+  lun.setDate(hoy.getDate()-hoy.getDay()+1);
+  document.getElementById('f-ini').value=lun.toISOString().slice(0,10);
+  document.getElementById('f-fin').value=hoy.toISOString().slice(0,10);
+
+  // Cargar colaboradores y supervisores
+  try{
+    colaboradores=await sbGet('Colaboradores?rol=eq.MECANICO&select=codigo,nombre,jefe_codigo&order=nombre.asc');
+    const sups=await sbGet('Colaboradores?rol=eq.SUPERVISOR&select=codigo,nombre&order=nombre.asc');
+    supervisores=sups||[];
+    const sel=document.getElementById('f-supervisor');
+    supervisores.forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s.codigo;o.textContent=s.nombre;
+      sel.appendChild(o);
+    });
+  }catch(e){console.error('Error cargando colaboradores',e);}
+};
+
+async function aplicarFiltros(){
+  const ini=document.getElementById('f-ini').value;
+  const fin=document.getElementById('f-fin').value;
+  if(!ini||!fin){alert('Selecciona un rango de fechas.');return;}
+  if(ini>fin){alert('La fecha inicio debe ser menor o igual a la fecha fin.');return;}
+
+  const turno=document.getElementById('f-turno').value;
+  const supFiltro=document.getElementById('f-supervisor').value;
+  const mecFiltro=document.getElementById('f-mecanico').value.trim().toLowerCase();
+  const btn=document.getElementById('btn-filtrar');
+  btn.disabled=true;btn.textContent='⏳ Cargando…';
+
+  try{
+    const contenido=document.getElementById('contenido');
+    contenido.innerHTML=`<div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:12px">Cargando reportes…</div></div>`;
+    document.getElementById('kpi-bar').style.display='none';
+
+    // Traer reportes del rango
+    let endpoint=`reportes_mo?Fecha_Reporte=gte.${ini}&Fecha_Reporte=lte.${fin}&select=codigo_operario,Fecha_Reporte,Turno,sup_autoriza,sup_decision`;
+    if(turno) endpoint+=`&Turno=eq.${encodeURIComponent(turno)}`;
+    endpoint+='&order=Fecha_Reporte.asc';
+    const reportes=await sbGet(endpoint);
+
+    // Filtrar mecánicos
+    let mecs=colaboradores.filter(m=>{
+      if(supFiltro&&String(m.jefe_codigo)!==String(supFiltro)) return false;
+      if(mecFiltro&&!m.nombre.toLowerCase().includes(mecFiltro)&&!String(m.codigo).includes(mecFiltro)) return false;
+      return true;
+    });
+
+    if(!mecs.length){
+      contenido.innerHTML=`<div class="estado"><div class="e-ico">👷</div><div class="e-txt">Sin mecánicos encontrados</div><div class="e-sub">Ajusta los filtros</div></div>`;
+      btn.disabled=false;btn.textContent='🔍 Aplicar';return;
+    }
+
+    const fechas=rangeFechas(ini,fin);
+    const hoy=new Date().toISOString().slice(0,10);
+
+    // Indexar reportes por codigo+fecha
+    // Estado: grabado_auth, grabado_pend, rechazado
+    const idx={};
+    (reportes||[]).forEach(r=>{
+      const k=`${r.codigo_operario}__${r.Fecha_Reporte}`;
+      // Puede haber varios turnos: tomamos el peor/mejor estado
+      if(!idx[k]) idx[k]={autorizado:false,pendiente:false,rechazado:false};
+      if(r.sup_autoriza===true) idx[k].autorizado=true;
+      else if(r.sup_decision==='rechazado') idx[k].rechazado=true;
+      else idx[k].pendiente=true;
+    });
+
+    // Agrupar mecánicos por supervisor
+    const porSup={};
+    mecs.forEach(m=>{
+      const sk=m.jefe_codigo||'SIN_SUPERVISOR';
+      if(!porSup[sk]) porSup[sk]=[];
+      porSup[sk].push(m);
+    });
+
+    // KPIs globales
+    let kTotal=0,kOk=0,kPend=0,kRech=0,kNr=0;
+
+    // Render
+    let html='';
+    const supKeys=Object.keys(porSup).sort();
+
+    supKeys.forEach(sk=>{
+      const supObj=supervisores.find(s=>String(s.codigo)===String(sk));
+      const supNombre=supObj?supObj.nombre:(sk==='SIN_SUPERVISOR'?'Sin Supervisor Asignado':`Supervisor ${sk}`);
+      const mecsSup=porSup[sk];
+
+      // Thead fechas
+      const thFechas=fechas.map(f=>`<th class="th-fecha">${formatFecha(f)}<br><span style="font-size:8px;opacity:.5">${['Do','Lu','Ma','Mi','Ju','Vi','Sa'][new Date(f+'T12:00:00').getDay()]}</span></th>`).join('');
+
+      // Rows mecánicos
+      const rows=mecsSup.map(m=>{
+        const celdas=fechas.map(f=>{
+          const k=`${m.codigo}__${f}`;
+          const esFuturo=f>hoy;
+          const esHoy=f===hoy;
+          let ico='⚠️',cls='noreportado';
+          if(esFuturo){ico='';cls='futuro';}
+          else if(idx[k]){
+            if(idx[k].autorizado){ico='✅';cls='grabado';}
+            else if(idx[k].rechazado){ico='⛔';cls='rechazado';}
+            else{ico='❔';cls='pendiente';}
+          }
+          // KPIs
+          if(!esFuturo){
+            kTotal++;
+            if(cls==='grabado')kOk++;
+            else if(cls==='rechazado')kRech++;
+            else if(cls==='pendiente')kPend++;
+            else kNr++;
+          }
+          return `<td><div class="cel ${cls}${esHoy?' hoy':''}" title="${m.nombre} · ${f}">${ico}</div></td>`;
+        }).join('');
+        return `<tr>
+          <td class="td-mec">
+            <div class="mec-nombre">${m.nombre.split(',')[0]||m.nombre}</div>
+            <div class="mec-codigo">${m.codigo}</div>
+          </td>
+          ${celdas}
+        </tr>`;
+      }).join('');
+
+      html+=`
+      <div class="sup-section">
+        <div class="sup-hdr">
+          <span class="sup-ico">👔</span>
+          <span class="sup-nombre">${supNombre}</span>
+          <span class="sup-count">${mecsSup.length} mecánicos</span>
+        </div>
+        <div class="tbl-outer">
+          <table>
+            <thead><tr>
+              <th class="th-mec">Mecánico</th>
+              ${thFechas}
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>`;
+    });
+
+    contenido.innerHTML=html||`<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin datos</div></div>`;
+
+    // KPIs
+    document.getElementById('k-total').textContent=kTotal;
+    document.getElementById('k-ok').textContent=kOk;
+    document.getElementById('k-pend').textContent=kPend;
+    document.getElementById('k-rech').textContent=kRech;
+    document.getElementById('k-nr').textContent=kNr;
+    document.getElementById('kpi-bar').style.display='flex';
+
+  }catch(e){
+    document.getElementById('contenido').innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">Error al cargar</div><div class="e-sub">${e.message}</div></div>`;
+  }
+  btn.disabled=false;btn.textContent='🔍 Aplicar';
+}
+</script>
+</body>
+</html>
