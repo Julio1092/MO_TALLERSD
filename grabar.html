@@ -408,7 +408,12 @@ function agregarActividad(){
   const turno=document.getElementById('turno').value;
   if(!turno){notify('Primero selecciona el Turno','error');return;}
   if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
-  if(actIds.length>0){const f=validarActividadCompleta(actIds[actIds.length-1]);if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}}
+  if(actIds.length>0){
+    const f=validarActividadCompleta(actIds[actIds.length-1]);
+    if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}
+    const ultId=actIds[actIds.length-1];
+    if(getMinsAct(ultId)<5){notify('La actividad anterior debe tener al menos 5 minutos de duración','error');document.getElementById('act-'+ultId)?.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  }
   const cfg=TURNO_CFG[turno],id=nextActId++;actIds.push(id);
   const esExtr = turno === 'Extraordinario';
   let hIni,mIni;
