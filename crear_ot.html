@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Crear OT</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 16px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+
+/* PANTALLA */
+.screen{display:none;padding:24px 16px;max-width:500px;margin:0 auto;flex-direction:column;gap:20px}
+.screen.active{display:flex}
+
+/* SELECTOR TIPO */
+.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tipo-card{background:white;border:2.5px solid var(--borde);border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.tipo-card:hover{border-color:var(--azul);transform:translateY(-3px);box-shadow:0 8px 28px rgba(56,96,178,0.18)}
+.tipo-card.selected{border-color:var(--azul);background:var(--azul-bg)}
+.tipo-icon{font-size:52px;margin-bottom:12px}
+.tipo-label{font-size:16px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
+.tipo-desc{font-size:11px;color:#888;line-height:1.5}
+
+/* PUEDE/NO PUEDE */
+.decision-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dec-card{background:white;border:2.5px solid var(--borde);border-radius:16px;padding:22px 14px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.dec-card:hover{transform:translateY(-2px)}
+.dec-card.puede{border-color:#2e9e4f}
+.dec-card.puede:hover,.dec-card.puede.selected{background:#f0fff4;border-color:#2e9e4f}
+.dec-card.nopuede{border-color:#e53e3e}
+.dec-card.nopuede:hover,.dec-card.nopuede.selected{background:#fff5f5;border-color:#e53e3e}
+.dec-icon{font-size:40px;margin-bottom:10px}
+.dec-label{font-size:14px;font-weight:700;color:var(--azul-d)}
+.dec-desc{font-size:11px;color:#888;margin-top:4px;line-height:1.4}
+
+/* CARD FORM */
+.card{background:white;border-radius:16px;padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--borde)}
+.card-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field:last-child{margin-bottom:0}
+label.fl{font-size:12px;font-weight:600;color:var(--gris)}
+input.fi,textarea.fi{width:100%;padding:11px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:#222;background:white;outline:none;transition:border-color .2s}
+input.fi:focus,textarea.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
+textarea.fi{resize:vertical;min-height:90px}
+.fi.error{border-color:var(--rojo)!important;background:#fff5f5!important}
+
+/* UBICACION */
+.ubic-box{background:#f8fafc;border:1.5px solid var(--borde);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.ubic-coords{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.coord-val{background:white;border:1.5px solid var(--bord2);border-radius:8px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d);text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center}
+.btn-ubic{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--azul);color:white;border:none;border-radius:10px;padding:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;width:100%;transition:all .2s}
+.btn-ubic:hover{background:var(--azul-d)}
+.btn-ubic:disabled{opacity:.5;cursor:not-allowed}
+.ubic-status{font-size:11px;color:#888;text-align:center}
+.ubic-status.ok{color:var(--verde);font-weight:600}
+.ubic-status.err{color:var(--rojo);font-weight:600}
+
+/* FOTOS */
+.fotos-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.foto-slot{position:relative;aspect-ratio:1;background:#f8fafc;border:2px dashed var(--bord2);border-radius:12px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+.foto-slot:hover{border-color:var(--azul);background:var(--azul-bg)}
+.foto-slot.taken{border-style:solid;border-color:var(--verde)}
+.foto-slot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.foto-slot .foto-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
+.foto-slot:hover .foto-overlay{opacity:1}
+.foto-slot .foto-lbl{font-size:11px;font-weight:700;color:var(--azul);z-index:1}
+.foto-slot .foto-icon{font-size:28px;z-index:1}
+.foto-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.foto-num{position:absolute;top:6px;left:8px;background:var(--azul);color:white;font-size:10px;font-weight:700;border-radius:20px;padding:2px 7px;z-index:2}
+.foto-num.ok{background:var(--verde)}
+.foto-retake{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;z-index:3}
+
+/* BTN GUARDAR */
+.btn-guardar{background:var(--verde);color:white;border:none;border-radius:14px;padding:16px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;width:100%;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-guardar:hover{background:#276040;transform:translateY(-1px)}
+.btn-guardar:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* STEP HEADER */
+.step-hdr{text-align:center}
+.step-hdr h2{font-size:18px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
+.step-hdr p{font-size:13px;color:#888}
+.badge-tipo{display:inline-flex;align-items:center;gap:6px;background:var(--azul-bg);border:1.5px solid var(--bord2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--azul);margin-bottom:12px;font-family:'Space Mono',monospace}
+
+/* OVERLAYS */
+#saving-overlay{display:none;position:fixed;inset:0;background:rgba(56,96,178,.18);backdrop-filter:blur(3px);z-index:8000;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#saving-overlay.show{display:flex}
+.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.saving-txt{color:white;font-weight:700;font-size:16px;text-align:center;padding:0 20px}
+#success-overlay{display:none;position:fixed;inset:0;background:var(--fondo);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+#success-overlay.show{display:flex}
+.suc-icon{font-size:80px}.suc-title{color:var(--verde);font-size:26px;font-weight:700}.suc-sub{color:var(--gris);font-size:15px;text-align:center;padding:0 20px}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 22px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.warning{background:var(--nrj)}.notif.success{background:var(--verde)}
+</style>
+</head>
+<body>
+
+<div id="saving-overlay">
+  <div class="spinner"></div>
+  <div class="saving-txt" id="saving-txt">Guardando orden de trabajo…</div>
+</div>
+<div id="success-overlay">
+  <div class="suc-icon">✅</div>
+  <div class="suc-title">¡OT Creada!</div>
+  <div class="suc-sub" id="suc-sub">Tu orden de trabajo fue registrada exitosamente</div>
+  <div style="font-size:13px;color:#999;margin-top:4px">Regresando al menú…</div>
+</div>
+
+<div class="topbar">
+  <button class="btn-back" id="btn-back" onclick="volverPaso()">← Atrás</button>
+  <div class="tb-logo">CREAR OT</div>
+</div>
+
+<!-- PASO 1: Tipo de OT -->
+<div class="screen active" id="s1">
+  <div class="step-hdr">
+    <h2>¿Qué tipo de orden deseas abrir?</h2>
+    <p>Selecciona el tipo de mantenimiento</p>
+  </div>
+  <div class="tipo-grid">
+    <div class="tipo-card" onclick="elegirTipo('CORRECTIVO')">
+      <div class="tipo-icon">🔧</div>
+      <div class="tipo-label">Correctivo</div>
+      <div class="tipo-desc">Reparación de fallas o averías que ya ocurrieron en la unidad</div>
+    </div>
+    <div class="tipo-card" onclick="elegirTipo('PREVENTIVO')">
+      <div class="tipo-icon">🛡️</div>
+      <div class="tipo-label">Preventivo</div>
+      <div class="tipo-desc">Mantenimiento programado para prevenir fallas futuras</div>
+    </div>
+  </div>
+</div>
+
+<!-- PASO 2: ¿Puede laborar? (solo Correctivo) -->
+<div class="screen" id="s2">
+  <div class="step-hdr">
+    <div class="badge-tipo" id="badge-s2">🔧 CORRECTIVO</div>
+    <h2>¿La unidad puede laborar?</h2>
+    <p>Indica si la unidad puede seguir operando</p>
+  </div>
+  <div class="decision-grid">
+    <div class="dec-card puede" onclick="elegirPuede(true)">
+      <div class="dec-icon">✅</div>
+      <div class="dec-label">Sí puede laborar</div>
+      <div class="dec-desc">La unidad opera con limitaciones pero puede continuar</div>
+    </div>
+    <div class="dec-card nopuede" onclick="elegirPuede(false)">
+      <div class="dec-icon">🚫</div>
+      <div class="dec-label">No puede laborar</div>
+      <div class="dec-desc">La unidad está fuera de servicio, requiere atención inmediata</div>
+    </div>
+  </div>
+</div>
+
+<!-- PASO 3: Formulario -->
+<div class="screen" id="s3">
+  <div class="step-hdr">
+    <div class="badge-tipo" id="badge-s3">🔧 CORRECTIVO</div>
+    <h2 id="s3-titulo">Datos de la Orden</h2>
+  </div>
+
+  <!-- Unidad y falla -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Información de la Unidad</div>
+    <div class="field">
+      <label class="fl">ID de la Unidad *</label>
+      <input class="fi" id="f-unidad" type="text" placeholder="Ej. 1234, TK-05…">
+    </div>
+    <div class="field">
+      <label class="fl">Avería o Falla *</label>
+      <textarea class="fi" id="f-averia" placeholder="Describe detalladamente el problema de la unidad…"></textarea>
+    </div>
+  </div>
+
+  <!-- Operador -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Datos del Operador</div>
+    <div class="field">
+      <label class="fl">Código de Operador *</label>
+      <input class="fi" id="f-cod-op" type="text" placeholder="Código del operador">
+    </div>
+    <div class="field">
+      <label class="fl">Nombre del Operador *</label>
+      <input class="fi" id="f-nom-op" type="text" placeholder="Nombre completo">
+    </div>
+    <div class="field">
+      <label class="fl">Número de Teléfono *</label>
+      <input class="fi" id="f-tel" type="tel" placeholder="Ej. 5555-1234">
+    </div>
+  </div>
+
+  <!-- Horómetro -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Horómetro / Kilometraje</div>
+    <div class="field">
+      <label class="fl">Valor del Horómetro o Km *</label>
+      <input class="fi" id="f-horometro" type="text" placeholder="Ej. 12500 km / 3200 h">
+    </div>
+    <div class="field">
+      <label class="fl">📸 Foto del Horómetro *</label>
+      <div class="foto-slot" id="slot-horo" style="height:160px;width:100%">
+        <span class="foto-icon">📷</span>
+        <span class="foto-lbl">Tomar foto del horómetro</span>
+        <input type="file" id="inp-horo" accept="image/*" capture="environment" onchange="previsualizarFoto('horo',this)">
+        <div class="foto-overlay"><span style="color:white;font-size:13px;font-weight:700">Cambiar foto</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ubicación -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Ubicación GPS</div>
+    <div class="ubic-box">
+      <button class="btn-ubic" id="btn-ubic" onclick="obtenerUbicacion()">📍 Detectar mi ubicación</button>
+      <div class="ubic-coords">
+        <div>
+          <div style="font-size:10px;color:#aaa;margin-bottom:4px;text-align:center">LATITUD</div>
+          <div class="coord-val" id="val-lat">—</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:#aaa;margin-bottom:4px;text-align:center">LONGITUD</div>
+          <div class="coord-val" id="val-lon">—</div>
+        </div>
+      </div>
+      <div class="ubic-status" id="ubic-status">Presiona el botón para detectar tu ubicación</div>
+    </div>
+  </div>
+
+  <!-- 4 Fotos del problema -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Fotos del Problema (4 requeridas)</div>
+    <div class="fotos-grid">
+      <div class="foto-slot" id="slot-1">
+        <span class="foto-num" id="num-1">1</span>
+        <span class="foto-icon">📷</span>
+        <span class="foto-lbl">Foto 1</span>
+        <input type="file" id="inp-1" accept="image/*" capture="environment" onchange="previsualizarFoto(1,this)">
+        <div class="foto-overlay"><span style="color:white;font-size:12px;font-weight:700">Cambiar</span></div>
+      </div>
+      <div class="foto-slot" id="slot-2">
+        <span class="foto-num" id="num-2">2</span>
+        <span class="foto-icon">📷</span>
+        <span class="foto-lbl">Foto 2</span>
+        <input type="file" id="inp-2" accept="image/*" capture="environment" onchange="previsualizarFoto(2,this)">
+        <div class="foto-overlay"><span style="color:white;font-size:12px;font-weight:700">Cambiar</span></div>
+      </div>
+      <div class="foto-slot" id="slot-3">
+        <span class="foto-num" id="num-3">3</span>
+        <span class="foto-icon">📷</span>
+        <span class="foto-lbl">Foto 3</span>
+        <input type="file" id="inp-3" accept="image/*" capture="environment" onchange="previsualizarFoto(3,this)">
+        <div class="foto-overlay"><span style="color:white;font-size:12px;font-weight:700">Cambiar</span></div>
+      </div>
+      <div class="foto-slot" id="slot-4">
+        <span class="foto-num" id="num-4">4</span>
+        <span class="foto-icon">📷</span>
+        <span class="foto-lbl">Foto 4</span>
+        <input type="file" id="inp-4" accept="image/*" capture="environment" onchange="previsualizarFoto(4,this)">
+        <div class="foto-overlay"><span style="color:white;font-size:12px;font-weight:700">Cambiar</span></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-guardar" id="btn-guardar" onclick="guardar()">✅ Crear Orden de Trabajo</button>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+const BUCKET='fotos_Avisos';
+
+let userActual=null, tipoOT=null, puedeLaboral=null, paso=1;
+let latitud=null, longitud=null;
+let fotosArchivos={horo:null,1:null,2:null,3:null,4:null};
+
+window.onload=()=>{
+  userActual=getSession();
+  if(!userActual){window.location.href='index.html';return;}
+  const rol=(userActual.rol||'').toUpperCase();
+  if(rol!=='MECANICO'){window.location.href='index.html';return;}
+};
+
+function irAlMenu(){
+  window.location.href='menu_mecanico.html';
+}
+
+function mostrarPaso(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`s${n}`).classList.add('active');
+  paso=n;
+  document.getElementById('btn-back').style.display=n===1?'none':'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function volverPaso(){
+  if(paso===1){irAlMenu();return;}
+  if(paso===2){tipoOT=null;mostrarPaso(1);return;}
+  if(paso===3){
+    if(tipoOT==='CORRECTIVO'){puedeLaboral=null;mostrarPaso(2);}
+    else mostrarPaso(1);
+    return;
+  }
+  irAlMenu();
+}
+
+function elegirTipo(tipo){
+  tipoOT=tipo;
+  if(tipo==='CORRECTIVO'){
+    document.getElementById('badge-s2').textContent='🔧 CORRECTIVO';
+    mostrarPaso(2);
+  } else {
+    // Preventivo — va directo al formulario
+    puedeLaboral=null;
+    actualizarFormulario();
+    mostrarPaso(3);
+  }
+}
+
+function elegirPuede(puede){
+  puedeLaboral=puede;
+  actualizarFormulario();
+  mostrarPaso(3);
+}
+
+function actualizarFormulario(){
+  const icono=tipoOT==='CORRECTIVO'?'🔧':'🛡️';
+  const label=tipoOT==='CORRECTIVO'
+    ?(puedeLaboral===true?'✅ PUEDE LABORAR':puedeLaboral===false?'🚫 NO PUEDE LABORAR':'🔧 CORRECTIVO')
+    :'🛡️ PREVENTIVO';
+  document.getElementById('badge-s3').textContent=`${icono} ${label.replace(/^[^ ]+ /,'')}`;
+  document.getElementById('s3-titulo').textContent=
+    puedeLaboral===false?'Datos de la Unidad — Fuera de Servicio':'Datos de la Orden de Trabajo';
+}
+
+/* UBICACION */
+function obtenerUbicacion(){
+  const btn=document.getElementById('btn-ubic');
+  const status=document.getElementById('ubic-status');
+  if(!navigator.geolocation){status.textContent='GPS no disponible en este dispositivo';status.className='ubic-status err';return;}
+  btn.disabled=true;btn.textContent='📍 Detectando…';status.textContent='Obteniendo coordenadas…';status.className='ubic-status';
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      latitud=pos.coords.latitude.toFixed(6);
+      longitud=pos.coords.longitude.toFixed(6);
+      document.getElementById('val-lat').textContent=latitud;
+      document.getElementById('val-lon').textContent=longitud;
+      status.textContent='✓ Ubicación detectada correctamente';
+      status.className='ubic-status ok';
+      btn.textContent='📍 Actualizar ubicación';
+      btn.disabled=false;
+    },
+    err=>{
+      btn.disabled=false;btn.textContent='📍 Detectar mi ubicación';
+      status.textContent='No se pudo obtener la ubicación. Verifica los permisos.';
+      status.className='ubic-status err';
+    },
+    {enableHighAccuracy:true,timeout:12000}
+  );
+}
+
+/* FOTOS */
+function previsualizarFoto(id, input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  fotosArchivos[id]=file;
+  const slot=document.getElementById(`slot-${id}`);
+  const num=document.getElementById(`num-${id}`);
+  // Limpiar icono/label previos
+  slot.querySelectorAll('.foto-icon,.foto-lbl,.foto-retake').forEach(el=>el.remove());
+  // Quitar img anterior
+  slot.querySelectorAll('img').forEach(el=>el.remove());
+  const img=document.createElement('img');
+  img.src=URL.createObjectURL(file);
+  slot.insertBefore(img,slot.firstChild);
+  slot.classList.add('taken');
+  if(num){num.classList.add('ok');}
+}
+
+/* UPLOAD A SUPABASE STORAGE */
+async function subirFoto(file, nombre){
+  const ext=file.name.split('.').pop()||'jpg';
+  const path=`ots/${Date.now()}_${nombre}.${ext}`;
+  const res=await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${path}`,{
+    method:'POST',
+    headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':file.type,'x-upsert':'true'},
+    body:file
+  });
+  if(!res.ok){const t=await res.text();throw new Error(`Error subiendo ${nombre}: ${t}`);}
+  return `${SB_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+
+/* GUARDAR */
+async function guardar(){
+  // Validar campos
+  const campos=[
+    {id:'f-unidad',label:'ID de la Unidad'},
+    {id:'f-averia',label:'Avería o Falla'},
+    {id:'f-cod-op',label:'Código de Operador'},
+    {id:'f-nom-op',label:'Nombre del Operador'},
+    {id:'f-tel',label:'Número de Teléfono'},
+    {id:'f-horometro',label:'Horómetro / Kilometraje'},
+  ];
+  for(const c of campos){
+    const el=document.getElementById(c.id);
+    if(!el.value.trim()){
+      el.classList.add('error');
+      notify(`Campo requerido: ${c.label}`,'error');
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    el.classList.remove('error');
+  }
+  if(!fotosArchivos['horo']){notify('Toma la foto del horómetro','error');return;}
+  if(!fotosArchivos[1]||!fotosArchivos[2]||!fotosArchivos[3]||!fotosArchivos[4]){
+    notify('Se requieren las 4 fotos del problema','error');return;
+  }
+  if(!latitud||!longitud){notify('Debes detectar la ubicación GPS','error');return;}
+
+  document.getElementById('btn-guardar').disabled=true;
+  document.getElementById('saving-overlay').classList.add('show');
+  document.getElementById('saving-txt').textContent='Subiendo fotos…';
+
+  try{
+    const mecanico=userActual;
+    const [urlHoro,url1,url2,url3,url4]=await Promise.all([
+      subirFoto(fotosArchivos['horo'],'horometro'),
+      subirFoto(fotosArchivos[1],'foto1'),
+      subirFoto(fotosArchivos[2],'foto2'),
+      subirFoto(fotosArchivos[3],'foto3'),
+      subirFoto(fotosArchivos[4],'foto4'),
+    ]);
+
+    document.getElementById('saving-txt').textContent='Guardando orden de trabajo…';
+
+    const payload={
+      tipo_ot: tipoOT,
+      tipo_manto: tipoOT,
+      puede_laborar: puedeLaboral,
+      id_unidad: document.getElementById('f-unidad').value.trim(),
+      averia: document.getElementById('f-averia').value.trim(),
+      codigo_operador: document.getElementById('f-cod-op').value.trim(),
+      nombre_operador: document.getElementById('f-nom-op').value.trim(),
+      telefono: document.getElementById('f-tel').value.trim(),
+      horometro_km: document.getElementById('f-horometro').value.trim(),
+      latitud: parseFloat(latitud),
+      longitud: parseFloat(longitud),
+      foto_horometro: urlHoro,
+      foto1: url1,
+      foto2: url2,
+      foto3: url3,
+      foto4: url4,
+      codigo_mecanico: String(mecanico.codigo),
+      nombre_mecanico: mecanico.nombre,
+      fecha_reporte: isoHoy(),
+      cct_grabado: false
+    };
+
+    const res=await fetch(`${SB_URL}/rest/v1/ordenes_trabajo`,{
+      method:'POST',
+      headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok)throw new Error(await res.text());
+
+    document.getElementById('saving-overlay').classList.remove('show');
+    document.getElementById('suc-sub').textContent=`OT ${tipoOT} registrada — ${puedeLaboral===false?'Unidad fuera de servicio':'Unidad operativa'}`;
+    document.getElementById('success-overlay').classList.add('show');
+    setTimeout(()=>irAlMenu(),2800);
+  }catch(e){
+    document.getElementById('saving-overlay').classList.remove('show');
+    document.getElementById('btn-guardar').disabled=false;
+    notify(`Error: ${e.message}`,'error');
+  }
+}
+
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
+
+// Ocultar botón atrás en paso 1
+window.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('btn-back').style.display='none';
+});
+</script>
+</body>
+</html>

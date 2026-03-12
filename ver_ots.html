@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Ver OTs</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 16px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.content{padding:16px;max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+
+/* FILTROS */
+.filtros{background:white;border-radius:14px;padding:16px;box-shadow:var(--shadow);border:1.5px solid var(--borde);display:flex;flex-direction:column;gap:12px}
+.fil-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul)}
+.fil-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fil-input{width:100%;padding:9px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.fil-input:focus{border-color:var(--azul)}
+.btn-buscar{background:var(--azul-d);color:white;border:none;border-radius:10px;padding:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-buscar:hover{background:var(--azul)}
+
+/* TABS */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:20px;border:1.5px solid var(--borde);background:white;font-size:12px;font-weight:600;cursor:pointer;color:var(--gris);transition:all .2s}
+.tab.active{background:var(--azul-d);color:white;border-color:var(--azul-d)}
+
+.card-ot{background:white;border-radius:16px;box-shadow:var(--shadow);border:1.5px solid var(--borde);overflow:hidden}
+.ot-hdr{background:var(--azul-d);color:white;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ot-hdr-left{display:flex;flex-direction:column;gap:3px}
+.ot-mecanico{font-size:15px;font-weight:700}
+.ot-fecha{font-size:12px;opacity:.7}
+.ot-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);color:white;white-space:nowrap}
+.ot-badge.correctivo{background:rgba(229,62,62,0.35)}
+.ot-badge.preventivo{background:rgba(46,158,79,0.35)}
+.ot-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-item{display:flex;flex-direction:column;gap:3px}
+.info-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa}
+.info-val{font-size:13px;font-weight:600;color:#222}
+.averia-box{background:#fff8f0;border:1.5px solid #fbd38d;border-radius:10px;padding:12px;font-size:13px;color:#744210;line-height:1.5}
+.fotos-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.foto-thumb{width:80px;height:80px;border-radius:10px;object-fit:cover;border:1.5px solid var(--borde);flex-shrink:0;cursor:pointer;transition:transform .2s}
+.foto-thumb:hover{transform:scale(1.05)}
+.sap-done{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f0fff4;border:1.5px solid #9ae6b4;border-radius:10px;font-weight:700;color:#276040;font-family:'Space Mono',monospace;font-size:13px}
+.empty-state{text-align:center;padding:60px 20px;color:#aaa}
+.empty-icon{font-size:56px;margin-bottom:12px}
+.empty-title{font-size:18px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
+.cnt-badge{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700}
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9000;align-items:center;justify-content:center}
+#lightbox.show{display:flex}
+#lightbox img{max-width:95vw;max-height:92vh;border-radius:12px;object-fit:contain}
+#lightbox-close{position:absolute;top:16px;right:20px;color:white;font-size:32px;cursor:pointer;font-weight:700}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}
+</style>
+</head>
+<body>
+
+<div id="lightbox" onclick="cerrarLightbox()">
+  <span id="lightbox-close">✕</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<div class="topbar">
+  <button class="btn-back" id="btn-back" onclick="irMenu()">← Menú</button>
+  <div class="tb-logo">ÓRDENES DE TRABAJO</div>
+  <span class="cnt-badge" id="cnt-badge">—</span>
+</div>
+
+<div class="content">
+  <div class="filtros">
+    <div class="fil-label">• Filtros</div>
+    <div class="fil-row">
+      <div><label style="font-size:11px;font-weight:600;color:var(--gris);display:block;margin-bottom:4px">Desde</label><input type="date" class="fil-input" id="f-desde"></div>
+      <div><label style="font-size:11px;font-weight:600;color:var(--gris);display:block;margin-bottom:4px">Hasta</label><input type="date" class="fil-input" id="f-hasta"></div>
+    </div>
+    <input type="text" class="fil-input" id="f-busq" placeholder="Buscar por mecánico, unidad, avería…">
+    <button class="btn-buscar" onclick="buscar()">🔍 Buscar</button>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="filtrarTab('todos',this)">Todos</div>
+    <div class="tab" onclick="filtrarTab('pendiente',this)">⏳ Pendientes SAP</div>
+    <div class="tab" onclick="filtrarTab('grabado',this)">✅ Con N° SAP</div>
+    <div class="tab" onclick="filtrarTab('correctivo',this)">🔧 Correctivo</div>
+    <div class="tab" onclick="filtrarTab('preventivo',this)">🛡️ Preventivo</div>
+  </div>
+
+  <div id="lista"></div>
+</div>
+<div id="notif" class="notif"></div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+let todos=[], tabActual='todos';
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  const rol=(u.rol||'').toUpperCase();
+  if(rol==='MECANICO'||rol==='CCT'){window.location.href='index.html';return;}
+  document.getElementById('btn-back').onclick=()=>irMenu(rol);
+  const hoy=new Date(), d30=new Date();
+  d30.setDate(hoy.getDate()-30);
+  document.getElementById('f-desde').value=d30.toISOString().slice(0,10);
+  document.getElementById('f-hasta').value=hoy.toISOString().slice(0,10);
+  await buscar();
+};
+
+function irMenu(rol){
+  const r=(rol||getSession()?.rol||'').toUpperCase();
+  if(r==='JEFE')window.location.href='menu_jefe.html';
+  else window.location.href='menu_supervisor.html';
+}
+
+async function buscar(){
+  const desde=document.getElementById('f-desde').value;
+  const hasta=document.getElementById('f-hasta').value;
+  let url=`${SB_URL}/rest/v1/ordenes_trabajo?order=id.desc`;
+  if(desde)url+=`&fecha_reporte=gte.${desde}`;
+  if(hasta)url+=`&fecha_reporte=lte.${hasta}`;
+  try{
+    const res=await fetch(url,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});
+    todos=await res.json()||[];
+    renderLista();
+  }catch(e){notify(e.message,'error');}
+}
+
+function filtrarTab(tab,el){
+  tabActual=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderLista();
+}
+
+function renderLista(){
+  const q=document.getElementById('f-busq').value.toLowerCase().trim();
+  let fil=todos.filter(ot=>{
+    if(tabActual==='pendiente'&&ot.cct_grabado)return false;
+    if(tabActual==='grabado'&&!ot.cct_grabado)return false;
+    if(tabActual==='correctivo'&&ot.tipo_ot!=='CORRECTIVO')return false;
+    if(tabActual==='preventivo'&&ot.tipo_ot!=='PREVENTIVO')return false;
+    if(q)return(ot.nombre_mecanico||'').toLowerCase().includes(q)||(ot.id_unidad||'').toLowerCase().includes(q)||(ot.averia||'').toLowerCase().includes(q);
+    return true;
+  });
+  document.getElementById('cnt-badge').textContent=`${fil.length}`;
+  const lista=document.getElementById('lista');
+  if(!fil.length){lista.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Sin resultados</div><p style="color:#aaa;font-size:13px">No hay órdenes para este filtro</p></div>`;return;}
+  lista.innerHTML='';
+  fil.forEach(ot=>{
+    const div=document.createElement('div');div.className='card-ot';
+    const badge=ot.tipo_ot==='CORRECTIVO'
+      ?`<span class="ot-badge correctivo">🔧 CORRECTIVO${ot.puede_laborar===false?' — FUERA DE SERVICIO':''}</span>`
+      :`<span class="ot-badge preventivo">🛡️ PREVENTIVO</span>`;
+    const estadoLabor=ot.puede_laborar===false?`<span style="color:#e53e3e;font-weight:700;font-size:12px">🚫 Fuera de servicio</span>`:ot.puede_laborar===true?`<span style="color:#2e9e4f;font-weight:700;font-size:12px">✅ Puede laborar</span>`:`<span style="color:#aaa;font-size:12px">—</span>`;
+    const fotos=[ot.foto_horometro,ot.foto1,ot.foto2,ot.foto3,ot.foto4].filter(Boolean);
+    const fotosHtml=fotos.map((url,i)=>`<img class="foto-thumb" src="${url}" alt="foto" onclick="abrirFoto('${url}')">`).join('');
+    const sapHtml=ot.cct_grabado&&ot.numero_orden_sap
+      ?`<div class="sap-done">✅ N° SAP: ${ot.numero_orden_sap}</div>`
+      :`<div style="font-size:12px;color:#aaa;font-style:italic">⏳ Pendiente de grabación en SAP</div>`;
+    div.innerHTML=`
+      <div class="ot-hdr">
+        <div class="ot-hdr-left">
+          <div class="ot-mecanico">👷 ${ot.nombre_mecanico||'—'}</div>
+          <div class="ot-fecha">📅 ${ot.fecha_reporte||'—'} · ID: ${ot.id}</div>
+        </div>${badge}
+      </div>
+      <div class="ot-body">
+        <div class="info-grid">
+          <div class="info-item"><span class="info-lbl">Unidad</span><span class="info-val">🚛 ${ot.id_unidad||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Estado</span><span class="info-val">${estadoLabor}</span></div>
+          <div class="info-item"><span class="info-lbl">Operador</span><span class="info-val">${ot.nombre_operador||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Teléfono</span><span class="info-val">📞 ${ot.telefono||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Horómetro/Km</span><span class="info-val">⏱ ${ot.horometro_km||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Mecánico Cód.</span><span class="info-val">${ot.codigo_mecanico||'—'}</span></div>
+        </div>
+        <div class="averia-box">⚠️ <strong>Avería:</strong> ${ot.averia||'—'}</div>
+        ${ot.latitud?`<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gris)">📍 <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--azul);font-weight:700">${ot.latitud}, ${ot.longitud}</span> <a href="https://maps.google.com/?q=${ot.latitud},${ot.longitud}" target="_blank" style="font-size:11px;color:var(--azul)">Ver mapa ↗</a></div>`:''}
+        ${fotos.length?`<div><div style="font-size:11px;color:#aaa;margin-bottom:6px;font-weight:700">FOTOS (${fotos.length})</div><div class="fotos-strip">${fotosHtml}</div></div>`:''}
+        ${sapHtml}
+      </div>`;
+    lista.appendChild(div);
+  });
+}
+
+function abrirFoto(url){document.getElementById('lightbox-img').src=url;document.getElementById('lightbox').classList.add('show');}
+function cerrarLightbox(){document.getElementById('lightbox').classList.remove('show');document.getElementById('lightbox-img').src='';}
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
+</script>
+</body>
+</html>

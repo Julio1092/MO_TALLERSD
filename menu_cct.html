@@ -21,6 +21,11 @@
   .btn-desc{font-size:12px;color:rgba(255,255,255,0.65);display:block;margin-top:3px}
   .btn-logout{background:none;border:none;color:rgba(255,255,255,0.55);font-size:13px;cursor:pointer;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif}
   .btn-logout:hover{color:white;background:rgba(255,0,0,0.2)}
+  .btn-mps{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5)}
+  .btn-mps:hover{background:rgba(255,215,0,0.28);border-color:rgba(255,215,0,0.85)}
+  .divider{width:100%;max-width:360px;display:flex;align-items:center;gap:10px}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.2)}
+  .divider span{font-size:11px;color:rgba(255,255,255,0.4);font-family:'Space Mono',monospace;letter-spacing:1px}
 </style>
 </head>
 <body>
@@ -52,7 +57,13 @@
       <span class="btn-desc">Consultar reservas de materiales aprobadas</span>
     </div>
   </a>
-
+  <a class="btn" href="ver_ots_cct.html" style="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5)">
+    <div class="btn-icon">🔧</div>
+    <div>
+      <span class="btn-label">Órdenes de Trabajo</span>
+      <span class="btn-desc">Grabar N° de orden en SAP</span>
+    </div>
+  </a>
 </div>
 
 <button class="btn-logout" onclick="cerrar()">🚪 Cerrar sesión</button>

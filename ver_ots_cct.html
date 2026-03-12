@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – OTs Pendientes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 16px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.content{padding:16px;max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.card-ot{background:white;border-radius:16px;box-shadow:var(--shadow);border:1.5px solid var(--borde);overflow:hidden;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ot-hdr{background:var(--azul-d);color:white;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ot-hdr-left{display:flex;flex-direction:column;gap:4px}
+.ot-tipo{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;opacity:.8}
+.ot-mecanico{font-size:15px;font-weight:700}
+.ot-fecha{font-size:12px;opacity:.7}
+.ot-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.4);color:white;white-space:nowrap}
+.ot-badge.correctivo{background:rgba(229,62,62,0.35)}
+.ot-badge.preventivo{background:rgba(46,158,79,0.35)}
+.ot-badge.nopuede{background:rgba(229,62,62,0.6)}
+.ot-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-item{display:flex;flex-direction:column;gap:3px}
+.info-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#aaa}
+.info-val{font-size:13px;font-weight:600;color:#222}
+.averia-box{background:#fff8f0;border:1.5px solid #fbd38d;border-radius:10px;padding:12px;font-size:13px;color:#744210;line-height:1.5}
+.fotos-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.foto-thumb{width:80px;height:80px;border-radius:10px;object-fit:cover;border:1.5px solid var(--borde);flex-shrink:0;cursor:pointer;transition:transform .2s}
+.foto-thumb:hover{transform:scale(1.05)}
+.ubic-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gris)}
+.ubic-val{font-family:'Space Mono',monospace;font-size:11px;color:var(--azul);font-weight:700}
+.sap-row{display:flex;gap:10px;align-items:center;padding-top:4px;border-top:1.5px solid var(--borde)}
+.sap-input{flex:1;padding:11px 13px;border:1.5px solid var(--bord2);border-radius:10px;font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--azul-d);outline:none;transition:border-color .2s}
+.sap-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
+.btn-sap{background:var(--verde);color:white;border:none;border-radius:10px;padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+.btn-sap:hover{background:#276040}
+.btn-sap:disabled{opacity:.5;cursor:not-allowed}
+.empty-state{text-align:center;padding:60px 20px;color:#aaa}
+.empty-icon{font-size:56px;margin-bottom:12px}
+.empty-title{font-size:18px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cnt-badge{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700}
+
+/* LIGHTBOX */
+#lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9000;align-items:center;justify-content:center}
+#lightbox.show{display:flex}
+#lightbox img{max-width:95vw;max-height:92vh;border-radius:12px;object-fit:contain}
+#lightbox-close{position:absolute;top:16px;right:20px;color:white;font-size:32px;cursor:pointer;font-weight:700;line-height:1}
+
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 22px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}
+</style>
+</head>
+<body>
+
+<div id="lightbox" onclick="cerrarLightbox()">
+  <span id="lightbox-close">✕</span>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_cct.html'">← Menú</button>
+  <div class="tb-logo">ÓRDENES DE TRABAJO</div>
+  <span class="cnt-badge" id="cnt-badge">—</span>
+</div>
+
+<div class="content" id="content">
+  <div class="empty-state">
+    <div class="empty-icon">⏳</div>
+    <div class="empty-title">Cargando…</div>
+  </div>
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  const rol=(u.rol||'').toUpperCase();
+  if(rol!=='CCT'){window.location.href='index.html';return;}
+  await cargar();
+};
+
+async function cargar(){
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/ordenes_trabajo?cct_grabado=eq.false&order=id.desc`,{
+      headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}
+    });
+    const data=await res.json();
+    renderOTs(data||[]);
+  }catch(e){
+    document.getElementById('content').innerHTML=`<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-title">Error al cargar</div><p style="color:#aaa;font-size:13px">${e.message}</p></div>`;
+  }
+}
+
+function renderOTs(ots){
+  const cnt=document.getElementById('cnt-badge');
+  cnt.textContent=`${ots.length} pendiente${ots.length!==1?'s':''}`;
+  const content=document.getElementById('content');
+  if(!ots.length){
+    content.innerHTML=`<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Todo al día</div><p style="color:#aaa;font-size:13px">No hay órdenes de trabajo pendientes</p></div>`;
+    return;
+  }
+  content.innerHTML='';
+  ots.forEach(ot=>{
+    const div=document.createElement('div');
+    div.className='card-ot';
+    div.id=`ot-${ot.id}`;
+
+    const tipoBadge=ot.tipo_ot==='CORRECTIVO'
+      ?`<span class="ot-badge correctivo">🔧 CORRECTIVO${ot.puede_laborar===false?' — FUERA DE SERVICIO':''}</span>`
+      :`<span class="ot-badge preventivo">🛡️ PREVENTIVO</span>`;
+
+    const estadoLabor=ot.puede_laborar===false
+      ?`<span style="color:#e53e3e;font-weight:700;font-size:12px">🚫 No puede laborar</span>`
+      :ot.puede_laborar===true
+      ?`<span style="color:#2e9e4f;font-weight:700;font-size:12px">✅ Puede laborar</span>`
+      :`<span style="color:#aaa;font-size:12px">—</span>`;
+
+    const fotos=[ot.foto_horometro,ot.foto1,ot.foto2,ot.foto3,ot.foto4].filter(Boolean);
+    const fotosHtml=fotos.map((url,i)=>`<img class="foto-thumb" src="${url}" alt="foto ${i+1}" onclick="abrirFoto('${url}')">`).join('');
+
+    div.innerHTML=`
+      <div class="ot-hdr">
+        <div class="ot-hdr-left">
+          <div class="ot-tipo">ORDEN DE TRABAJO</div>
+          <div class="ot-mecanico">👷 ${ot.nombre_mecanico||'—'}</div>
+          <div class="ot-fecha">📅 ${ot.fecha_reporte||'—'} · ID: ${ot.id}</div>
+        </div>
+        ${tipoBadge}
+      </div>
+      <div class="ot-body">
+        <div class="info-grid">
+          <div class="info-item"><span class="info-lbl">Unidad</span><span class="info-val">🚛 ${ot.id_unidad||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Estado</span><span class="info-val">${estadoLabor}</span></div>
+          <div class="info-item"><span class="info-lbl">Operador</span><span class="info-val">${ot.nombre_operador||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Código Op.</span><span class="info-val">${ot.codigo_operador||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Teléfono</span><span class="info-val">📞 ${ot.telefono||'—'}</span></div>
+          <div class="info-item"><span class="info-lbl">Horómetro/Km</span><span class="info-val">⏱ ${ot.horometro_km||'—'}</span></div>
+        </div>
+        <div class="averia-box">⚠️ <strong>Avería:</strong> ${ot.averia||'—'}</div>
+        ${ot.latitud?`<div class="ubic-row">📍 <span class="ubic-val">${ot.latitud}, ${ot.longitud}</span> <a href="https://maps.google.com/?q=${ot.latitud},${ot.longitud}" target="_blank" style="font-size:11px;color:var(--azul);margin-left:4px">Ver mapa ↗</a></div>`:''}
+        ${fotos.length?`<div><div style="font-size:11px;color:#aaa;margin-bottom:6px;font-weight:700">FOTOS (${fotos.length})</div><div class="fotos-strip">${fotosHtml}</div></div>`:''}
+        <div class="sap-row">
+          <input class="sap-input" id="sap-${ot.id}" type="text" placeholder="N° Orden SAP…" maxlength="20">
+          <button class="btn-sap" id="btn-sap-${ot.id}" onclick="grabarSAP(${ot.id})">💾 Guardar</button>
+        </div>
+      </div>`;
+    content.appendChild(div);
+  });
+}
+
+async function grabarSAP(id){
+  const input=document.getElementById(`sap-${id}`);
+  const btn=document.getElementById(`btn-sap-${id}`);
+  const nro=input.value.trim();
+  if(!nro){input.style.borderColor='var(--rojo)';notify('Ingresa el número de orden SAP','error');return;}
+  input.style.borderColor='';
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>';
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/ordenes_trabajo?id=eq.${id}`,{
+      method:'PATCH',
+      headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify({numero_orden_sap:nro,cct_grabado:true})
+    });
+    if(!res.ok)throw new Error(await res.text());
+    // Animar desaparición
+    const card=document.getElementById(`ot-${id}`);
+    card.style.transition='opacity .4s, transform .4s';
+    card.style.opacity='0';card.style.transform='translateX(40px)';
+    setTimeout(()=>{
+      card.remove();
+      // Actualizar contador
+      const remaining=document.querySelectorAll('.card-ot').length;
+      document.getElementById('cnt-badge').textContent=`${remaining} pendiente${remaining!==1?'s':''}`;
+      if(!remaining){
+        document.getElementById('content').innerHTML=`<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">Todo al día</div><p style="color:#aaa;font-size:13px">No hay órdenes de trabajo pendientes</p></div>`;
+      }
+    },400);
+    notify(`OT #${id} grabada con N° ${nro}`,'success');
+  }catch(e){
+    btn.disabled=false;btn.textContent='💾 Guardar';
+    notify(`Error: ${e.message}`,'error');
+  }
+}
+
+function abrirFoto(url){
+  document.getElementById('lightbox-img').src=url;
+  document.getElementById('lightbox').classList.add('show');
+}
+function cerrarLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
+  document.getElementById('lightbox-img').src='';
+}
+
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
+</script>
+</body>
+</html>
