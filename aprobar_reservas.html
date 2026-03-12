@@ -85,7 +85,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 
 <div class="topbar">
   <button class="tb-back" onclick="window.location.href='menu_supervisor.html'">← Menú</button>
-  <div class="tb-logo">MANODEOBRA</div>
+  <div class="tb-logo">RESERVAS</div>
   <div class="tb-user">👔 <span id="tb-user">—</span></div>
 </div>
 
@@ -356,15 +356,15 @@ async function aprobarGrupo(hid) {
       const cantSup   = parseFloat(qtyEl?.value || row.cantidad);
 
       return fetch(
-        `${SB_URL}/rest/v1/reservas?id=eq.${row.id}`,  // ← usa el id real de BD
+        `${SB_URL}/rest/v1/reservas?id=eq.${row.id}`,
         {
           method: 'PATCH',
           headers: { apikey:SB_KEY, Authorization:`Bearer ${SB_KEY}`,
             'Content-Type':'application/json', Prefer:'return=minimal' },
           body: JSON.stringify({
             verificacionsupervisor: decision,
-            cantidadsupervisor: String(cantSup),
-            sup_aprueba: true
+            cantidadsupervisor: decision === 'Aprobado' ? String(cantSup) : null,
+            sup_aprueba: decision === 'Aprobado' ? true : false
           })
         }
       ).then(r => { if(!r.ok) throw new Error(`Línea ${i+1}: ${r.statusText}`); });
