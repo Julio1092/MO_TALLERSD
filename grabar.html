@@ -18,12 +18,8 @@
   .suc-sub{color:var(--gris);font-size:15px}.suc-id{font-family:'Space Mono',monospace;font-size:12px;color:#999;margin-top:4px}
 
   /* TOPBAR */
-  .topbar{background:var(--azul);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.18);gap:10px}
-  .topbar-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
-  .topbar-info{display:flex;flex-direction:column;min-width:0}
-  .topbar-title{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:1px;white-space:nowrap}
-  .topbar-user{font-size:11px;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  #topbar-reloj{display:none;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-weight:700;font-size:13px;padding:5px 10px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.12);color:white;white-space:nowrap}
+  .topbar{background:var(--azul);color:white;display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.18);gap:10px}
+  #topbar-reloj{display:flex;align-items:center;gap:5px;font-family:'Space Mono',monospace;font-weight:700;font-size:15px;padding:6px 12px;border-radius:20px;border:1.5px solid rgba(255,255,255,0.35);background:rgba(255,255,255,0.12);color:white;white-space:nowrap}
   #topbar-reloj.azul{background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.4)}
   #topbar-reloj.verde{background:#2e9e4f;border-color:#1e7a3a}
   #topbar-reloj.rojo{background:#e53e3e;border-color:#c53030}
@@ -154,13 +150,7 @@
 
 <!-- TOPBAR -->
 <div class="topbar">
-  <div class="topbar-left">
-    <div class="topbar-info">
-      <div class="topbar-title">Reporte de MO</div>
-      <div class="topbar-user" id="topbar-user"></div>
-    </div>
-    <div id="topbar-reloj" class="azul">⏱ <span id="reloj-txt">00:00 h</span></div>
-  </div>
+  <div id="topbar-reloj" class="azul">⏱ <span id="reloj-txt">00:00 h</span></div>
   <div class="topbar-right">
     <button class="btn-save" id="btn-guardar" onclick="guardar()">💾 <span>Guardar</span></button>
     <button class="btn-logout" onclick="salir()" title="Cambiar sesión"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16l4-4-4-4"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></button>
@@ -230,7 +220,6 @@ let ColOrdenes = [], userActual = null;
 window.onload = async () => {
   userActual = getSession();
   if (!userActual) { window.location.href='index.html'; return; }
-  document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre.split(' ')[0]}`;
   document.getElementById('fecha').value = isoHoy();
   await Promise.all([cargarActividades(), cargarComponentes(), cargarCC()]);
   // Start with one OT field
@@ -396,11 +385,13 @@ function horasDesde(hMin,t){const c=TURNO_CFG[t];if(!c)return[];return c.horas.f
 function buildOpts(arr,sel){return arr.map(v=>`<option value="${v}"${v===sel?' selected':''}>${v}</option>`).join('');}
 
 function actualizarReloj(totalMins){
-  const reloj=document.getElementById('topbar-reloj'),txt=document.getElementById('reloj-txt'),t=document.getElementById('turno').value,cfg=TURNO_CFG[t];
-  if(actIds.length===0){reloj.style.display='none';return;}
-  reloj.style.display='flex';txt.textContent=`${pad(Math.floor(totalMins/60))}:${pad(totalMins%60)} h`;
+  const txt=document.getElementById('reloj-txt'),t=document.getElementById('turno').value,cfg=TURNO_CFG[t],reloj=document.getElementById('topbar-reloj');
+  txt.textContent=`${pad(Math.floor(totalMins/60))}:${pad(totalMins%60)} h`;
   reloj.className='';
-  if(!cfg||cfg.limite===0)reloj.classList.add('azul');else if(totalMins<cfg.limite)reloj.classList.add('azul');else if(totalMins===cfg.limite)reloj.classList.add('verde');else reloj.classList.add('rojo');
+  if(!cfg||cfg.limite===0||totalMins===0)reloj.classList.add('azul');
+  else if(totalMins<cfg.limite)reloj.classList.add('azul');
+  else if(totalMins===cfg.limite)reloj.classList.add('verde');
+  else reloj.classList.add('rojo');
 }
 
 function validarActividadCompleta(id){
@@ -610,7 +601,6 @@ function resetForm(){
   otIds=[]; nextOtId=1;
   ColOrdenes=[];
   limpiarActividades();
-  document.getElementById('topbar-reloj').style.display='none';
   document.getElementById('btn-guardar').disabled=false;
   agregarOT();
   cargarCC();
