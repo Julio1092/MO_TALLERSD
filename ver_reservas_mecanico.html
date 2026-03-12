@@ -311,22 +311,25 @@ function renderTabla(){
   }
 
   // Agrupar por fecha (desc) luego por OT dentro de cada fecha
+  // Usamos el id máximo del grupo para ordenar correctamente dentro de la misma fecha
   const mapaFecha={};
   filtrados.forEach(r=>{
     const f=r.fecha_reserva||'—';
     if(!mapaFecha[f])mapaFecha[f]={};
     const o=r.ot||'—';
-    if(!mapaFecha[f][o])mapaFecha[f][o]=[];
-    mapaFecha[f][o].push(r);
+    if(!mapaFecha[f][o])mapaFecha[f][o]={lineas:[],maxId:0};
+    mapaFecha[f][o].lineas.push(r);
+    if((r.id||0)>mapaFecha[f][o].maxId)mapaFecha[f][o].maxId=r.id||0;
   });
 
   // Fechas ordenadas desc
   const fechas=Object.keys(mapaFecha).sort((a,b)=>b.localeCompare(a));
 
   fechas.forEach((fecha,fi)=>{
-    const otsEnFecha=Object.keys(mapaFecha[fecha]).sort();
+    // OTs dentro de la fecha ordenadas por el id más reciente desc
+    const otsEnFecha=Object.keys(mapaFecha[fecha]).sort((a,b)=>mapaFecha[fecha][b].maxId-mapaFecha[fecha][a].maxId);
     otsEnFecha.forEach((ot,oi)=>{
-      const lineas=mapaFecha[fecha][ot];
+      const {lineas}=mapaFecha[fecha][ot];
 
       // Cabecera de grupo
       const trHdr=document.createElement('tr');
