@@ -176,7 +176,7 @@ async function buscar() {
   const hasta  = document.getElementById('f-hasta').value;
   const mec    = document.getElementById('f-mec').value;
 
-  const p = ['select=*','sup_aprueba=not.is.true'];
+  const p = ['select=*','sup_aprueba=is.null'];
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
   if (mec){
