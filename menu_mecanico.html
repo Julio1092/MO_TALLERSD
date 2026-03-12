@@ -21,11 +21,6 @@
   .btn-desc{font-size:12px;color:rgba(255,255,255,0.65);display:block;margin-top:3px}
   .btn-logout{background:none;border:none;color:rgba(255,255,255,0.55);font-size:13px;cursor:pointer;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif}
   .btn-logout:hover{color:white;background:rgba(255,0,0,0.2)}
-  .btn-mps{background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5)}
-  .btn-mps:hover{background:rgba(255,215,0,0.28);border-color:rgba(255,215,0,0.85)}
-  .divider{width:100%;max-width:360px;display:flex;align-items:center;gap:10px}
-  .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.2)}
-  .divider span{font-size:11px;color:rgba(255,255,255,0.4);font-family:'Space Mono',monospace;letter-spacing:1px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -57,15 +52,7 @@
       <span class="btn-desc">Consultar el estado de tus solicitudes de materiales</span>
     </div>
   </a>
-  <!-- Solo visible para CC 8013090 -->
-  <div class="divider" id="div-mps" style="display:none"><span>MPS</span></div>
-  <a class="btn btn-mps" href="menu_mps.html" id="btn-mps" style="display:none">
-    <div class="btn-icon">⚙️</div>
-    <div>
-      <span class="btn-label">MPS</span>
-      <span class="btn-desc">Mantenimiento Preventivo Sistemático</span>
-    </div>
-  </a>
+
 </div>
 
 <button class="btn-logout" onclick="cerrar()">🚪 Cerrar sesión</button>
@@ -76,9 +63,6 @@ window.onload = () => {
   if (!u) { window.location.href='index.html'; return; }
   if ((u.rol||'').toUpperCase()==='SUPERVISOR') { window.location.href='menu_supervisor.html'; return; }
   document.getElementById('nombre').textContent = u.nombre;
-  if (String(u.CC) === '8013090') {
-    document.getElementById('btn-mps').style.display = 'flex';
-  }
 };
 function cerrar(){ clearSession(); window.location.href='index.html'; }
 </script>
