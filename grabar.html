@@ -31,8 +31,9 @@
   .btn-save{background:rgba(255,255,255,0.18);border:none;color:white;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:18px;display:flex;align-items:center;gap:5px;white-space:nowrap}
   .btn-save:hover{background:rgba(255,255,255,0.3)} .btn-save:disabled{opacity:0.5;cursor:not-allowed}
   .btn-save span{font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif}
-  .btn-logout{background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.8);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:18px}
+  .btn-logout{background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.8);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:18px;line-height:1}
   .btn-logout:hover{background:rgba(255,0,0,0.25);color:white}
+  .btn-logout svg{display:block}
 
   .content{padding:16px;display:flex;flex-direction:column;gap:16px;max-width:700px;margin:0 auto;width:100%}
   .card{background:white;border-radius:16px;padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--borde)}
@@ -64,7 +65,8 @@
 
   .btn-add{display:flex;align-items:center;gap:8px;background:var(--azul-bg);border:2px dashed var(--azul-claro);border-radius:12px;padding:14px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--azul);width:100%;transition:all 0.2s}
   .btn-add:hover{background:rgba(56,96,178,0.14);border-color:var(--azul)} .btn-add:disabled{opacity:0.4;cursor:not-allowed}
-  .actividad-card{background:white;border:2px solid var(--borde);border-radius:14px;padding:16px;animation:slideIn 0.25s ease}
+  .actividad-card{background:#f7f9fc;border:2px solid var(--borde);border-radius:14px;padding:16px;animation:slideIn 0.25s ease}
+  .actividad-card:nth-child(even){background:#eef2f9}
   .act-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
   .act-num{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-oscuro);background:var(--azul-bg);padding:4px 10px;border-radius:20px}
   .btn-remove{background:none;border:none;cursor:pointer;color:var(--gris);font-size:18px;padding:4px;border-radius:6px;display:flex;align-items:center}
@@ -78,12 +80,30 @@
   .time-picker.locked{background:#f0f4fb;border-color:#d0d8ec}
   .time-picker.locked select{color:#7080a8;cursor:default;pointer-events:none}
   .colon{font-size:18px;font-weight:700;font-family:'Space Mono',monospace;color:var(--azul-oscuro)}
-  .horas-badge{display:inline-flex;align-items:center;gap:6px;background:#edf2ff;border-radius:8px;padding:6px 12px;font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--azul-oscuro);margin-top:4px}
+  .horas-badge{display:flex;align-items:center;justify-content:center;gap:6px;background:#edf2ff;border-radius:8px;padding:8px 12px;font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--azul-oscuro);margin-top:4px;width:100%}
   #saving-overlay{display:none;position:fixed;inset:0;background:rgba(56,96,178,0.18);backdrop-filter:blur(3px);z-index:8000;align-items:center;justify-content:center;flex-direction:column;gap:16px}
   #saving-overlay.show{display:flex}
   .spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
   .saving-txt{color:white;font-weight:700;font-size:16px}
+
+  /* MODAL CONFIRMACIÓN */
+  #confirm-modal{display:none;position:fixed;inset:0;background:rgba(0,18,107,0.55);backdrop-filter:blur(4px);z-index:7000;align-items:center;justify-content:center;padding:20px}
+  #confirm-modal.show{display:flex}
+  .confirm-box{background:white;border-radius:20px;padding:28px 24px;max-width:380px;width:100%;box-shadow:0 16px 48px rgba(0,18,107,0.25);display:flex;flex-direction:column;align-items:center;gap:16px;animation:popIn .25s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes popIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+  .confirm-icon{font-size:52px;line-height:1}
+  .confirm-title{font-family:'Space Mono',monospace;font-size:15px;font-weight:700;color:var(--azul-oscuro);text-align:center}
+  .confirm-msg{font-size:13px;color:#4a5568;text-align:center;line-height:1.6}
+  .confirm-detail{background:#f0f4fb;border:1.5px solid var(--borde);border-radius:10px;padding:12px 16px;width:100%;display:flex;flex-direction:column;gap:6px}
+  .confirm-row{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+  .confirm-row .lbl{color:#718096;font-weight:500}
+  .confirm-row .val{font-family:'Space Mono',monospace;font-weight:700;color:var(--azul-oscuro);font-size:12px}
+  .confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:4px}
+  .btn-confirm-si{padding:13px;background:var(--azul);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+  .btn-confirm-si:hover{background:var(--azul-oscuro)}
+  .btn-confirm-no{padding:13px;background:#f0f4fb;color:#4a5568;border:1.5px solid var(--borde);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-confirm-no:hover{background:#e2e8f0;color:#2d3748}
 
   /* SEARCHABLE SELECT */
   .ss-wrap{position:relative;width:100%}
@@ -104,6 +124,26 @@
 </head>
 <body>
 
+<!-- MODAL CONFIRMACIÓN -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon">📋</div>
+    <div class="confirm-title">¿Confirmar registro?</div>
+    <div class="confirm-msg">Estás a punto de guardar tu mano de obra. Verifica que los datos sean correctos antes de continuar.</div>
+    <div class="confirm-detail">
+      <div class="confirm-row"><span class="lbl">👤 Colaborador</span><span class="val" id="cm-nombre">—</span></div>
+      <div class="confirm-row"><span class="lbl">📅 Fecha</span><span class="val" id="cm-fecha">—</span></div>
+      <div class="confirm-row"><span class="lbl">🔄 Turno</span><span class="val" id="cm-turno">—</span></div>
+      <div class="confirm-row"><span class="lbl">⚡ Actividades</span><span class="val" id="cm-acts">—</span></div>
+      <div class="confirm-row"><span class="lbl">⏱ Horas totales</span><span class="val" id="cm-horas">—</span></div>
+    </div>
+    <div class="confirm-btns">
+      <button class="btn-confirm-no" onclick="cerrarConfirm()">✕ No, revisar</button>
+      <button class="btn-confirm-si" onclick="ejecutarGuardado()">✓ Sí, guardar</button>
+    </div>
+  </div>
+</div>
+
 <!-- SUCCESS -->
 <div id="success-overlay">
   <div class="suc-icon">✅</div>
@@ -123,7 +163,7 @@
   </div>
   <div class="topbar-right">
     <button class="btn-save" id="btn-guardar" onclick="guardar()">💾 <span>Guardar</span></button>
-    <button class="btn-logout" onclick="salir()" title="Salir">🚪</button>
+    <button class="btn-logout" onclick="salir()" title="Cambiar sesión"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16l4-4-4-4"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></button>
   </div>
 </div>
 
@@ -161,7 +201,7 @@
 
   <!-- ACTIVIDADES -->
   <div class="card">
-    <div class="card-label">Actividades</div>
+    <div class="card-label" style="text-align:center;font-size:13px;letter-spacing:2px">ACTIVIDADES</div>
     <div id="act-container" style="display:flex;flex-direction:column;gap:12px;margin-bottom:14px"></div>
     <button class="btn-add" id="btn-agregar" onclick="agregarActividad()">＋ Agregar Actividad</button>
   </div>
@@ -190,7 +230,7 @@ let ColOrdenes = [], userActual = null;
 window.onload = async () => {
   userActual = getSession();
   if (!userActual) { window.location.href='index.html'; return; }
-  document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre}`;
+  document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre.split(' ')[0]}`;
   document.getElementById('fecha').value = isoHoy();
   await Promise.all([cargarActividades(), cargarComponentes(), cargarCC()]);
   // Start with one OT field
@@ -209,8 +249,7 @@ async function cargarCC() {
     row.id = 'ot-row-cc';
     row.innerHTML = `
       <span class="ot-badge-cc">CC</span>
-      <input class="ot-input-cc" type="text" value="${cc}" readonly>
-      <span class="ot-cc-lock" title="OT de Centro de Costo — no editable">🔒</span>`;
+      <input class="ot-input-cc" type="text" value="${cc}" readonly>`;
     list.insertBefore(row, list.firstChild);
     ColOrdenes.unshift({ Valor: cc, esCC: true });
     actIds.forEach(id => { const s = document.getElementById('act-ot-'+id); if (s) poblarOTSelect(s); });
@@ -377,7 +416,6 @@ function onSelectChange(elId){document.getElementById(elId)?.classList.remove('c
 function agregarActividad(){
   const turno=document.getElementById('turno').value;
   if(!turno){notify('Primero selecciona el Turno','error');return;}
-  if(!ColOrdenes.length){notify('Ingresa al menos una Orden válida (6 dígitos)','warning');return;}
   if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
   if(actIds.length>0){const f=validarActividadCompleta(actIds[actIds.length-1]);if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}}
   const cfg=TURNO_CFG[turno],id=nextActId++;actIds.push(id);
@@ -492,37 +530,57 @@ function construirTimestamp(fecha,h,m,turno){
   return `${f}T${pad(hh)}:${pad(mm)}:00`;
 }
 
-// ── GUARDAR ──
+// ── GUARDAR ── (primero valida, luego muestra confirmación)
 async function guardar(){
   const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
   if(!turno){notify('Selecciona el Turno','error');return;}
   if(!fecha){notify('Selecciona la Fecha del reporte','error');return;}
   if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
 
-  // Validar OTs
-  let otValidas = 0;
+  // Validar OTs — solo verificar formato si se ingresaron
   for (const id of otIds) {
     const v = document.getElementById(`ot-${id}`)?.value.trim();
     if (v && v.length !== 6) { notify('Hay órdenes con número de dígitos incorrecto','error'); return; }
-    if (v && v.length === 6) otValidas++;
   }
-  if (otValidas === 0) { notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error'); return; }
 
   for(const id of actIds){const f=validarActividadCompleta(id);if(f){notify(`Actividad #${actIds.indexOf(id)+1}: debes llenar "${f}"`,'error');document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});return;}}
-  // Validar que exista una actividad de ALIMENTACION con componente ALIMENTACION y exactamente 1 hora
-  const actAlim = actIds.find(id => {
-    const act = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
-    const com = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
-    const mins = getMinsAct(id);
-    return act === 'ALIMENTACION' && com === 'ALIMENTACION' && mins === 60;
-  });
-  if(!actAlim){ notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error'); return; }
+  // Validar hora de alimentación — solo Diurno y Mantenimiento
+  const turnosConAlim = ['Diurno', 'Mantenimiento'];
+  if (turnosConAlim.includes(turno)) {
+    const actAlim = actIds.find(id => {
+      const act = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+      const com = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+      const mins = getMinsAct(id);
+      return act === 'ALIMENTACION' && com === 'ALIMENTACION' && mins === 60;
+    });
+    if(!actAlim){ notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error'); return; }
+  }
   const cfg=TURNO_CFG[turno];
   if(cfg&&cfg.limite>0){let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}if(tot<cfg.limite){notify('Ingresaste menos horas de las debidas','warning');return;}}
 
+  // Mostrar modal de confirmación
+  let totalMins=0; actIds.forEach(id=>totalMins+=getMinsAct(id));
+  const [anio,mes,dia]=fecha.split('-');
+  const fechaLegible=`${dia}/${mes}/${anio}`;
+  document.getElementById('cm-nombre').textContent=userActual.nombre.split(' ')[0]+' '+((userActual.nombre.split(' ')[1])||'');
+  document.getElementById('cm-fecha').textContent=fechaLegible;
+  document.getElementById('cm-turno').textContent=turno;
+  document.getElementById('cm-acts').textContent=actIds.length+' actividad'+(actIds.length>1?'es':'');
+  document.getElementById('cm-horas').textContent=`${pad(Math.floor(totalMins/60))}:${pad(totalMins%60)} hrs`;
+  document.getElementById('confirm-modal').classList.add('show');
+}
+
+function cerrarConfirm(){
+  document.getElementById('confirm-modal').classList.remove('show');
+}
+
+// ── EJECUTAR GUARDADO REAL (después de confirmar) ──
+async function ejecutarGuardado(){
+  cerrarConfirm();
+  const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
   const fila={'Fecha_Reporte':fecha,'Turno':turno,'codigo_operario':userActual?.codigo||null};
   for(let i=1;i<=20;i++){fila[`OT${i}`]=null;fila[`A${i}`]=null;fila[`FI${i}`]=null;fila[`FF${i}`]=null;fila[`H${i}`]=null;fila[`C${i}`]=null;}
-  actIds.forEach((id,idx)=>{const n=idx+1;fila[`OT${n}`]=parseInt(document.getElementById('act-ot-'+id).value);fila[`A${n}`]=document.getElementById('act-act-'+id).value;fila[`FI${n}`]=construirTimestamp(fecha,document.getElementById('act-ki-'+id).value,document.getElementById('act-li-'+id).value,turno);fila[`FF${n}`]=construirTimestamp(fecha,document.getElementById('act-kf-'+id).value,document.getElementById('act-lf-'+id).value,turno);fila[`H${n}`]=parseFloat((getMinsAct(id)/60).toFixed(2));fila[`C${n}`]=document.getElementById('act-com-'+id).value;});
+  actIds.forEach((id,idx)=>{const n=idx+1;const otVal=document.getElementById('act-ot-'+id).value;fila[`OT${n}`]=otVal?parseInt(otVal):null;fila[`A${n}`]=document.getElementById('act-act-'+id).value;fila[`FI${n}`]=construirTimestamp(fecha,document.getElementById('act-ki-'+id).value,document.getElementById('act-li-'+id).value,turno);fila[`FF${n}`]=construirTimestamp(fecha,document.getElementById('act-kf-'+id).value,document.getElementById('act-lf-'+id).value,turno);fila[`H${n}`]=parseFloat((getMinsAct(id)/60).toFixed(2));fila[`C${n}`]=document.getElementById('act-com-'+id).value;});
 
   document.getElementById('saving-overlay').classList.add('show');
   document.getElementById('btn-guardar').disabled=true;
@@ -535,11 +593,11 @@ async function guardar(){
     document.getElementById('success-overlay').classList.add('show');
     setTimeout(()=>{
       document.getElementById('success-overlay').classList.remove('show');
-      resetForm();
       const rol=(userActual?.rol||'').toUpperCase();
       if(rol==='SUPERVISOR'){window.location.href='menu_supervisor.html';}
       else if(rol==='CCT'){window.location.href='menu_cct.html';}
-    },3500);
+      else{window.location.href='menu_mecanico.html';}
+    },2500);
   }catch(err){document.getElementById('saving-overlay').classList.remove('show');document.getElementById('btn-guardar').disabled=false;console.error(err);notify(`Error al guardar: ${err.message}`,'error');}
 }
 
