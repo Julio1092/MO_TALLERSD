@@ -148,7 +148,7 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
           <th>Cant. Sup.</th>
           <th>UM</th>
           <th>Estado</th>
-          <th>Acciones</th>
+          <th>N° Reserva / Acciones</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -285,7 +285,7 @@ function renderTabla(){
       :`<span class="est-badge pendiente">⏳ Pendiente</span>`;
 
     const accCell=`<div class="acc-cell">
-      <textarea class="comentario-input" id="com-${r.id}" rows="2" placeholder="Comentario opcional…">${r.cct_comentario||''}</textarea>
+      <textarea class="comentario-input" id="com-${r.id}" rows="2" placeholder="N° Reserva…">${r.cct_comentario||''}</textarea>
       <div class="btns-row">
         <button class="btn-accion btn-grabado" id="btn-grab-${r.id}" onclick="accion(${r.id},'grabado')">📥 Grabado</button>
         <button class="btn-accion btn-seg${esSeg?' activo':''}" id="btn-seg-${r.id}" onclick="accion(${r.id},'seguimiento')" ${esSeg?'disabled':''}>🔄 En seguimiento</button>
@@ -358,7 +358,7 @@ function goPag(p){const tp=Math.ceil(filtrados.length/PPG);if(p<1||p>tp)return;p
 
 function exportar(){
   if(!filtrados.length){notify('No hay datos para exportar','warning');return;}
-  const heads=['Fecha','OT','Mecánico','Cód.SAP','Descripción','Cant.Sol.','Cant.Sup.','UM','Estado','Comentario'];
+  const heads=['Fecha','OT','Mecánico','Cód.SAP','Descripción','Cant.Sol.','Cant.Sup.','UM','Estado','N° Reserva'];
   const filas=[heads.join(',')];
   filtrados.forEach(r=>{
     const estado=r.cct_seguimiento?'En Seguimiento':'Pendiente';
