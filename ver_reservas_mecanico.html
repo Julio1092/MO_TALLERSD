@@ -114,7 +114,7 @@ tbody tr:hover td{background:rgba(56,96,178,.04)}
 
 <div class="topbar">
   <button class="tb-back" onclick="window.location.href='menu_mecanico.html'">← Menú</button>
-  <div class="tb-logo">MANODEOBRA</div>
+  <div class="tb-logo">RESERVAS</div>
   <div class="tb-user">👷 <span id="tb-user">—</span></div>
 </div>
 
@@ -177,7 +177,7 @@ tbody tr:hover td{background:rgba(56,96,178,.04)}
           <th>Cant. Aprobada</th>
           <th>UM</th>
           <th>Estado</th>
-          <th>Comentario Sup.</th>
+          <th>N° Reserva</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -300,77 +300,78 @@ function aplicarFiltros(){
 }
 
 function renderTabla(){
-  const total=filtrados.length;
-  document.getElementById('tblCnt').textContent=`${total} línea${total!==1?'s':''}`;
+  document.getElementById('tblCnt').textContent=`${filtrados.length} línea${filtrados.length!==1?'s':''}`;
   const tb=document.getElementById('tbody');
   tb.innerHTML='';
 
   if(!filtrados.length){
     tb.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--txt3);font-family:'Space Mono',monospace;font-size:13px">Sin registros para este filtro</td></tr>`;
-    renderPag(0,0,0);return;
+    document.getElementById('pag').innerHTML='';
+    return;
   }
 
-  // Agrupar por OT
-  const grupos={};
+  // Agrupar por fecha (desc) luego por OT dentro de cada fecha
+  const mapaFecha={};
   filtrados.forEach(r=>{
-    const key=r.ot||'—';
-    if(!grupos[key])grupos[key]=[];
-    grupos[key].push(r);
+    const f=r.fecha_reserva||'—';
+    if(!mapaFecha[f])mapaFecha[f]={};
+    const o=r.ot||'—';
+    if(!mapaFecha[f][o])mapaFecha[f][o]=[];
+    mapaFecha[f][o].push(r);
   });
 
-  Object.entries(grupos).forEach(([ot, lineas],gi)=>{
-    // Fila cabecera de OT
-    const trHdr=document.createElement('tr');
-    trHdr.style.cssText='background:#eef2fa;';
-    trHdr.innerHTML=`
-      <td colspan="9" style="padding:10px 14px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d);border-bottom:1.5px solid var(--bord2);">
-        📋 OT: ${ot}
-        <span style="font-family:'DM Sans',sans-serif;font-weight:400;font-size:11px;color:var(--txt3);margin-left:10px">${lineas.length} artículo${lineas.length!==1?'s':''}</span>
-      </td>`;
-    tb.appendChild(trHdr);
+  // Fechas ordenadas desc
+  const fechas=Object.keys(mapaFecha).sort((a,b)=>b.localeCompare(a));
 
-    // Filas de artículos de esta OT
-    lineas.forEach(r=>{
-      let badgeHtml;
-      if(esAprobado(r)){
-        badgeHtml=r.cct_grabado
-          ?`<span class="est-badge grabado">📥 Grabado</span>`
-          :`<span class="est-badge aprobado">✅ Aprobado</span>`;
-      } else if(esRechazado(r)){
-        badgeHtml=`<span class="est-badge rechazado">❌ Rechazado</span>`;
-      } else {
-        badgeHtml=`<span class="est-badge pendiente">⏳ Pendiente</span>`;
-      }
+  fechas.forEach((fecha,fi)=>{
+    const otsEnFecha=Object.keys(mapaFecha[fecha]).sort();
+    otsEnFecha.forEach((ot,oi)=>{
+      const lineas=mapaFecha[fecha][ot];
 
-      const cantAprobada=r.cantidadsupervisor
-        ?`<span class="td-qty-s">${r.cantidadsupervisor}</span>`
-        :`<span class="td-qty-na">—</span>`;
+      // Cabecera de grupo
+      const trHdr=document.createElement('tr');
+      trHdr.innerHTML=`
+        <td colspan="9" style="padding:9px 14px;background:#eef2fa;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--azul-d);border-bottom:1.5px solid var(--bord2);border-top:${fi===0&&oi===0?'none':'2px solid #d0daf0'}">
+          📅 ${fecha} &nbsp;·&nbsp; OT: ${ot}
+          <span style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:11px;color:var(--txt3);margin-left:8px">${lineas.length} artículo${lineas.length!==1?'s':''}</span>
+        </td>`;
+      tb.appendChild(trHdr);
 
-      const nroReserva=r.supervisor_comentario||r.comentario_supervisor||'—';
+      // Filas de artículos
+      lineas.forEach(r=>{
+        let badgeHtml;
+        if(esAprobado(r)){
+          badgeHtml=r.cct_grabado
+            ?`<span class="est-badge grabado">📥 Grabado</span>`
+            :`<span class="est-badge aprobado">✅ Aprobado</span>`;
+        } else if(esRechazado(r)){
+          badgeHtml=`<span class="est-badge rechazado">❌ Rechazado</span>`;
+        } else {
+          badgeHtml=`<span class="est-badge pendiente">⏳ Pendiente</span>`;
+        }
 
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td class="td-fecha">${r.fecha_reserva||'—'}</td>
-        <td class="td-ot" style="color:var(--txt3);font-weight:400">${r.ot||'—'}</td>
-        <td class="td-cod">${r.articulosap||'—'}</td>
-        <td style="max-width:200px">${r.descripcion||'—'}</td>
-        <td class="td-qty">${r.cantidad}</td>
-        <td>${cantAprobada}</td>
-        <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
-        <td>${badgeHtml}</td>
-        <td style="font-size:12px;color:var(--txt3);font-style:italic;max-width:180px">${nroReserva}</td>`;
-      tb.appendChild(tr);
+        const cantAprobada=r.cantidadsupervisor
+          ?`<span class="td-qty-s">${r.cantidadsupervisor}</span>`
+          :`<span class="td-qty-na">—</span>`;
+
+        const nroReserva=r.supervisor_comentario||r.comentario_supervisor||'—';
+
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td class="td-fecha">${r.fecha_reserva||'—'}</td>
+          <td class="td-ot">${r.ot||'—'}</td>
+          <td class="td-cod">${r.articulosap||'—'}</td>
+          <td style="max-width:200px">${r.descripcion||'—'}</td>
+          <td class="td-qty">${r.cantidad}</td>
+          <td>${cantAprobada}</td>
+          <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
+          <td>${badgeHtml}</td>
+          <td style="font-size:12px;color:var(--txt3);font-style:italic;max-width:180px">${nroReserva}</td>`;
+        tb.appendChild(tr);
+      });
     });
-
-    // Separador entre grupos (excepto el último)
-    if(gi < Object.keys(grupos).length-1){
-      const trSep=document.createElement('tr');
-      trSep.innerHTML=`<td colspan="9" style="padding:4px;background:var(--bg);border:none"></td>`;
-      tb.appendChild(trSep);
-    }
   });
 
-  // Sin paginación cuando hay agrupación — mostrar todo
   document.getElementById('pag').innerHTML='';
 }
 
