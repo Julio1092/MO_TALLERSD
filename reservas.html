@@ -295,7 +295,7 @@ async function guardar(){
 
       if(!cod||!desc){document.getElementById(`art-${lid}`)?.classList.add('campo-error');notify('Selecciona un artículo válido en todas las líneas','error');document.getElementById(`art-${lid}`)?.scrollIntoView({behavior:'smooth',block:'center'});hayError=true;break;}
       document.getElementById(`qty-${lid}`)?.classList.remove('campo-error');
-      filas.push({fecha_reserva:hoy,ot:otVal,articulosap:cod,descripcion:desc,cantidad:qty,um:um==='—'?null:um,codigo_operario:String(userActual.codigo),sup_aprueba:false});
+      filas.push({fecha_reserva:hoy,ot:otVal,articulosap:cod,descripcion:desc,cantidad:qty,um:um==='—'?null:um,codigo_operario:String(userActual.codigo)});
     }
     if(hayError)break;
   }
