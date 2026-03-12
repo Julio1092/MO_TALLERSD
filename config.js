@@ -20,8 +20,16 @@ async function supaFetch(endpoint, opts = {}) {
   return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null };
 }
 
-function isoHoy() { return new Date().toISOString().split('T')[0]; }
-function isoAyer() { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().split('T')[0]; }
+// ✅ Usa hora local del dispositivo (no UTC) — corrige el problema de zona horaria GMT-6
+function isoHoy() {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+function isoAyer() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
 function pad(n) { return String(n).padStart(2, '0'); }
 
 // Sesión simple via sessionStorage
