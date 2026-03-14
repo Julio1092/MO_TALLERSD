@@ -100,8 +100,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
     <div class="f-grid">
       <div class="f-grp"><label class="f-lbl">Fecha Desde</label><input type="date" id="f-desde" class="f-inp"></div>
       <div class="f-grp"><label class="f-lbl">Fecha Hasta</label><input type="date" id="f-hasta" class="f-inp"></div>
-      <div class="f-grp"><label class="f-lbl">Mecánico</label>
-        <select id="f-mec" class="f-inp"><option value="">— Todos —</option></select>
+      <div class="f-grp"><label class="f-lbl">Mecánico (código o nombre)</label>
+        <input type="text" id="f-mec-txt" class="f-inp" placeholder="Buscar por código o nombre…">
+      </div>
+      <div class="f-grp"><label class="f-lbl">Supervisor</label>
+        <select id="f-sup" class="f-inp"><option value="">— Todos —</option></select>
       </div>
     </div>
     <div class="f-btns">
@@ -168,12 +171,20 @@ async function cargarColabs() {
     const rol=(userActual?.rol||'').toUpperCase();
     const esJefe=rol==='JEFE';
     const query=esJefe
-      ?'Colaboradores?select=codigo,nombre&rol=eq.MECANICO&order=nombre.asc'
-      :`Colaboradores?select=codigo,nombre&rol=eq.MECANICO&Jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
+      ?'Colaboradores?select=codigo,nombre,rol&order=nombre.asc'
+      :`Colaboradores?select=codigo,nombre,rol&Jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
     const data = await sbGet(query);
-    const sel = document.getElementById('f-mec');
-    (data||[]).forEach(c=>{ colabs[String(c.codigo)]=c.nombre; const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o); });
-    mecPermitidos=esJefe?null:new Set((data||[]).map(c=>String(c.codigo)));
+    const selSup = document.getElementById('f-sup');
+    const mecanicos = [];
+    (data||[]).forEach(c=>{
+      colabs[String(c.codigo)]=c.nombre;
+      const rol=(c.rol||'').toUpperCase();
+      if(rol==='SUPERVISOR'){
+        const o=document.createElement('option');o.value=c.codigo;o.textContent=`${c.nombre} (${c.codigo})`;selSup.appendChild(o);
+      }
+      if(rol==='MECANICO') mecanicos.push(c);
+    });
+    mecPermitidos=esJefe?null:new Set(mecanicos.map(c=>String(c.codigo)));
   } catch(e){ console.warn('colabs',e.message); }
 }
 
@@ -199,7 +210,8 @@ async function obtenerGuardiaActiva() {
 async function buscar() {
   const desde = document.getElementById('f-desde').value;
   const hasta  = document.getElementById('f-hasta').value;
-  const mec    = document.getElementById('f-mec').value;
+  const mecTxt = document.getElementById('f-mec-txt').value.trim().toLowerCase();
+  const supFil = document.getElementById('f-sup').value;
 
   const p = ['select=*','sup_aprueba=is.null'];
   // Lógica de guardia: si hay guardia activa, solo el supervisor de guardia ve las reservas de ese período
@@ -218,9 +230,7 @@ async function buscar() {
   }
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
-  if (mec){
-    p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
-  } else if(mecPermitidos&&mecPermitidos.size>0){
+  if(mecPermitidos&&mecPermitidos.size>0){
     p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
   }
   p.push('order=fecha_reserva.desc,ot.asc,id.asc');
