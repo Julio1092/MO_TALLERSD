@@ -92,7 +92,7 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
 <body>
 <div class="topbar">
   <button class="tb-back" onclick="window.location.href='menu_cct.html'">← Menú</button>
-  <div class="tb-logo">MANODEOBRA</div>
+  <div class="tb-logo">RESERVAS</div>
   <div class="tb-user">📊 <span id="tb-user">—</span></div>
 </div>
 
@@ -182,7 +182,7 @@ async function sbPatch(id,body){
   if(!r.ok)throw new Error(await r.text());
 }
 
-let colabs={},todos=[],filtrados=[],tabActual='todos',pag=1;
+let colabs={},mecsPorSup={},todos=[],filtrados=[],tabActual='todos',pag=1;
 const PPG=30;
 
 window.onload=async()=>{
@@ -194,12 +194,18 @@ window.onload=async()=>{
   document.getElementById('f-desde').value=d30.toISOString().slice(0,10);
   document.getElementById('f-hasta').value=hoy.toISOString().slice(0,10);
   try{
-    const data=await sbGet('Colaboradores?select=codigo,nombre,rol&order=nombre.asc');
+    const data=await sbGet('Colaboradores?select=codigo,nombre,rol,jefe_codigo&order=nombre.asc');
     const selSup=document.getElementById('f-sup');
     (data||[]).forEach(c=>{
       colabs[String(c.codigo)]=c.nombre;
-      if((c.rol||'').toUpperCase()==='SUPERVISOR'){
+      const rol=(c.rol||'').toUpperCase();
+      if(rol==='SUPERVISOR'){
         const o=document.createElement('option');o.value=c.codigo;o.textContent=`${c.nombre} (${c.codigo})`;selSup.appendChild(o);
+      }
+      if(c.jefe_codigo){
+        const jefe=String(c.jefe_codigo);
+        if(!mecsPorSup[jefe])mecsPorSup[jefe]=new Set();
+        mecsPorSup[jefe].add(String(c.codigo));
       }
     });
   }catch(e){console.warn(e);}

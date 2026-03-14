@@ -149,7 +149,7 @@ function irAlMenu(){
 
 async function sbGet(p){ const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
 
-let colabs={}, grupos={};
+let colabs={}, grupos={}, mecsPorSup={};
 let mecPermitidos=null; // null = sin restricción (JEFE), Set = solo estos códigos
 let userActual=null;
 // grupos = { gid: { key, fecha, ot, cod, nombre, lineas:[{id, ...row}] } }
@@ -170,10 +170,12 @@ async function cargarColabs() {
   try {
     const rol=(userActual?.rol||'').toUpperCase();
     const esJefe=rol==='JEFE';
-    const query=esJefe
-      ?'Colaboradores?select=codigo,nombre,rol&order=nombre.asc'
-      :`Colaboradores?select=codigo,nombre,rol&Jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
-    const data = await sbGet(query);
+    // Jefe carga todos los colaboradores para poder filtrar por supervisor
+    // Supervisor carga solo sus mecánicos
+    const queryTodos = esJefe
+      ?'Colaboradores?select=codigo,nombre,rol,jefe_codigo&order=nombre.asc'
+      :`Colaboradores?select=codigo,nombre,rol,jefe_codigo&order=nombre.asc`;
+    const data = await sbGet(queryTodos);
     const selSup = document.getElementById('f-sup');
     const mecanicos = [];
     (data||[]).forEach(c=>{
@@ -182,9 +184,16 @@ async function cargarColabs() {
       if(rol==='SUPERVISOR'){
         const o=document.createElement('option');o.value=c.codigo;o.textContent=`${c.nombre} (${c.codigo})`;selSup.appendChild(o);
       }
-      if(rol==='MECANICO') mecanicos.push(c);
+      if(rol==='MECANICO'){
+        mecanicos.push(c);
+        if(c.jefe_codigo){
+          const jefe=String(c.jefe_codigo);
+          if(!mecsPorSup[jefe])mecsPorSup[jefe]=new Set();
+          mecsPorSup[jefe].add(String(c.codigo));
+        }
+      }
     });
-    mecPermitidos=esJefe?null:new Set(mecanicos.map(c=>String(c.codigo)));
+    mecPermitidos=esJefe?null:new Set(mecanicos.filter(c=>String(c.jefe_codigo)===String(userActual.codigo)).map(c=>String(c.codigo)));
   } catch(e){ console.warn('colabs',e.message); }
 }
 
