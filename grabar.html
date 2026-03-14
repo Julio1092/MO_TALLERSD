@@ -116,14 +116,19 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-info">
-      <div class="topbar-title">Reporte de MO</div>
-      <div class="topbar-user" id="topbar-user"></div>
+
     </div>
     <div id="topbar-reloj" class="azul">⏱ <span id="reloj-txt">00:00 h</span></div>
   </div>
   <div class="topbar-right">
     <button class="btn-save" id="btn-guardar" onclick="guardar()">💾 <span>Guardar</span></button>
-    <button class="btn-logout" onclick="salir()" title="Salir">🚪</button>
+    <button class="btn-logout" onclick="salir()" title="Cambiar sesión">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+    </button>
   </div>
 </div>
 
@@ -190,7 +195,7 @@ let ColOrdenes = [], userActual = null;
 window.onload = async () => {
   userActual = getSession();
   if (!userActual) { window.location.href='index.html'; return; }
-  document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre}`;
+
   document.getElementById('fecha').value = isoHoy();
   await Promise.all([cargarActividades(), cargarComponentes(), cargarCC()]);
   // Start with one OT field
@@ -209,8 +214,7 @@ async function cargarCC() {
     row.id = 'ot-row-cc';
     row.innerHTML = `
       <span class="ot-badge-cc">CC</span>
-      <input class="ot-input-cc" type="text" value="${cc}" readonly>
-      <span class="ot-cc-lock" title="OT de Centro de Costo — no editable">🔒</span>`;
+      <input class="ot-input-cc" type="text" value="${cc}" readonly>`;
     list.insertBefore(row, list.firstChild);
     ColOrdenes.unshift({ Valor: cc, esCC: true });
     actIds.forEach(id => { const s = document.getElementById('act-ot-'+id); if (s) poblarOTSelect(s); });
@@ -500,7 +504,32 @@ function construirTimestampLibre(fecha, h, m, minutosAcumuladosAntes){
 }
 
 // ── GUARDAR ──
+function cerrarModal(){ document.getElementById('modal-confirm').style.display='none'; }
+
 async function guardar(){
+  // Pre-validar antes de mostrar modal
+  const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
+  if(!turno){notify('Selecciona el Turno','error');return;}
+  if(!fecha){notify('Selecciona la Fecha','error');return;}
+  if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
+
+  // Calcular total horas
+  let totalMins=0; actIds.forEach(id=>totalMins+=getMinsAct(id));
+  const hh=Math.floor(totalMins/60), mm=totalMins%60;
+  const primerNombre=(userActual?.nombre||'').split(' ')[0];
+  const fechaFormato=new Date(fecha+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'long',year:'numeric'});
+
+  document.getElementById('modal-body').innerHTML=
+    `<b>👷 Operario:</b> ${primerNombre}<br>`+
+    `<b>📅 Fecha:</b> ${fechaFormato}<br>`+
+    `<b>🔄 Turno:</b> ${turno}<br>`+
+    `<b>📋 Actividades:</b> ${actIds.length}<br>`+
+    `<b>⏱ Total horas:</b> ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')} h`;
+  document.getElementById('modal-confirm').style.display='flex';
+}
+
+async function ejecutarGuardado(){
+  cerrarModal();
   const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
   if(!turno){notify('Selecciona el Turno','error');return;}
   if(!fecha){notify('Selecciona la Fecha del reporte','error');return;}
@@ -634,5 +663,17 @@ function ssKey(event, inputId, ddId, items) {
 let nTO;
 function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
 </script>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div id="modal-confirm" style="display:none;position:fixed;inset:0;background:rgba(0,18,107,0.45);backdrop-filter:blur(3px);z-index:7000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:white;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+    <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--azul);margin-bottom:16px;text-align:center">CONFIRMAR GUARDADO</div>
+    <div id="modal-body" style="font-size:13px;color:#444;line-height:1.8;background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:20px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="cerrarModal()" style="padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#666;cursor:pointer">✕ No, revisar</button>
+      <button onclick="ejecutarGuardado()" style="padding:12px;border-radius:10px;border:none;background:#2e9e4f;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">✓ Sí, guardar</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
