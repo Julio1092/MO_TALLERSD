@@ -106,7 +106,8 @@ tbody tr:hover td{background:rgba(255,215,0,.04)}
     <div class="f-grid">
       <div class="f-grp"><label class="f-lbl">Fecha Desde</label><input type="date" id="f-desde" class="f-inp"></div>
       <div class="f-grp"><label class="f-lbl">Fecha Hasta</label><input type="date" id="f-hasta" class="f-inp"></div>
-      <div class="f-grp"><label class="f-lbl">Mecánico</label><select id="f-mec" class="f-inp"><option value="">— Todos —</option></select></div>
+      <div class="f-grp"><label class="f-lbl">Mecánico (código o nombre)</label><input type="text" id="f-mec-txt" class="f-inp" placeholder="Buscar por código o nombre…"></div>
+      <div class="f-grp"><label class="f-lbl">Supervisor</label><select id="f-sup" class="f-inp"><option value="">— Todos —</option></select></div>
       <div class="f-grp"><label class="f-lbl">OT</label><input type="text" id="f-ot" class="f-inp" placeholder="Ej. 444444"></div>
       <div class="f-grp"><label class="f-lbl">Cód. SAP</label><input type="text" id="f-sap" class="f-inp" placeholder="Código artículo"></div>
     </div>
@@ -186,16 +187,22 @@ window.onload=async()=>{
   document.getElementById('f-desde').value=d30.toISOString().slice(0,10);
   document.getElementById('f-hasta').value=hoy.toISOString().slice(0,10);
   try{
-    const data=await sbGet('Colaboradores?select=codigo,nombre&order=nombre.asc');
-    const sel=document.getElementById('f-mec');
-    (data||[]).forEach(c=>{colabs[String(c.codigo)]=c.nombre;const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o);});
+    const data=await sbGet('Colaboradores?select=codigo,nombre,rol&order=nombre.asc');
+    const selSup=document.getElementById('f-sup');
+    (data||[]).forEach(c=>{
+      colabs[String(c.codigo)]=c.nombre;
+      if((c.rol||'').toUpperCase()==='SUPERVISOR'){
+        const o=document.createElement('option');o.value=c.codigo;o.textContent=`${c.nombre} (${c.codigo})`;selSup.appendChild(o);
+      }
+    });
   }catch(e){console.warn(e);}
 };
 
 async function buscar(){
   const desde=document.getElementById('f-desde').value;
   const hasta=document.getElementById('f-hasta').value;
-  const mec=document.getElementById('f-mec').value;
+  const mecTxt=document.getElementById('f-mec-txt').value.trim().toLowerCase();
+  const supFil=document.getElementById('f-sup').value;
   const ot=document.getElementById('f-ot').value.trim();
   const sap=document.getElementById('f-sap').value.trim();
 
@@ -203,7 +210,6 @@ async function buscar(){
   const p=['select=*','order=fecha_reserva.desc,ot.asc'];
   if(desde)p.push(`fecha_reserva=gte.${desde}`);
   if(hasta)p.push(`fecha_reserva=lte.${hasta}`);
-  if(mec)p.push(`codigo_operario=eq.${encodeURIComponent(mec)}`);
   if(ot)p.push(`ot=eq.${encodeURIComponent(ot)}`);
   if(sap)p.push(`articulosap=ilike.*${encodeURIComponent(sap)}*`);
 
@@ -211,7 +217,10 @@ async function buscar(){
   try{
     const raw=await sbGet(`reservas?${p.join('&')}`);
     setLoad(false);
-    todos=(raw||[]).map(r=>({...r,_nom:colabs[String(r.codigo_operario)]||r.codigo_operario||'—'}));
+    let rows=(raw||[]);
+    if(mecTxt) rows=rows.filter(r=>String(r.codigo_operario||'').includes(mecTxt)||(colabs[String(r.codigo_operario)]||'').toLowerCase().includes(mecTxt));
+    if(supFil) rows=rows.filter(r=>String(r.supervisor_codigo||'')==supFil);
+    todos=rows.map(r=>({...r,_nom:colabs[String(r.codigo_operario)]||r.codigo_operario||'—'}));
     if(!todos.length){setEstado('📦','Sin resultados','Prueba con otros filtros');show('kpis');renderKPIs([]);return;}
     document.getElementById('srch').value='';
     tabActual='todos';syncTabs();
@@ -296,7 +305,7 @@ function renderTabla(){
     tr.innerHTML=`
       <td class="td-fecha">${r.fecha_reserva||'—'}</td>
       <td class="td-ot">${r.ot||'—'}</td>
-      <td class="td-mec">${r._nom}</td>
+      <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
       <td class="td-cod">${r.articulosap||'—'}</td>
       <td style="max-width:200px">${r.descripcion||'—'}</td>
       <td class="td-qty">${r.cantidad}</td>
