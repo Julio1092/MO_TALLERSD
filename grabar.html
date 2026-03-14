@@ -116,19 +116,14 @@
 <div class="topbar">
   <div class="topbar-left">
     <div class="topbar-info">
-
+      <div class="topbar-title">Reporte de MO</div>
+      <div class="topbar-user" id="topbar-user"></div>
     </div>
     <div id="topbar-reloj" class="azul">⏱ <span id="reloj-txt">00:00 h</span></div>
   </div>
   <div class="topbar-right">
     <button class="btn-save" id="btn-guardar" onclick="guardar()">💾 <span>Guardar</span></button>
-    <button class="btn-logout" onclick="salir()" title="Cambiar sesión">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-    </button>
+    <button class="btn-logout" onclick="salir()" title="Salir">🚪</button>
   </div>
 </div>
 
@@ -195,7 +190,7 @@ let ColOrdenes = [], userActual = null;
 window.onload = async () => {
   userActual = getSession();
   if (!userActual) { window.location.href='index.html'; return; }
-
+  document.getElementById('topbar-user').textContent = `👷 ${userActual.nombre}`;
   document.getElementById('fecha').value = isoHoy();
   await Promise.all([cargarActividades(), cargarComponentes(), cargarCC()]);
   // Start with one OT field
@@ -214,7 +209,8 @@ async function cargarCC() {
     row.id = 'ot-row-cc';
     row.innerHTML = `
       <span class="ot-badge-cc">CC</span>
-      <input class="ot-input-cc" type="text" value="${cc}" readonly>`;
+      <input class="ot-input-cc" type="text" value="${cc}" readonly>
+      <span class="ot-cc-lock" title="OT de Centro de Costo — no editable">🔒</span>`;
     list.insertBefore(row, list.firstChild);
     ColOrdenes.unshift({ Valor: cc, esCC: true });
     actIds.forEach(id => { const s = document.getElementById('act-ot-'+id); if (s) poblarOTSelect(s); });
@@ -485,51 +481,19 @@ function construirTimestamp(fecha,h,m,turno){
   let f=fecha;
   if(turno==='Nocturno'&&hh<8){
     const d=new Date(fecha+'T00:00:00');d.setDate(d.getDate()+1);f=d.toISOString().split('T')[0];
+  } else if(turno==='Extraordinario'){
+    // Si esta hora es menor que la hora de inicio de la primera actividad
+    // significa que ya cruzó medianoche → día siguiente
+    const hInicio=getHoraInicioExtr();
+    if(hh<hInicio){
+      const d=new Date(fecha+'T00:00:00');d.setDate(d.getDate()+1);f=d.toISOString().split('T')[0];
+    }
   }
   return `${f}T${pad(hh)}:${pad(mm)}:00`;
 }
 
-// Para turno Libre: construye timestamps teniendo en cuenta cruces de medianoche múltiples
-// Recibe el array de actividades ya calculadas para saber cuántos días llevamos
-function construirTimestampLibre(fecha, h, m, minutosAcumuladosAntes){
-  const hh=parseInt(h), mm=parseInt(m);
-  // Convertimos los minutos del día actual a minutos absolutos desde inicio
-  const minsDia = hh * 60 + mm;
-  // Calculamos cuántos días completos han pasado basándonos en minutos acumulados
-  const diasExtra = Math.floor(minutosAcumuladosAntes / (24 * 60));
-  const d = new Date(fecha + 'T00:00:00');
-  d.setDate(d.getDate() + diasExtra);
-  const f = d.toISOString().split('T')[0];
-  return `${f}T${pad(hh)}:${pad(mm)}:00`;
-}
-
 // ── GUARDAR ──
-function cerrarModal(){ document.getElementById('modal-confirm').style.display='none'; }
-
 async function guardar(){
-  // Pre-validar antes de mostrar modal
-  const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
-  if(!turno){notify('Selecciona el Turno','error');return;}
-  if(!fecha){notify('Selecciona la Fecha','error');return;}
-  if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
-
-  // Calcular total horas
-  let totalMins=0; actIds.forEach(id=>totalMins+=getMinsAct(id));
-  const hh=Math.floor(totalMins/60), mm=totalMins%60;
-  const primerNombre=(userActual?.nombre||'').split(' ')[0];
-  const fechaFormato=new Date(fecha+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'long',year:'numeric'});
-
-  document.getElementById('modal-body').innerHTML=
-    `<b>👷 Operario:</b> ${primerNombre}<br>`+
-    `<b>📅 Fecha:</b> ${fechaFormato}<br>`+
-    `<b>🔄 Turno:</b> ${turno}<br>`+
-    `<b>📋 Actividades:</b> ${actIds.length}<br>`+
-    `<b>⏱ Total horas:</b> ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')} h`;
-  document.getElementById('modal-confirm').style.display='flex';
-}
-
-async function ejecutarGuardado(){
-  cerrarModal();
   const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
   if(!turno){notify('Selecciona el Turno','error');return;}
   if(!fecha){notify('Selecciona la Fecha del reporte','error');return;}
@@ -545,56 +509,20 @@ async function ejecutarGuardado(){
   if (otValidas === 0) { notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error'); return; }
 
   for(const id of actIds){const f=validarActividadCompleta(id);if(f){notify(`Actividad #${actIds.indexOf(id)+1}: debes llenar "${f}"`,'error');document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});return;}}
-  // Validar alimentación solo para Diurno y Mantenimiento
-  if(turno==='Diurno'||turno==='Mantenimiento'){
-    const actAlim = actIds.find(id => {
-      const act = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
-      const com = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
-      const mins = getMinsAct(id);
-      return act === 'ALIMENTACION' && com === 'ALIMENTACION' && mins === 60;
-    });
-    if(!actAlim){ notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error'); return; }
-  }
+  // Validar que exista una actividad de ALIMENTACION con componente ALIMENTACION y exactamente 1 hora
+  const actAlim = actIds.find(id => {
+    const act = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+    const com = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+    const mins = getMinsAct(id);
+    return act === 'ALIMENTACION' && com === 'ALIMENTACION' && mins === 60;
+  });
+  if(!actAlim){ notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error'); return; }
   const cfg=TURNO_CFG[turno];
   if(cfg&&cfg.limite>0){let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}if(tot<cfg.limite){notify('Ingresaste menos horas de las debidas','warning');return;}}
 
   const fila={'Fecha_Reporte':fecha,'Turno':turno,'codigo_operario':userActual?.codigo||null};
   for(let i=1;i<=20;i++){fila[`OT${i}`]=null;fila[`A${i}`]=null;fila[`FI${i}`]=null;fila[`FF${i}`]=null;fila[`H${i}`]=null;fila[`C${i}`]=null;}
-  if(turno==='Extraordinario'){
-    // Para turno Libre: rastrear minutos acumulados para detectar cruces de medianoche múltiples
-    let minsAcum=0;
-    const hIni0=parseInt(document.getElementById('act-ki-'+actIds[0]).value);
-    const mIni0=parseInt(document.getElementById('act-li-'+actIds[0]).value);
-    const baseMinutos=hIni0*60+mIni0; // minutos del día en que empieza la primera actividad
-    actIds.forEach((id,idx)=>{
-      const n=idx+1;
-      const hI=document.getElementById('act-ki-'+id).value, mI=document.getElementById('act-li-'+id).value;
-      const hF=document.getElementById('act-kf-'+id).value, mF=document.getElementById('act-lf-'+id).value;
-      const hIint=parseInt(hI), mIint=parseInt(mI), hFint=parseInt(hF), mFint=parseInt(mF);
-      // Minutos absolutos de inicio y fin desde el inicio del primer día
-      const absI=minsAcum; // ya sabemos cuántos minutos llevamos
-      const minsDia=hIint*60+mIint;
-      // Calcular días extra para FI
-      const diasFI=Math.floor(minsAcum/(24*60));
-      const dFI=new Date(fecha+'T00:00:00');dFI.setDate(dFI.getDate()+diasFI);
-      const fechaFI=dFI.toISOString().split('T')[0];
-      fila[`FI${n}`]=`${fechaFI}T${hI.padStart(2,'0')}:${mI.padStart(2,'0')}:00`;
-      // Sumar minutos de esta actividad
-      const durMins=getMinsAct(id);
-      minsAcum+=durMins;
-      // Calcular días extra para FF
-      const diasFF=Math.floor(minsAcum/(24*60));
-      const dFF=new Date(fecha+'T00:00:00');dFF.setDate(dFF.getDate()+diasFF);
-      const fechaFF=dFF.toISOString().split('T')[0];
-      fila[`FF${n}`]=`${fechaFF}T${hF.padStart(2,'0')}:${mF.padStart(2,'0')}:00`;
-      fila[`OT${n}`]=document.getElementById('act-ot-'+id).value?parseInt(document.getElementById('act-ot-'+id).value):null;
-      fila[`A${n}`]=document.getElementById('act-act-'+id).value;
-      fila[`H${n}`]=parseFloat((durMins/60).toFixed(2));
-      fila[`C${n}`]=document.getElementById('act-com-'+id).value;
-    });
-  } else {
-    actIds.forEach((id,idx)=>{const n=idx+1;fila[`OT${n}`]=parseInt(document.getElementById('act-ot-'+id).value);fila[`A${n}`]=document.getElementById('act-act-'+id).value;fila[`FI${n}`]=construirTimestamp(fecha,document.getElementById('act-ki-'+id).value,document.getElementById('act-li-'+id).value,turno);fila[`FF${n}`]=construirTimestamp(fecha,document.getElementById('act-kf-'+id).value,document.getElementById('act-lf-'+id).value,turno);fila[`H${n}`]=parseFloat((getMinsAct(id)/60).toFixed(2));fila[`C${n}`]=document.getElementById('act-com-'+id).value;});
-  }
+  actIds.forEach((id,idx)=>{const n=idx+1;fila[`OT${n}`]=parseInt(document.getElementById('act-ot-'+id).value);fila[`A${n}`]=document.getElementById('act-act-'+id).value;fila[`FI${n}`]=construirTimestamp(fecha,document.getElementById('act-ki-'+id).value,document.getElementById('act-li-'+id).value,turno);fila[`FF${n}`]=construirTimestamp(fecha,document.getElementById('act-kf-'+id).value,document.getElementById('act-lf-'+id).value,turno);fila[`H${n}`]=parseFloat((getMinsAct(id)/60).toFixed(2));fila[`C${n}`]=document.getElementById('act-com-'+id).value;});
 
   document.getElementById('saving-overlay').classList.add('show');
   document.getElementById('btn-guardar').disabled=true;
@@ -663,17 +591,5 @@ function ssKey(event, inputId, ddId, items) {
 let nTO;
 function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
 </script>
-
-<!-- MODAL CONFIRMACIÓN -->
-<div id="modal-confirm" style="display:none;position:fixed;inset:0;background:rgba(0,18,107,0.45);backdrop-filter:blur(3px);z-index:7000;align-items:center;justify-content:center;padding:20px">
-  <div style="background:white;border-radius:20px;padding:28px 24px;max-width:360px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
-    <div style="font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--azul);margin-bottom:16px;text-align:center">CONFIRMAR GUARDADO</div>
-    <div id="modal-body" style="font-size:13px;color:#444;line-height:1.8;background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:20px"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="cerrarModal()" style="padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#666;cursor:pointer">✕ No, revisar</button>
-      <button onclick="ejecutarGuardado()" style="padding:12px;border-radius:10px;border:none;background:#2e9e4f;color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">✓ Sí, guardar</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
