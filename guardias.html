@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Guardias</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 16px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.content{padding:16px;max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.card{background:white;border-radius:16px;padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--borde)}
+.card-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label.fl{font-size:12px;font-weight:600;color:var(--gris)}
+select.fi,input.fi{width:100%;padding:10px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:#222;background:white;outline:none;transition:border-color .2s}
+select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-agregar{background:var(--azul-d);color:white;border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;width:100%;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-agregar:hover{background:var(--azul)}
+.btn-agregar:disabled{opacity:.5;cursor:not-allowed}
+
+/* LISTA DE GUARDIAS */
+.guardia-item{background:#f8faff;border:1.5px solid var(--bord2);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.guardia-item.inactiva{opacity:.5;background:#f8f8f8}
+.guardia-info{display:flex;flex-direction:column;gap:4px;flex:1}
+.guardia-sup{font-size:14px;font-weight:700;color:var(--azul-d)}
+.guardia-fechas{font-size:12px;color:var(--gris)}
+.guardia-horas{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:8px;padding:3px 10px;display:inline-block;margin-top:2px}
+.guardia-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+.guardia-badge.activa{background:#c6f6d5;color:#276040}
+.guardia-badge.inactiva{background:#fed7d7;color:#9b2c2c}
+.guardia-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.btn-toggle{padding:6px 12px;border-radius:8px;border:1.5px solid;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-toggle.desactivar{border-color:var(--rojo);color:var(--rojo);background:white}
+.btn-toggle.desactivar:hover{background:#fff5f5}
+.btn-toggle.activar{border-color:var(--verde);color:var(--verde);background:white}
+.btn-toggle.activar:hover{background:#f0fff4}
+.btn-del{padding:6px 12px;border-radius:8px;border:1.5px solid #fed7d7;color:#fc8181;background:white;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.btn-del:hover{background:#fff5f5;border-color:var(--rojo);color:var(--rojo)}
+.empty{text-align:center;padding:32px;color:#aaa;font-size:13px}
+
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 22px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--nrj)}
+
+/* INFO BOX */
+.info-box{background:#fffbeb;border:1.5px solid #f6e05e;border-radius:10px;padding:12px 14px;font-size:12px;color:#744210;line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
+  <div class="tb-logo">GUARDIAS</div>
+</div>
+
+<div class="content">
+
+  <div class="info-box">
+    ℹ️ <strong>¿Cómo funciona?</strong> Programa aquí qué supervisor cubre cada período. Durante una guardia activa, solo ese supervisor verá las reservas y MO en su bandeja. Al terminar la guardia, las pendientes pasan al supervisor titular del área.
+  </div>
+
+  <!-- FORMULARIO NUEVA GUARDIA -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Programar Nueva Guardia</div>
+
+    <div class="field">
+      <label class="fl">Supervisor de Guardia *</label>
+      <select class="fi" id="g-sup">
+        <option value="">— Selecciona supervisor —</option>
+      </select>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label class="fl">Fecha Inicio *</label>
+        <input class="fi" type="date" id="g-fi">
+      </div>
+      <div class="field">
+        <label class="fl">Fecha Fin *</label>
+        <input class="fi" type="date" id="g-ff">
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label class="fl">Hora Inicio *</label>
+        <input class="fi" type="time" id="g-hi">
+      </div>
+      <div class="field">
+        <label class="fl">Hora Fin *</label>
+        <input class="fi" type="time" id="g-hf">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="fl">Notas (opcional)</label>
+      <input class="fi" type="text" id="g-notas" placeholder="Ej. Fin de semana, Guardia nocturna…">
+    </div>
+
+    <button class="btn-agregar" id="btn-agregar" onclick="agregarGuardia()">＋ Programar Guardia</button>
+  </div>
+
+  <!-- LISTA GUARDIAS -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Guardias Programadas</div>
+    <div id="lista-guardias"><div class="empty">Cargando…</div></div>
+  </div>
+
+</div>
+<div id="notif" class="notif"></div>
+
+<script>
+const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPost(t,b){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(t,id,b){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());}
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href='index.html';return;}
+  if((u.rol||'').toUpperCase()!=='JEFE'){window.location.href='index.html';return;}
+  // Fecha por defecto hoy
+  const hoy=new Date().toISOString().slice(0,10);
+  document.getElementById('g-fi').value=hoy;
+  document.getElementById('g-ff').value=hoy;
+  await cargarSupervisores();
+  await cargarGuardias();
+};
+
+async function cargarSupervisores(){
+  try{
+    const data=await sbGet('Colaboradores?rol=eq.SUPERVISOR&select=codigo,nombre&order=nombre.asc');
+    const sel=document.getElementById('g-sup');
+    (data||[]).forEach(s=>{
+      const o=document.createElement('option');
+      o.value=s.codigo;
+      o.dataset.nombre=s.nombre;
+      o.textContent=`${s.nombre} (${s.codigo})`;
+      sel.appendChild(o);
+    });
+  }catch(e){notify('Error cargando supervisores','error');}
+}
+
+async function cargarGuardias(){
+  try{
+    const data=await sbGet('guardias?order=fecha_inicio.desc,hora_inicio.desc');
+    renderGuardias(data||[]);
+  }catch(e){notify('Error cargando guardias','error');}
+}
+
+function renderGuardias(lista){
+  const el=document.getElementById('lista-guardias');
+  if(!lista.length){el.innerHTML='<div class="empty">No hay guardias programadas</div>';return;}
+  el.innerHTML='';
+  lista.forEach(g=>{
+    const div=document.createElement('div');
+    div.className=`guardia-item${g.activa?'':' inactiva'}`;
+    div.innerHTML=`
+      <div class="guardia-info">
+        <div class="guardia-sup">👔 ${g.supervisor_nombre||g.supervisor_codigo}</div>
+        <div class="guardia-fechas">📅 ${g.fecha_inicio}${g.fecha_fin!==g.fecha_inicio?' → '+g.fecha_fin:''}</div>
+        <div class="guardia-horas">🕐 ${g.hora_inicio.slice(0,5)} — ${g.hora_fin.slice(0,5)}</div>
+        ${g.notas?`<div style="font-size:11px;color:#888;margin-top:4px">📝 ${g.notas}</div>`:''}
+        <span class="guardia-badge ${g.activa?'activa':'inactiva'}">${g.activa?'● ACTIVA':'● INACTIVA'}</span>
+      </div>
+      <div class="guardia-actions">
+        <button class="btn-toggle ${g.activa?'desactivar':'activar'}" onclick="toggleGuardia(${g.id},${g.activa})">
+          ${g.activa?'Desactivar':'Activar'}
+        </button>
+        <button class="btn-del" onclick="eliminarGuardia(${g.id})">Eliminar</button>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+async function agregarGuardia(){
+  const supEl=document.getElementById('g-sup');
+  const supCod=supEl.value;
+  const supNom=supEl.options[supEl.selectedIndex]?.dataset?.nombre||'';
+  const fi=document.getElementById('g-fi').value;
+  const ff=document.getElementById('g-ff').value;
+  const hi=document.getElementById('g-hi').value;
+  const hf=document.getElementById('g-hf').value;
+  const notas=document.getElementById('g-notas').value.trim();
+
+  if(!supCod){notify('Selecciona un supervisor','error');return;}
+  if(!fi||!ff){notify('Ingresa las fechas','error');return;}
+  if(!hi||!hf){notify('Ingresa las horas','error');return;}
+  if(ff<fi){notify('La fecha fin no puede ser menor a la fecha inicio','error');return;}
+
+  const btn=document.getElementById('btn-agregar');
+  btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    await sbPost('guardias',{
+      supervisor_codigo:String(supCod),
+      supervisor_nombre:supNom,
+      fecha_inicio:fi,
+      fecha_fin:ff,
+      hora_inicio:hi+':00',
+      hora_fin:hf+':00',
+      activa:true,
+      notas:notas||null
+    });
+    notify('Guardia programada correctamente','success');
+    document.getElementById('g-sup').value='';
+    document.getElementById('g-hi').value='';
+    document.getElementById('g-hf').value='';
+    document.getElementById('g-notas').value='';
+    await cargarGuardias();
+  }catch(e){notify(`Error: ${e.message}`,'error');}
+  finally{btn.disabled=false;btn.textContent='＋ Programar Guardia';}
+}
+
+async function toggleGuardia(id,activa){
+  try{
+    await sbPatch('guardias',id,{activa:!activa});
+    notify(activa?'Guardia desactivada':'Guardia activada', activa?'warning':'success');
+    await cargarGuardias();
+  }catch(e){notify(`Error: ${e.message}`,'error');}
+}
+
+async function eliminarGuardia(id){
+  if(!confirm('¿Eliminar esta guardia?'))return;
+  try{
+    await sbDelete('guardias',id);
+    notify('Guardia eliminada','success');
+    await cargarGuardias();
+  }catch(e){notify(`Error: ${e.message}`,'error');}
+}
+
+let nTO;
+function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
+</script>
+</body>
+</html>

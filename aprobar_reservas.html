@@ -171,12 +171,45 @@ async function cargarColabs() {
   } catch(e){ console.warn('colabs',e.message); }
 }
 
+async function obtenerGuardiaActiva() {
+  // Busca si hay una guardia activa ahora mismo para este supervisor
+  const ahora = new Date();
+  const fechaHoy = ahora.toISOString().slice(0,10);
+  const horaAhora = ahora.toTimeString().slice(0,8); // HH:MM:SS
+  try {
+    const data = await sbGet(`guardias?activa=eq.true&fecha_inicio=lte.${fechaHoy}&fecha_fin=gte.${fechaHoy}&select=*`);
+    if (!data || !data.length) return null;
+    // Filtrar por hora actual
+    const activa = data.find(g => {
+      const hI = g.hora_inicio, hF = g.hora_fin;
+      if (hF > hI) return horaAhora >= hI && horaAhora <= hF;
+      // cruza medianoche
+      return horaAhora >= hI || horaAhora <= hF;
+    });
+    return activa || null;
+  } catch(e) { return null; }
+}
+
 async function buscar() {
   const desde = document.getElementById('f-desde').value;
   const hasta  = document.getElementById('f-hasta').value;
   const mec    = document.getElementById('f-mec').value;
 
   const p = ['select=*','sup_aprueba=is.null'];
+  // Lógica de guardia: si hay guardia activa, solo el supervisor de guardia ve las reservas de ese período
+  const rol = (userActual?.rol||'').toUpperCase();
+  if (rol === 'SUPERVISOR') {
+    const guardia = await obtenerGuardiaActiva();
+    if (guardia) {
+      // Hay guardia activa — solo el supervisor de guardia ve estas reservas
+      if (String(guardia.supervisor_codigo) !== String(userActual.codigo)) {
+        // Este supervisor NO es el de guardia — no muestra nada del período de guardia
+        // Filtra reservas FUERA del período de guardia (antes de la hora de inicio)
+        p.push(`created_at=lt.${guardia.fecha_inicio}T${guardia.hora_inicio}`);
+      }
+      // Si ES el de guardia, ve todo sin restricción adicional
+    }
+  }
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
   if (mec){
@@ -298,6 +331,7 @@ function renderGrupos(listaGrupos) {
         <div class="grupo-info">
           <span class="grupo-ot">OT ${g.ot}</span>
           <span class="grupo-mec">👷 ${g.nombre}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:12px;padding:2px 8px">Cód: ${g.cod}</span>
           <span class="grupo-meta">${g.fecha}</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
         </div>
