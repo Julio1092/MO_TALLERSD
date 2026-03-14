@@ -84,7 +84,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 <body>
 
 <div class="topbar">
-  <button class="tb-back" onclick="window.location.href='menu_supervisor.html'">← Menú</button>
+  <button class="tb-back" onclick="irAlMenu()">← Menú</button>
   <div class="tb-logo">RESERVAS</div>
   <div class="tb-user">👔 <span id="tb-user">—</span></div>
 </div>
@@ -137,6 +137,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh}
 <script>
 const SB_URL = 'https://rzcfrjgwxhgwslwvtbbe.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
+
+function irAlMenu(){
+  const rol=(userActual?.rol||getSession()?.rol||'').toUpperCase();
+  if(rol==='JEFE') window.location.href='menu_jefe.html';
+  else window.location.href='menu_supervisor.html';
+}
 
 async function sbGet(p){ const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
 
