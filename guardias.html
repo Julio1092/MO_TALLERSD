@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANODEOBRA – Guardias</title>
+<title>MANODEOBRA – Turnos</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -27,18 +27,18 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 .btn-agregar:hover{background:var(--azul)}
 .btn-agregar:disabled{opacity:.5;cursor:not-allowed}
 
-/* LISTA DE GUARDIAS */
-.guardia-item{background:#f8faff;border:1.5px solid var(--bord2);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;animation:fadeIn .2s ease}
+/* LISTA DE TURNOS */
+.turno-item{background:#f8faff;border:1.5px solid var(--bord2);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.guardia-item.inactiva{opacity:.5;background:#f8f8f8}
-.guardia-info{display:flex;flex-direction:column;gap:4px;flex:1}
-.guardia-sup{font-size:14px;font-weight:700;color:var(--azul-d)}
-.guardia-fechas{font-size:12px;color:var(--gris)}
-.guardia-horas{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:8px;padding:3px 10px;display:inline-block;margin-top:2px}
-.guardia-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
-.guardia-badge.activa{background:#c6f6d5;color:#276040}
-.guardia-badge.inactiva{background:#fed7d7;color:#9b2c2c}
-.guardia-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.turno-item.inactiva{opacity:.5;background:#f8f8f8}
+.turno-info{display:flex;flex-direction:column;gap:4px;flex:1}
+.turno-sup{font-size:14px;font-weight:700;color:var(--azul-d)}
+.turno-fechas{font-size:12px;color:var(--gris)}
+.turno-horas{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:8px;padding:3px 10px;display:inline-block;margin-top:2px}
+.turno-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
+.turno-badge.activa{background:#c6f6d5;color:#276040}
+.turno-badge.inactiva{background:#fed7d7;color:#9b2c2c}
+.turno-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .btn-toggle{padding:6px 12px;border-radius:8px;border:1.5px solid;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
 .btn-toggle.desactivar{border-color:var(--rojo);color:var(--rojo);background:white}
 .btn-toggle.desactivar:hover{background:#fff5f5}
@@ -59,21 +59,21 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 
 <div class="topbar">
   <button class="btn-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
-  <div class="tb-logo">GUARDIAS</div>
+  <div class="tb-logo">TURNOS</div>
 </div>
 
 <div class="content">
 
   <div class="info-box">
-    ℹ️ <strong>¿Cómo funciona?</strong> Programa aquí qué supervisor cubre cada período. Durante una guardia activa, solo ese supervisor verá las reservas y MO en su bandeja. Al terminar la guardia, las pendientes pasan al supervisor titular del área.
+    ℹ️ <strong>¿Cómo funciona?</strong> Programa aquí qué supervisor cubre cada período. Durante una turno activa, solo ese supervisor verá las reservas y MO en su bandeja. Al terminar la turno, las pendientes pasan al supervisor titular del área.
   </div>
 
-  <!-- FORMULARIO NUEVA GUARDIA -->
+  <!-- FORMULARIO NUEVA TURNO -->
   <div class="card">
-    <div class="card-label"><span class="dot"></span> Programar Nueva Guardia</div>
+    <div class="card-label"><span class="dot"></span> Programar Nueva Turno</div>
 
     <div class="field">
-      <label class="fl">Supervisor de Guardia *</label>
+      <label class="fl">Supervisor de Turno *</label>
       <select class="fi" id="g-sup">
         <option value="">— Selecciona supervisor —</option>
       </select>
@@ -103,16 +103,16 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 
     <div class="field">
       <label class="fl">Notas (opcional)</label>
-      <input class="fi" type="text" id="g-notas" placeholder="Ej. Fin de semana, Guardia nocturna…">
+      <input class="fi" type="text" id="g-notas" placeholder="Ej. Fin de semana, Turno nocturna…">
     </div>
 
-    <button class="btn-agregar" id="btn-agregar" onclick="agregarGuardia()">＋ Programar Guardia</button>
+    <button class="btn-agregar" id="btn-agregar" onclick="agregarTurno()">＋ Programar Turno</button>
   </div>
 
-  <!-- LISTA GUARDIAS -->
+  <!-- LISTA TURNOS -->
   <div class="card">
-    <div class="card-label"><span class="dot"></span> Guardias Programadas</div>
-    <div id="lista-guardias"><div class="empty">Cargando…</div></div>
+    <div class="card-label"><span class="dot"></span> Turnos Programadas</div>
+    <div id="lista-turnos"><div class="empty">Cargando…</div></div>
   </div>
 
 </div>
@@ -136,7 +136,7 @@ window.onload=async()=>{
   document.getElementById('g-fi').value=hoy;
   document.getElementById('g-ff').value=hoy;
   await cargarSupervisores();
-  await cargarGuardias();
+  await cargarTurnos();
 };
 
 async function cargarSupervisores(){
@@ -153,39 +153,39 @@ async function cargarSupervisores(){
   }catch(e){notify('Error cargando supervisores','error');}
 }
 
-async function cargarGuardias(){
+async function cargarTurnos(){
   try{
     const data=await sbGet('guardias?order=fecha_inicio.desc,hora_inicio.desc');
-    renderGuardias(data||[]);
-  }catch(e){notify('Error cargando guardias','error');}
+    renderTurnos(data||[]);
+  }catch(e){notify('Error cargando turnos','error');}
 }
 
-function renderGuardias(lista){
-  const el=document.getElementById('lista-guardias');
-  if(!lista.length){el.innerHTML='<div class="empty">No hay guardias programadas</div>';return;}
+function renderTurnos(lista){
+  const el=document.getElementById('lista-turnos');
+  if(!lista.length){el.innerHTML='<div class="empty">No hay turnos programadas</div>';return;}
   el.innerHTML='';
   lista.forEach(g=>{
     const div=document.createElement('div');
-    div.className=`guardia-item${g.activa?'':' inactiva'}`;
+    div.className=`turno-item${g.activa?'':' inactiva'}`;
     div.innerHTML=`
-      <div class="guardia-info">
-        <div class="guardia-sup">👔 ${g.supervisor_nombre||g.supervisor_codigo}</div>
-        <div class="guardia-fechas">📅 ${g.fecha_inicio}${g.fecha_fin!==g.fecha_inicio?' → '+g.fecha_fin:''}</div>
-        <div class="guardia-horas">🕐 ${g.hora_inicio.slice(0,5)} — ${g.hora_fin.slice(0,5)}</div>
+      <div class="turno-info">
+        <div class="turno-sup">👔 ${g.supervisor_nombre||g.supervisor_codigo}</div>
+        <div class="turno-fechas">📅 ${g.fecha_inicio}${g.fecha_fin!==g.fecha_inicio?' → '+g.fecha_fin:''}</div>
+        <div class="turno-horas">🕐 ${g.hora_inicio.slice(0,5)} — ${g.hora_fin.slice(0,5)}</div>
         ${g.notas?`<div style="font-size:11px;color:#888;margin-top:4px">📝 ${g.notas}</div>`:''}
-        <span class="guardia-badge ${g.activa?'activa':'inactiva'}">${g.activa?'● ACTIVA':'● INACTIVA'}</span>
+        <span class="turno-badge ${g.activa?'activa':'inactiva'}">${g.activa?'● ACTIVA':'● INACTIVA'}</span>
       </div>
-      <div class="guardia-actions">
-        <button class="btn-toggle ${g.activa?'desactivar':'activar'}" onclick="toggleGuardia(${g.id},${g.activa})">
+      <div class="turno-actions">
+        <button class="btn-toggle ${g.activa?'desactivar':'activar'}" onclick="toggleTurno(${g.id},${g.activa})">
           ${g.activa?'Desactivar':'Activar'}
         </button>
-        <button class="btn-del" onclick="eliminarGuardia(${g.id})">Eliminar</button>
+        <button class="btn-del" onclick="eliminarTurno(${g.id})">Eliminar</button>
       </div>`;
     el.appendChild(div);
   });
 }
 
-async function agregarGuardia(){
+async function agregarTurno(){
   const supEl=document.getElementById('g-sup');
   const supCod=supEl.value;
   const supNom=supEl.options[supEl.selectedIndex]?.dataset?.nombre||'';
@@ -213,30 +213,30 @@ async function agregarGuardia(){
       activa:true,
       notas:notas||null
     });
-    notify('Guardia programada correctamente','success');
+    notify('Turno programada correctamente','success');
     document.getElementById('g-sup').value='';
     document.getElementById('g-hi').value='';
     document.getElementById('g-hf').value='';
     document.getElementById('g-notas').value='';
-    await cargarGuardias();
+    await cargarTurnos();
   }catch(e){notify(`Error: ${e.message}`,'error');}
-  finally{btn.disabled=false;btn.textContent='＋ Programar Guardia';}
+  finally{btn.disabled=false;btn.textContent='＋ Programar Turno';}
 }
 
-async function toggleGuardia(id,activa){
+async function toggleTurno(id,activa){
   try{
     await sbPatch('guardias',id,{activa:!activa});
-    notify(activa?'Guardia desactivada':'Guardia activada', activa?'warning':'success');
-    await cargarGuardias();
+    notify(activa?'Turno desactivada':'Turno activada', activa?'warning':'success');
+    await cargarTurnos();
   }catch(e){notify(`Error: ${e.message}`,'error');}
 }
 
-async function eliminarGuardia(id){
-  if(!confirm('¿Eliminar esta guardia?'))return;
+async function eliminarTurno(id){
+  if(!confirm('¿Eliminar esta turno?'))return;
   try{
     await sbDelete('guardias',id);
-    notify('Guardia eliminada','success');
-    await cargarGuardias();
+    notify('Turno eliminada','success');
+    await cargarTurnos();
   }catch(e){notify(`Error: ${e.message}`,'error');}
 }
 
