@@ -30,14 +30,14 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 /* LISTA DE TURNOS */
 .turno-item{background:#f8faff;border:1.5px solid var(--bord2);border-radius:12px;padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;animation:fadeIn .2s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.turno-item.inactiva{opacity:.5;background:#f8f8f8}
+.turno-item.inactivo{opacity:.5;background:#f8f8f8}
 .turno-info{display:flex;flex-direction:column;gap:4px;flex:1}
 .turno-sup{font-size:14px;font-weight:700;color:var(--azul-d)}
 .turno-fechas{font-size:12px;color:var(--gris)}
 .turno-horas{font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:8px;padding:3px 10px;display:inline-block;margin-top:2px}
 .turno-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-top:4px}
-.turno-badge.activa{background:#c6f6d5;color:#276040}
-.turno-badge.inactiva{background:#fed7d7;color:#9b2c2c}
+.turno-badge.activo{background:#c6f6d5;color:#276040}
+.turno-badge.inactivo{background:#fed7d7;color:#9b2c2c}
 .turno-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
 .btn-toggle{padding:6px 12px;border-radius:8px;border:1.5px solid;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
 .btn-toggle.desactivar{border-color:var(--rojo);color:var(--rojo);background:white}
@@ -65,12 +65,12 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 <div class="content">
 
   <div class="info-box">
-    ℹ️ <strong>¿Cómo funciona?</strong> Programa aquí qué supervisor cubre cada período. Durante una turno activa, solo ese supervisor verá las reservas y MO en su bandeja. Al terminar la turno, las pendientes pasan al supervisor titular del área.
+    ℹ️ <strong>¿Cómo funciona?</strong> Programa aquí qué supervisor cubre cada período. Durante un turno activo, solo ese supervisor verá las reservas y MO en su bandeja. Al terminar el turno, las pendientes pasan al supervisor titular del área.
   </div>
 
   <!-- FORMULARIO NUEVA TURNO -->
   <div class="card">
-    <div class="card-label"><span class="dot"></span> Programar Nueva Turno</div>
+    <div class="card-label"><span class="dot"></span> Programar Nuevo Turno</div>
 
     <div class="field">
       <label class="fl">Supervisor de Turno *</label>
@@ -103,7 +103,7 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 
     <div class="field">
       <label class="fl">Notas (opcional)</label>
-      <input class="fi" type="text" id="g-notas" placeholder="Ej. Fin de semana, Turno nocturna…">
+      <input class="fi" type="text" id="g-notas" placeholder="Ej. Fin de semana, Turno nocturno…">
     </div>
 
     <button class="btn-agregar" id="btn-agregar" onclick="agregarTurno()">＋ Programar Turno</button>
@@ -111,7 +111,7 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 
   <!-- LISTA TURNOS -->
   <div class="card">
-    <div class="card-label"><span class="dot"></span> Turnos Programadas</div>
+    <div class="card-label"><span class="dot"></span> Turnos Programados</div>
     <div id="lista-turnos"><div class="empty">Cargando…</div></div>
   </div>
 
@@ -173,7 +173,7 @@ function renderTurnos(lista){
         <div class="turno-fechas">📅 ${g.fecha_inicio}${g.fecha_fin!==g.fecha_inicio?' → '+g.fecha_fin:''}</div>
         <div class="turno-horas">🕐 ${g.hora_inicio.slice(0,5)} — ${g.hora_fin.slice(0,5)}</div>
         ${g.notas?`<div style="font-size:11px;color:#888;margin-top:4px">📝 ${g.notas}</div>`:''}
-        <span class="turno-badge ${g.activa?'activa':'inactiva'}">${g.activa?'● ACTIVA':'● INACTIVA'}</span>
+        <span class="turno-badge ${g.activa?'activo':'inactivo'}">${g.activa?'● ACTIVO':'● INACTIVO'}</span>
       </div>
       <div class="turno-actions">
         <button class="btn-toggle ${g.activa?'desactivar':'activar'}" onclick="toggleTurno(${g.id},${g.activa})">
@@ -213,7 +213,7 @@ async function agregarTurno(){
       activa:true,
       notas:notas||null
     });
-    notify('Turno programada correctamente','success');
+    notify('Turno programado correctamente','success');
     document.getElementById('g-sup').value='';
     document.getElementById('g-hi').value='';
     document.getElementById('g-hf').value='';
@@ -226,16 +226,16 @@ async function agregarTurno(){
 async function toggleTurno(id,activa){
   try{
     await sbPatch('guardias',id,{activa:!activa});
-    notify(activa?'Turno desactivada':'Turno activada', activa?'warning':'success');
+    notify(activa?'Turno desactivado':'Turno activado', activa?'warning':'success');
     await cargarTurnos();
   }catch(e){notify(`Error: ${e.message}`,'error');}
 }
 
 async function eliminarTurno(id){
-  if(!confirm('¿Eliminar esta turno?'))return;
+  if(!confirm('¿Eliminar este turno?'))return;
   try{
     await sbDelete('guardias',id);
-    notify('Turno eliminada','success');
+    notify('Turno eliminado','success');
     await cargarTurnos();
   }catch(e){notify(`Error: ${e.message}`,'error');}
 }
