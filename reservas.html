@@ -199,6 +199,28 @@ async function cargarArticulos(){
 
 /* OT */
 function agregarOT(){
+  // Validar que todas las OTs anteriores estén completas
+  for(const oid of otIds){
+    const otEl=document.getElementById(`otn-${oid}`);
+    const otVal=otEl?.value.trim();
+    if(!otVal||(otVal.length!==6&&otVal.length!==8)){
+      otEl?.classList.add('campo-error');
+      notify('Completa el número de OT antes de agregar otra','error');
+      otEl?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    const lineas=document.getElementById(`lines-${oid}`)?.querySelectorAll('.linea')||[];
+    for(const lin of lineas){
+      const lidV=lin.id.replace('lin-','');
+      const codV=document.getElementById(`art-cod-${lidV}`)?.value?.trim();
+      if(!codV){
+        document.getElementById(`art-${lidV}`)?.classList.add('campo-error');
+        notify('Selecciona todos los artículos antes de agregar otra OT','error');
+        document.getElementById(`art-${lidV}`)?.scrollIntoView({behavior:'smooth',block:'center'});
+        return;
+      }
+    }
+  }
   const id=nextOT++;otIds.push(id);
   const sec=document.getElementById('ot-section');
   const div=document.createElement('div');div.className='ot-block';div.id=`ot-${id}`;
@@ -235,8 +257,21 @@ function validarOTNum(el){
 
 /* LINES */
 function agregarLinea(otId){
-  const lid=nextLine++;
+  // Validar que la última línea existente tenga artículo seleccionado
   const wrap=document.getElementById(`lines-${otId}`);if(!wrap)return;
+  const lineasExistentes=wrap.querySelectorAll('.linea');
+  if(lineasExistentes.length>0){
+    const ultima=lineasExistentes[lineasExistentes.length-1];
+    const lidUlt=ultima.id.replace('lin-','');
+    const codUlt=document.getElementById(`art-cod-${lidUlt}`)?.value?.trim();
+    if(!codUlt){
+      document.getElementById(`art-${lidUlt}`)?.classList.add('campo-error');
+      notify('Selecciona un artículo antes de agregar otro','error');
+      document.getElementById(`art-${lidUlt}`)?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+  }
+  const lid=nextLine++;
   const num=wrap.querySelectorAll('.linea').length+1;
   const div=document.createElement('div');div.className='linea';div.id=`lin-${lid}`;
   div.innerHTML=`
