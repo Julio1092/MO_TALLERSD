@@ -357,7 +357,12 @@ function poblarOTSelect(sel) {
 
 // ── ACTIVIDADES ──
 function peso(h,t){const n=parseInt(h);return(t==='Nocturno'&&n<=7)?n+24:n;}
-function horasDesde(hMin,t){const c=TURNO_CFG[t];if(!c)return[];return c.horas.filter(h=>peso(h,t)>=peso(hMin,t));}
+function horasDesde(hMin,t){
+  const c=TURNO_CFG[t];if(!c)return[];
+  // Extraordinario: siempre muestra las 24 horas en fin — puede cruzar medianoche
+  if(t==='Extraordinario') return c.horas;
+  return c.horas.filter(h=>peso(h,t)>=peso(hMin,t));
+}
 function buildOpts(arr,sel){return arr.map(v=>`<option value="${v}"${v===sel?' selected':''}>${v}</option>`).join('');}
 
 function actualizarReloj(totalMins){
@@ -468,7 +473,18 @@ function onMinIniChange(id){
   calcularHora(id);
   propagarInicio(id);
 }
-function onHoraFinChange(id){const hI=document.getElementById('act-ki-'+id).value,mI=document.getElementById('act-li-'+id).value,hF=document.getElementById('act-kf-'+id).value,selLF=document.getElementById('act-lf-'+id),curM=selLF.value,misma=hF===hI,mD=misma?MINUTOS.filter(m=>parseInt(m)>=parseInt(mI)):MINUTOS;selLF.innerHTML=buildOpts(mD,mD.includes(curM)?curM:mD[0]);calcularHora(id);propagarInicio(id);}
+function onHoraFinChange(id){
+  const t=document.getElementById('turno').value;
+  const hI=document.getElementById('act-ki-'+id).value,mI=document.getElementById('act-li-'+id).value;
+  const hF=document.getElementById('act-kf-'+id).value;
+  const selLF=document.getElementById('act-lf-'+id),curM=selLF.value;
+  // Para Extraordinario: si eligen misma hora que inicio, aún así mostrar todos los minutos
+  // porque puede ser que quieran registrar hasta las 23:59 y cruzar medianoche
+  const misma=hF===hI&&t!=='Extraordinario';
+  const mD=misma?MINUTOS.filter(m=>parseInt(m)>parseInt(mI)):MINUTOS;
+  selLF.innerHTML=buildOpts(mD,mD.includes(curM)?curM:mD[0]);
+  calcularHora(id);propagarInicio(id);
+}
 function onMinFinChange(id){calcularHora(id);propagarInicio(id);}
 function propagarInicio(id){const t=document.getElementById('turno').value,idx=actIds.indexOf(id);if(idx<0||idx===actIds.length-1)return;const hF=document.getElementById('act-kf-'+id).value,mF=document.getElementById('act-lf-'+id).value,nId=actIds[idx+1];document.getElementById('act-ki-'+nId).innerHTML=`<option value="${hF}">${hF}</option>`;document.getElementById('act-li-'+nId).innerHTML=`<option value="${mF}">${mF}</option>`;const hF2=horasDesde(hF,t),sKF=document.getElementById('act-kf-'+nId);sKF.innerHTML=buildOpts(hF2,hF2.includes(sKF.value)?sKF.value:hF2[0]);onHoraFinChange(nId);}
 function calcularHora(id){const hI=parseInt(document.getElementById('act-ki-'+id).value||0),mI=parseInt(document.getElementById('act-li-'+id).value||0),hF=parseInt(document.getElementById('act-kf-'+id).value||0),mF=parseInt(document.getElementById('act-lf-'+id).value||0);let mins=(hF*60+mF)-(hI*60+mI);if(mins<0)mins+=1440;const b=document.getElementById('horas-'+id);if(b)b.innerHTML=`⏱ <span>${pad(Math.floor(mins/60))}:${pad(mins%60)} hrs</span>`;calcularTotal();}
