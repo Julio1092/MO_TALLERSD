@@ -8,11 +8,11 @@
 <script src="config.js"></script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',sans-serif;background:#1a1a2e;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:32px;padding:32px 20px}
-  .badge{background:rgba(255,215,0,0.15);border:1.5px solid rgba(255,215,0,0.4);border-radius:8px;padding:6px 14px;color:#ffd700;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;display:inline-block}
-  .title{font-family:'Space Mono',monospace;color:white;font-size:22px;font-weight:700;letter-spacing:2px;margin:16px 0 6px;text-align:center}
-  .name{color:rgba(255,255,255,0.65);font-size:14px;text-align:center}
-  .readonly-note{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);border-radius:10px;padding:10px 18px;color:rgba(255,215,0,0.8);font-size:12px;font-weight:600;text-align:center}
+  body{font-family:'DM Sans',sans-serif;background:#1a1a2e;min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;padding:32px 20px}
+  .badge{background:rgba(255,215,0,0.15);border:1.5px solid rgba(255,215,0,0.4);border-radius:8px;padding:6px 14px;color:#ffd700;font-size:20px;font-weight:700;letter-spacing:1px;text-transform:uppercase;display:inline-block}
+  .nombre{color:white;font-size:22px;font-weight:700;text-align:center}
+  .menu-title{color:white;font-family:'Space Mono',monospace;font-size:26px;font-weight:700;letter-spacing:3px;text-align:center;text-transform:uppercase}
+  .readonly-note{background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);border-radius:10px;padding:10px 18px;color:rgba(255,215,0,0.8);font-size:12px;font-weight:600;text-align:center;width:100%;max-width:380px}
   .menu{display:flex;flex-direction:column;gap:16px;width:100%;max-width:380px}
   .section-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:0 4px}
   .btn{display:flex;align-items:center;gap:18px;background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:18px;padding:20px 24px;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;color:white;font-family:'DM Sans',sans-serif;text-decoration:none}
@@ -20,17 +20,17 @@
   .btn-icon{font-size:34px;flex-shrink:0}
   .btn-label{font-size:17px;font-weight:700;display:block}
   .btn-desc{font-size:12px;color:rgba(255,255,255,0.5);display:block;margin-top:3px}
-  .btn-logout{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif}
+  .btn-logout{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:8px 16px;border-radius:8px;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:7px;transition:all 0.2s}
   .btn-logout:hover{color:white;background:rgba(255,0,0,0.2)}
   .divider-line{width:100%;max-width:380px;height:1px;background:rgba(255,255,255,0.08)}
 </style>
 </head>
 <body>
 
-<div style="text-align:center">
-  <div class="badge">👑 Jefe</div>
-  <div class="title">MANODEOBRA</div>
-  <div class="name" id="nombre">—</div>
+<div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px">
+  <div class="badge">🧑🏻‍💻 JEFE</div>
+  <div class="nombre" id="nombre">—</div>
+  <div class="menu-title">MENÚ</div>
 </div>
 
 <div class="readonly-note">👁️ Acceso de solo lectura — vista completa sin restricciones</div>
@@ -38,7 +38,6 @@
 <div class="menu">
 
   <div class="section-lbl">Mano de Obra</div>
-
   <a class="btn" href="jefe_mo.html">
     <div class="btn-icon">📋</div>
     <div>
@@ -49,48 +48,26 @@
 
   <div class="divider-line"></div>
   <div class="section-lbl">Control</div>
-
   <a class="btn" href="jefe_control.html">
     <div class="btn-icon">📅</div>
     <div>
       <span class="btn-label">Control de Reportes</span>
-      <span class="btn-desc">Vista calendario por mecánico, turno y supervisor</span>
+      <span class="btn-desc">Vista calendario por técnico, turno y supervisor</span>
     </div>
   </a>
 
   <div class="divider-line"></div>
   <div class="section-lbl">Materiales</div>
-
   <a class="btn" href="jefe_reservas.html">
     <div class="btn-icon">📦</div>
     <div>
       <span class="btn-label">Ver Reservas</span>
-      <span class="btn-desc">Todas las reservas de materiales de todos los mecánicos</span>
-    </div>
-  </a>
-
-  <div class="divider-line"></div>
-  <div class="section-lbl">Supervisión</div>
-
-  <a class="btn" href="aprobar_reservas.html">
-    <div class="btn-icon">📦</div>
-    <div>
-      <span class="btn-label">Aprobar Reservas</span>
-      <span class="btn-desc">Gestionar solicitudes de materiales pendientes</span>
-    </div>
-  </a>
-
-  <a class="btn" href="guardias.html" style="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5)">
-    <div class="btn-icon">🗓️</div>
-    <div>
-      <span class="btn-label">Programar Turno</span>
-      <span class="btn-desc">Asignar supervisores por turno y horario</span>
+      <span class="btn-desc">Todas las reservas de materiales de todos los técnicos</span>
     </div>
   </a>
 
   <div class="divider-line"></div>
   <div class="section-lbl">Taller</div>
-
   <a class="btn" href="ver_ots.html" style="background:rgba(255,215,0,0.15);border-color:rgba(255,215,0,0.5)">
     <div class="btn-icon">🔧</div>
     <div>
@@ -101,7 +78,14 @@
 
 </div>
 
-<button class="btn-logout" onclick="cerrar()">🚪 Cerrar sesión</button>
+<button class="btn-logout" onclick="cerrar()">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+  Cerrar sesión
+</button>
 
 <script>
 window.onload = () => {
