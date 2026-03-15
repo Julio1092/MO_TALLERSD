@@ -158,7 +158,7 @@
   <div class="card">
     <div class="card-label">
       Órdenes de Trabajo
-      <span style="font-weight:400;color:#999;font-size:10px;text-transform:none;letter-spacing:0">(exactamente 6 dígitos)</span>
+      <span style="font-weight:400;color:#999;font-size:10px;text-transform:none;letter-spacing:0">(6 u 8 dígitos)</span>
     </div>
     <div class="ot-list" id="ot-list"></div>
     <button class="btn-add-ot" onclick="agregarOT()">＋ Agregar Orden de Trabajo</button>
@@ -321,11 +321,11 @@ function eliminarOT(id) {
 
 function limitarOT(el, id) {
   let v = el.value.replace(/\D/g,'');
-  if (v.length > 6) v = v.slice(0,6);
+  if (v.length > 8) v = v.slice(0,8);
   el.value = v;
   el.classList.remove('valido','invalido');
   if (!v) return;
-  v.length === 6 ? el.classList.add('valido') : el.classList.add('invalido');
+  (v.length === 6 || v.length === 8) ? el.classList.add('valido') : el.classList.add('invalido');
 }
 
 function actualizarOrdenes() {
@@ -334,7 +334,7 @@ function actualizarOrdenes() {
   if (ccEntry) ColOrdenes.push(ccEntry);
   otIds.forEach(id => {
     const v = document.getElementById(`ot-${id}`)?.value.trim();
-    if (v && v.length === 6) ColOrdenes.push({ Valor: v });
+    if (v && (v.length === 6 || v.length === 8)) ColOrdenes.push({ Valor: v });
   });
   actIds.forEach(id => {
     const s = document.getElementById('act-ot-'+id);
@@ -387,7 +387,7 @@ function onSelectChange(elId){document.getElementById(elId)?.classList.remove('c
 function agregarActividad(){
   const turno=document.getElementById('turno').value;
   if(!turno){notify('Primero selecciona el Turno','error');return;}
-  if(!ColOrdenes.length){notify('Ingresa al menos una Orden válida (6 dígitos)','warning');return;}
+  if(!ColOrdenes.length){notify('Ingresa al menos una Orden válida (6 u 8 dígitos)','warning');return;}
   if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
   if(actIds.length>0){
     const ultId=actIds[actIds.length-1];
@@ -541,10 +541,10 @@ async function guardar(){
   let otValidas=0;
   for(const id of otIds){
     const v=document.getElementById(`ot-${id}`)?.value.trim();
-    if(v&&v.length!==6){notify('Hay órdenes con número de dígitos incorrecto','error');return;}
-    if(v&&v.length===6)otValidas++;
+    if(v&&v.length!==6&&v.length!==8){notify('Las órdenes deben tener exactamente 6 u 8 dígitos','error');return;}
+    if(v&&(v.length===6||v.length===8))otValidas++;
   }
-  if(otValidas===0){notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error');return;}
+  if(otValidas===0){notify('Ingresa al menos una Orden de Trabajo válida (6 u 8 dígitos)','error');return;}
 
   // 4. Validar cada actividad (OT, actividad, componente, duración mínima)
   for(const id of actIds){
