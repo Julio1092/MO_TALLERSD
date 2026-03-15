@@ -374,6 +374,7 @@ function validarActividadCompleta(id){
   if(!ot){document.getElementById('act-ot-'+id)?.classList.add('campo-error');return'Orden de Trabajo';}
   if(!act||!act.trim()){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad';}
   if(!com||!com.trim()){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente';}
+  if(getMinsAct(id)<5){return'duración mínima de 5 minutos';}
   return null;
 }
 function onSelectChange(elId){document.getElementById(elId)?.classList.remove('campo-error');}
@@ -544,7 +545,14 @@ async function ejecutarGuardado(){
   }
   if (otValidas === 0) { notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error'); return; }
 
-  for(const id of actIds){const f=validarActividadCompleta(id);if(f){notify(`Actividad #${actIds.indexOf(id)+1}: debes llenar "${f}"`,'error');document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});return;}}
+  for(const id of actIds){
+    const f=validarActividadCompleta(id);
+    if(f){
+      notify(`Actividad #${actIds.indexOf(id)+1}: ${f==='duración mínima de 5 minutos'?'La actividad debe tener al menos 5 minutos':'debes llenar "'+f+'"'}`,'error');
+      document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+  }
   // Validar alimentación solo para Diurno y Mantenimiento
   if(turno==='Diurno'||turno==='Mantenimiento'){
     const actAlim = actIds.find(id => {
