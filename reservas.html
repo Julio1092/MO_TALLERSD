@@ -86,6 +86,25 @@
   .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 22px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.22);z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
   .notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.warning{background:var(--nrj)} .notif.success{background:var(--verde)}
   @media(max-width:640px){.linea-row2{grid-template-columns:1fr 70px 36px}}
+
+  /* MODAL CONFIRMACIÓN */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,18,107,0.45);backdrop-filter:blur(3px);z-index:7000;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.show{display:flex}
+  .modal-box{background:white;border-radius:20px;padding:28px 24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto}
+  .modal-title{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--azul);margin-bottom:16px;text-align:center;letter-spacing:1px}
+  .modal-ot-block{background:#f8fafc;border:1.5px solid var(--borde);border-radius:12px;padding:14px;margin-bottom:12px}
+  .modal-ot-num{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:var(--azul-d);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .modal-ot-badge{background:var(--azul-bg);color:var(--azul);border:1px solid var(--bord2);border-radius:20px;padding:2px 10px;font-size:11px}
+  .modal-linea{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:7px 0;border-bottom:1px solid #eef0f8;font-size:12px}
+  .modal-linea:last-child{border-bottom:none;padding-bottom:0}
+  .modal-linea-desc{color:#333;font-weight:500;flex:1}
+  .modal-linea-qty{font-family:'Space Mono',monospace;font-weight:700;color:var(--azul-d);white-space:nowrap;font-size:12px}
+  .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+  .btn-modal-cancel{padding:12px;border-radius:10px;border:1.5px solid #e2e8f0;background:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:#666;cursor:pointer;transition:all .15s}
+  .btn-modal-cancel:hover{background:#f8fafc;border-color:#bac8e2}
+  .btn-modal-confirm{padding:12px;border-radius:10px;border:none;background:var(--verde);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+  .btn-modal-confirm:hover{background:#276040}
+  .qty-error{border-color:var(--rojo)!important;background:#fff5f5!important}
 </style>
 </head>
 <body>
@@ -95,7 +114,20 @@
   <div class="suc-icon">✅</div>
   <div class="suc-title">¡Reserva Enviada!</div>
   <div class="suc-sub">Tu solicitud fue enviada al supervisor</div>
-  <div style="font-size:13px;color:#999;margin-top:4px">Regresando al menú…</div>
+  <div id="suc-resumen" style="margin-top:16px;max-width:380px;width:90%;background:white;border-radius:14px;padding:16px;box-shadow:0 4px 20px rgba(56,96,178,0.12);max-height:50vh;overflow-y:auto"></div>
+  <div style="font-size:13px;color:#999;margin-top:12px">Regresando al menú…</div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal-box">
+    <div class="modal-title">📦 CONFIRMAR RESERVA</div>
+    <div id="modal-body"></div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="cerrarModal()">✕ Revisar</button>
+      <button class="btn-modal-confirm" onclick="ejecutarGuardado()">✓ Confirmar</button>
+    </div>
+  </div>
 </div>
 
 <div class="topbar">
@@ -140,7 +172,7 @@ function irAlMenu(){
 window.onload=async()=>{
   userActual=getSession();
   if(!userActual){window.location.href='index.html';return;}
-  document.getElementById('tb-user').textContent=`👷 ${userActual.nombre}`;
+  document.getElementById('tb-user').textContent=`🧑🏻‍🔧 ${userActual.nombre}`;
   const d=new Date(hoy+'T12:00:00');
   document.getElementById('tb-fecha').textContent=d.toLocaleDateString('es-GT',{day:'2-digit',month:'short',year:'numeric'});
   const btnOT = document.getElementById('btn-add-ot');
@@ -282,42 +314,122 @@ function artKey(event,lid){
 }
 
 /* GUARDAR */
+let filasListas = [];
+
+function cerrarModal(){ document.getElementById('modal-confirm').classList.remove('show'); }
+
 async function guardar(){
-  const filas=[];let hayError=false;
+  filasListas = [];
+  let hayError = false;
+
+  // Verificar que hay al menos una OT
+  if(otIds.length === 0){ notify('Agrega al menos una Orden de Trabajo','warning'); return; }
+
   for(const oid of otIds){
-    const otEl=document.getElementById(`otn-${oid}`);
-    const otVal=otEl?.value.trim();
-    if(!otVal||( otVal.length!==6&&otVal.length!==8)){otEl?.classList.add('campo-error');notify('Todas las OTs deben tener 6 u 8 dígitos','error');otEl?.scrollIntoView({behavior:'smooth',block:'center'});hayError=true;break;}
-    otEl?.classList.remove('campo-error');
-    for(const lin of (document.getElementById(`lines-${oid}`)?.querySelectorAll('.linea')||[])){
-      const lid=lin.id.replace('lin-','');
-      const cod=document.getElementById(`art-cod-${lid}`)?.value?.trim();
-      const desc=document.getElementById(`art-${lid}`)?.value?.trim();
-      const um=document.getElementById(`um-${lid}`)?.textContent?.trim();
+    const otEl = document.getElementById(`otn-${oid}`);
+    const otVal = otEl?.value.trim();
 
-      // ── Cantidad: si el campo está vacío o es 0, usar 1 como default ──
-      const qtyRaw=document.getElementById(`qty-${lid}`)?.value;
-      const qty=(!qtyRaw||parseFloat(qtyRaw)<=0)?1:parseFloat(qtyRaw);
-
-      if(!cod||!desc){document.getElementById(`art-${lid}`)?.classList.add('campo-error');notify('Selecciona un artículo válido en todas las líneas','error');document.getElementById(`art-${lid}`)?.scrollIntoView({behavior:'smooth',block:'center'});hayError=true;break;}
-      document.getElementById(`qty-${lid}`)?.classList.remove('campo-error');
-      filas.push({fecha_reserva:hoy,ot:otVal,articulosap:cod,descripcion:desc,cantidad:qty,um:um==='—'?null:um,codigo_operario:String(userActual.codigo)});
+    // Validar OT
+    if(!otVal || (otVal.length !== 6 && otVal.length !== 8)){
+      otEl?.classList.add('campo-error');
+      notify('Todas las OTs deben tener 6 u 8 dígitos','error');
+      otEl?.scrollIntoView({behavior:'smooth', block:'center'});
+      hayError = true; break;
     }
-    if(hayError)break;
+    otEl?.classList.remove('campo-error');
+
+    const lineas = document.getElementById(`lines-${oid}`)?.querySelectorAll('.linea') || [];
+
+    for(const lin of lineas){
+      const lid = lin.id.replace('lin-','');
+      const cod  = document.getElementById(`art-cod-${lid}`)?.value?.trim();
+      const desc = document.getElementById(`art-${lid}`)?.value?.trim();
+      const um   = document.getElementById(`um-${lid}`)?.textContent?.trim();
+      const qtyEl= document.getElementById(`qty-${lid}`);
+      const qtyRaw = qtyEl?.value;
+      const qty = (!qtyRaw || isNaN(parseFloat(qtyRaw)) || parseFloat(qtyRaw) <= 0) ? 1 : parseFloat(qtyRaw);
+
+      // Validar artículo seleccionado
+      if(!cod || !desc){
+        document.getElementById(`art-${lid}`)?.classList.add('campo-error');
+        notify('Selecciona un artículo válido en todas las líneas','error');
+        document.getElementById(`art-${lid}`)?.scrollIntoView({behavior:'smooth', block:'center'});
+        hayError = true; break;
+      }
+
+      document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
+      filasListas.push({
+        fecha_reserva: hoy,
+        ot: otVal,
+        articulosap: cod,
+        descripcion: desc,
+        cantidad: qty,
+        um: um === '—' ? null : um,
+        codigo_operario: String(userActual.codigo)
+      });
+    }
+    if(hayError) break;
   }
-  if(hayError)return;
-  if(!filas.length){notify('Agrega al menos un artículo','warning');return;}
-  document.getElementById('btn-guardar').disabled=true;
+  if(hayError) return;
+  if(!filasListas.length){ notify('Agrega al menos un artículo','warning'); return; }
+
+  // Construir resumen para el modal
+  let htmlModal = '';
+  const otAgrupadas = {};
+  filasListas.forEach(f => {
+    if(!otAgrupadas[f.ot]) otAgrupadas[f.ot] = [];
+    otAgrupadas[f.ot].push(f);
+  });
+  let totalLineas = 0;
+  Object.entries(otAgrupadas).forEach(([ot, items]) => {
+    htmlModal += `<div class="modal-ot-block">
+      <div class="modal-ot-num"><span class="modal-ot-badge">OT</span> ${ot}</div>`;
+    items.forEach(item => {
+      totalLineas++;
+      htmlModal += `<div class="modal-linea">
+        <span class="modal-linea-desc">${item.descripcion}</span>
+        <span class="modal-linea-qty">${item.cantidad} ${item.um||''}</span>
+      </div>`;
+    });
+    htmlModal += `</div>`;
+  });
+  htmlModal += `<div style="font-size:11px;color:#aaa;text-align:center;margin-top:4px">${Object.keys(otAgrupadas).length} OT(s) · ${totalLineas} artículo(s)</div>`;
+  document.getElementById('modal-body').innerHTML = htmlModal;
+  document.getElementById('modal-confirm').classList.add('show');
+}
+
+async function ejecutarGuardado(){
+  cerrarModal();
+  document.getElementById('btn-guardar').disabled = true;
   document.getElementById('saving-overlay').classList.add('show');
   try{
-    await sbPost('reservas',filas);
+    await sbPost('reservas', filasListas);
     document.getElementById('saving-overlay').classList.remove('show');
+
+    // Construir resumen para pantalla de éxito
+    const otAgrupadas = {};
+    filasListas.forEach(f => {
+      if(!otAgrupadas[f.ot]) otAgrupadas[f.ot] = [];
+      otAgrupadas[f.ot].push(f);
+    });
+    let htmlResumen = '';
+    Object.entries(otAgrupadas).forEach(([ot, items]) => {
+      htmlResumen += `<div style="margin-bottom:12px">
+        <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d);margin-bottom:6px">📋 OT ${ot}</div>`;
+      items.forEach(item => {
+        htmlResumen += `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #eef0f8;gap:10px">
+          <span style="color:#444">${item.descripcion}</span>
+          <span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--azul-d);white-space:nowrap">${item.cantidad} ${item.um||''}</span>
+        </div>`;
+      });
+      htmlResumen += `</div>`;
+    });
+    document.getElementById('suc-resumen').innerHTML = htmlResumen;
     document.getElementById('success-overlay').classList.add('show');
-    // Espera 2.5 s mostrando el éxito y luego va al menú
-    setTimeout(()=>irAlMenu(), 2500);
+    setTimeout(()=>irAlMenu(), 4000);
   }catch(e){
     document.getElementById('saving-overlay').classList.remove('show');
-    document.getElementById('btn-guardar').disabled=false;
+    document.getElementById('btn-guardar').disabled = false;
     notify(`Error: ${e.message}`,'error');
   }
 }
