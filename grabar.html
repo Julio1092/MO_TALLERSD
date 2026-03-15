@@ -389,7 +389,11 @@ function agregarActividad(){
   if(!turno){notify('Primero selecciona el Turno','error');return;}
   if(!ColOrdenes.length){notify('Ingresa al menos una Orden válida (6 dígitos)','warning');return;}
   if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
-  if(actIds.length>0){const f=validarActividadCompleta(actIds[actIds.length-1]);if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}}
+  if(actIds.length>0){
+    const ultId=actIds[actIds.length-1];
+    if(getMinsAct(ultId)===0){notify('⏱ La hora de Fin no puede ser igual a la hora de Inicio — define la duración de la actividad anterior','error');document.getElementById('tp-fin-'+ultId)?.scrollIntoView({behavior:'smooth',block:'center'});return;}
+    const f=validarActividadCompleta(ultId);if(f){notify(`Primero debes llenar "${f}" en la actividad anterior`,'error');return;}
+  }
   const cfg=TURNO_CFG[turno],id=nextActId++;actIds.push(id);
   const esExtr = turno === 'Extraordinario';
   let hIni,mIni;
@@ -436,12 +440,12 @@ function agregarActividad(){
         <div class="time-group"><label class="field-label">Hora de Inicio${esInicioLibre?' <span style="font-size:10px;color:var(--azul);font-weight:600">(libre)</span>':''}</label>
           ${inicioHtml}</div>
         <div class="time-group"><label class="field-label">Hora de Fin</label>
-          <div class="time-picker"><select id="act-kf-${id}" onchange="onHoraFinChange(${id})">${buildOpts(hF,hIni)}</select><span class="colon">:</span><select id="act-lf-${id}" onchange="onMinFinChange(${id})">${buildOpts(MINUTOS,mIni)}</select></div></div>
+          <div class="time-picker" id="tp-fin-${id}"><select id="act-kf-${id}" onchange="onHoraFinChange(${id})">${buildOpts(hF,hIni)}</select><span class="colon">:</span><select id="act-lf-${id}" onchange="onMinFinChange(${id})">${buildOpts(MINUTOS,mIni)}</select></div></div>
       </div>
       <div class="horas-badge" id="horas-${id}">⏱ <span>00:00 hrs</span></div>
     </div>`;
   document.getElementById('act-container').appendChild(div);
-  onHoraFinChange(id);
+  calcularHora(id); // Arranca en 00:00 — usuario debe definir hora fin
   document.getElementById('btn-agregar').disabled=actIds.length>=20;
 }
 
@@ -487,7 +491,7 @@ function onHoraFinChange(id){
 }
 function onMinFinChange(id){calcularHora(id);propagarInicio(id);}
 function propagarInicio(id){const t=document.getElementById('turno').value,idx=actIds.indexOf(id);if(idx<0||idx===actIds.length-1)return;const hF=document.getElementById('act-kf-'+id).value,mF=document.getElementById('act-lf-'+id).value,nId=actIds[idx+1];document.getElementById('act-ki-'+nId).innerHTML=`<option value="${hF}">${hF}</option>`;document.getElementById('act-li-'+nId).innerHTML=`<option value="${mF}">${mF}</option>`;const hF2=horasDesde(hF,t),sKF=document.getElementById('act-kf-'+nId);sKF.innerHTML=buildOpts(hF2,hF2.includes(sKF.value)?sKF.value:hF2[0]);onHoraFinChange(nId);}
-function calcularHora(id){const hI=parseInt(document.getElementById('act-ki-'+id).value||0),mI=parseInt(document.getElementById('act-li-'+id).value||0),hF=parseInt(document.getElementById('act-kf-'+id).value||0),mF=parseInt(document.getElementById('act-lf-'+id).value||0);let mins=(hF*60+mF)-(hI*60+mI);if(mins<0)mins+=1440;const b=document.getElementById('horas-'+id);if(b)b.innerHTML=`⏱ <span>${pad(Math.floor(mins/60))}:${pad(mins%60)} hrs</span>`;calcularTotal();}
+function calcularHora(id){const hI=parseInt(document.getElementById('act-ki-'+id).value||0),mI=parseInt(document.getElementById('act-li-'+id).value||0),hF=parseInt(document.getElementById('act-kf-'+id).value||0),mF=parseInt(document.getElementById('act-lf-'+id).value||0);let mins=(hF*60+mF)-(hI*60+mI);if(mins<0)mins+=1440;const b=document.getElementById('horas-'+id);if(b){b.innerHTML=`⏱ <span>${pad(Math.floor(mins/60))}:${pad(mins%60)} hrs</span>`;b.style.background=mins===0?'#fff5f5':'#edf2ff';b.style.color=mins===0?'#e53e3e':'var(--azul-oscuro)';b.style.border=mins===0?'1.5px solid #fca5a5':'none';}calcularTotal();}
 function getMinsAct(id){const hI=parseInt(document.getElementById('act-ki-'+id)?.value||0),mI=parseInt(document.getElementById('act-li-'+id)?.value||0),hF=parseInt(document.getElementById('act-kf-'+id)?.value||0),mF=parseInt(document.getElementById('act-lf-'+id)?.value||0);let m=(hF*60+mF)-(hI*60+mI);if(m<0)m+=1440;return m;}
 function calcularTotal(){let t=0;actIds.forEach(id=>t+=getMinsAct(id));actualizarReloj(t);}
 
@@ -524,18 +528,58 @@ function construirTimestampLibre(fecha, h, m, minutosAcumuladosAntes){
 function cerrarModal(){ document.getElementById('modal-confirm').style.display='none'; }
 
 async function guardar(){
-  // Pre-validar antes de mostrar modal
   const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
+
+  // 1. Turno y fecha
   if(!turno){notify('Selecciona el Turno','error');return;}
   if(!fecha){notify('Selecciona la Fecha','error');return;}
+
+  // 2. Al menos una actividad
   if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
 
-  // Calcular total horas
-  let totalMins=0; actIds.forEach(id=>totalMins+=getMinsAct(id));
-  const hh=Math.floor(totalMins/60), mm=totalMins%60;
+  // 3. Validar OTs
+  let otValidas=0;
+  for(const id of otIds){
+    const v=document.getElementById(`ot-${id}`)?.value.trim();
+    if(v&&v.length!==6){notify('Hay órdenes con número de dígitos incorrecto','error');return;}
+    if(v&&v.length===6)otValidas++;
+  }
+  if(otValidas===0){notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error');return;}
+
+  // 4. Validar cada actividad (OT, actividad, componente, duración mínima)
+  for(const id of actIds){
+    const f=validarActividadCompleta(id);
+    if(f){
+      notify(`Actividad #${actIds.indexOf(id)+1}: ${f==='duración mínima de 5 minutos'?'La actividad debe tener al menos 5 minutos':'debes llenar "'+f+'"'}`,'error');
+      document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+  }
+
+  // 5. Validar ALIMENTACIÓN para Diurno y Mantenimiento
+  if(turno==='Diurno'||turno==='Mantenimiento'){
+    const actAlim=actIds.find(id=>{
+      const act=(document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+      const com=(document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+      const mins=getMinsAct(id);
+      return act==='ALIMENTACION'&&com==='ALIMENTACION'&&mins===60;
+    });
+    if(!actAlim){notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error');return;}
+  }
+
+  // 6. Validar total de horas del turno
+  const cfg=TURNO_CFG[turno];
+  if(cfg&&cfg.limite>0){
+    let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));
+    if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}
+    if(tot<cfg.limite){notify(`Faltan horas — llevas ${pad(Math.floor(tot/60))}:${pad(tot%60)} h de ${pad(Math.floor(cfg.limite/60))}:${pad(cfg.limite%60)} h requeridas`,'warning');return;}
+  }
+
+  // ✅ Todo válido — mostrar resumen en modal
+  let totalMins=0;actIds.forEach(id=>totalMins+=getMinsAct(id));
+  const hh=Math.floor(totalMins/60),mm=totalMins%60;
   const primerNombre=(userActual?.nombre||'').split(' ')[0];
   const fechaFormato=new Date(fecha+'T12:00:00').toLocaleDateString('es-GT',{day:'2-digit',month:'long',year:'numeric'});
-
   document.getElementById('modal-body').innerHTML=
     `<b>👷 Operario:</b> ${primerNombre}<br>`+
     `<b>📅 Fecha:</b> ${fechaFormato}<br>`+
@@ -548,39 +592,6 @@ async function guardar(){
 async function ejecutarGuardado(){
   cerrarModal();
   const turno=document.getElementById('turno').value,fecha=document.getElementById('fecha').value;
-  if(!turno){notify('Selecciona el Turno','error');return;}
-  if(!fecha){notify('Selecciona la Fecha del reporte','error');return;}
-  if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
-
-  // Validar OTs
-  let otValidas = 0;
-  for (const id of otIds) {
-    const v = document.getElementById(`ot-${id}`)?.value.trim();
-    if (v && v.length !== 6) { notify('Hay órdenes con número de dígitos incorrecto','error'); return; }
-    if (v && v.length === 6) otValidas++;
-  }
-  if (otValidas === 0) { notify('Ingresa al menos una Orden de Trabajo válida (6 dígitos)','error'); return; }
-
-  for(const id of actIds){
-    const f=validarActividadCompleta(id);
-    if(f){
-      notify(`Actividad #${actIds.indexOf(id)+1}: ${f==='duración mínima de 5 minutos'?'La actividad debe tener al menos 5 minutos':'debes llenar "'+f+'"'}`,'error');
-      document.getElementById('act-'+id)?.scrollIntoView({behavior:'smooth',block:'center'});
-      return;
-    }
-  }
-  // Validar alimentación solo para Diurno y Mantenimiento
-  if(turno==='Diurno'||turno==='Mantenimiento'){
-    const actAlim = actIds.find(id => {
-      const act = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
-      const com = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
-      const mins = getMinsAct(id);
-      return act === 'ALIMENTACION' && com === 'ALIMENTACION' && mins === 60;
-    });
-    if(!actAlim){ notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error'); return; }
-  }
-  const cfg=TURNO_CFG[turno];
-  if(cfg&&cfg.limite>0){let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));if(tot>cfg.limite){notify('Ingresaste más horas de las debidas','warning');return;}if(tot<cfg.limite){notify('Ingresaste menos horas de las debidas','warning');return;}}
 
   const fila={'Fecha_Reporte':fecha,'Turno':turno,'codigo_operario':userActual?.codigo||null};
   for(let i=1;i<=20;i++){fila[`OT${i}`]=null;fila[`A${i}`]=null;fila[`FI${i}`]=null;fila[`FF${i}`]=null;fila[`H${i}`]=null;fila[`C${i}`]=null;}
