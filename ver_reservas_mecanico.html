@@ -171,7 +171,7 @@ tbody tr:hover td{background:rgba(56,96,178,.04)}
         <thead><tr>
           <th>Fecha</th>
           <th>OT</th>
-          <th>Cód. SAP</th>
+          <th>Cód. HANA</th>
           <th>Descripción</th>
           <th>Cant. Solicitada</th>
           <th>Cant. Aprobada</th>
@@ -293,7 +293,7 @@ function aplicarFiltros(){
     if(tabActual==='pend'&&!esPendiente(r))return false;
     if(tabActual==='apr'&&!esAprobado(r))return false;
     if(tabActual==='rej'&&!esRechazado(r))return false;
-    if(q)return(r.ot||'').includes(q)||(r.articulosap||'').includes(q)||(r.descripcion||'').toLowerCase().includes(q);
+    if(q)return(r.ot||'').includes(q)||(r.articulohana||r.articulosap||'').includes(q)||(r.descripcion||'').toLowerCase().includes(q);
     return true;
   });
   pag=1;renderKPIs(todos);renderTabla();
@@ -366,7 +366,7 @@ function renderTabla(){
         tr.innerHTML=`
           <td class="td-fecha">${r.fecha_reserva||'—'}</td>
           <td class="td-ot">${r.ot||'—'}</td>
-          <td class="td-cod">${r.articulosap||'—'}</td>
+          <td class="td-cod">${r.articulohana||r.articulosap||'—'}</td>
           <td style="max-width:200px">${r.descripcion||'—'}</td>
           <td class="td-qty">${r.cantidad}</td>
           <td>${cantAprobada}</td>
@@ -404,7 +404,7 @@ function exportar(){
     if(esAprobado(r))estado=r.cct_grabado?'Grabado':'Aprobado';
     else if(esRechazado(r))estado='Rechazado';
     const vals=[
-      r.fecha_reserva||'',r.ot||'',r.articulosap||'',
+      r.fecha_reserva||'',r.ot||'',r.articulohana||r.articulosap||'',
       `"${(r.descripcion||'').replace(/"/g,'""')}"`,
       r.cantidad,r.cantidadsupervisor||'',r.um||'',estado
     ];

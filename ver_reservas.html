@@ -143,7 +143,7 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
           <th>Fecha</th>
           <th>OT</th>
           <th>Mecánico</th>
-          <th>Cód. SAP</th>
+          <th>Cód. HANA</th>
           <th>Descripción</th>
           <th>Cant. Sol.</th>
           <th>Cant. Sup.</th>
@@ -273,7 +273,7 @@ function aplicarFiltros(){
   filtrados=todos.filter(r=>{
     if(tabActual==='pend'&&r.cct_seguimiento===true)return false;
     if(tabActual==='seg'&&r.cct_seguimiento!==true)return false;
-    if(q)return(r.ot||'').includes(q)||(r.articulosap||'').includes(q)||(r.descripcion||'').toLowerCase().includes(q)||r._nom.toLowerCase().includes(q);
+    if(q)return(r.ot||'').includes(q)||(r.articulohana||r.articulosap||'').includes(q)||(r.descripcion||'').toLowerCase().includes(q)||r._nom.toLowerCase().includes(q);
     return true;
   });
   pag=1;renderKPIs(todos);renderTabla();
@@ -310,7 +310,7 @@ function renderTabla(){
       <td class="td-fecha">${r.fecha_reserva||'—'}</td>
       <td class="td-ot">${r.ot||'—'}</td>
       <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
-      <td class="td-cod">${r.articulosap||'—'}</td>
+      <td class="td-cod">${r.articulohana||r.articulosap||'—'}</td>
       <td style="max-width:200px">${r.descripcion||'—'}</td>
       <td class="td-qty">${r.cantidad}</td>
       <td class="td-qtyS">${cantS}</td>
@@ -374,7 +374,7 @@ function exportar(){
   const filas=[heads.join(',')];
   filtrados.forEach(r=>{
     const estado=r.cct_seguimiento?'En Seguimiento':'Pendiente';
-    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.articulosap||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||r.cantidad,r.um||'',estado,`"${(r.cct_comentario||'').replace(/"/g,'""')}"`];
+    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.articulohana||r.articulosap||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||r.cantidad,r.um||'',estado,`"${(r.cct_comentario||'').replace(/"/g,'""')}"`];
     filas.push(vals.join(','));
   });
   const blob=new Blob([filas.join('\n')],{type:'text/csv;charset=utf-8;'});

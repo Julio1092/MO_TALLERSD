@@ -330,7 +330,7 @@ function renderGrupos(listaGrupos) {
 
     const linRows = g.lineas.map((l, i) => `
       <tr id="lin-row-${hid}-${i}">
-        <td class="td-cod">${l.articulosap||'—'}</td>
+        <td class="td-cod">${l.articulohana||l.articulosap||'—'}</td>
         <td>${l.descripcion||'—'}</td>
         <td>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
