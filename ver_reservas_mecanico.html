@@ -115,7 +115,7 @@ tbody tr:hover td{background:rgba(56,96,178,.04)}
 <div class="topbar">
   <button class="tb-back" onclick="window.location.href='menu_mecanico.html'">← Menú</button>
   <div class="tb-logo">RESERVAS</div>
-  <div class="tb-user">👷 <span id="tb-user">—</span></div>
+  <div class="tb-user">🧑🏻‍🔧 <span id="tb-user">—</span></div>
 </div>
 
 <div class="page">
@@ -357,7 +357,10 @@ function renderTabla(){
           ?`<span class="td-qty-s">${r.cantidadsupervisor}</span>`
           :`<span class="td-qty-na">—</span>`;
 
-        const nroReserva=r.supervisor_comentario||r.comentario_supervisor||'—';
+        const nroReserva=r.cct_comentario||'—';
+        const nroReservaHtml = r.cct_comentario
+          ? `<span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--azul-d);font-size:12px;background:var(--azul-bg);border:1px solid var(--bord2);border-radius:6px;padding:2px 8px">${r.cct_comentario}</span>`
+          : `<span style="font-size:12px;color:var(--txt3)">—</span>`;
 
         const tr=document.createElement('tr');
         tr.innerHTML=`
@@ -369,7 +372,7 @@ function renderTabla(){
           <td>${cantAprobada}</td>
           <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
           <td>${badgeHtml}</td>
-          <td style="font-size:12px;color:var(--txt3);font-style:italic;max-width:180px">${nroReserva}</td>`;
+          <td>${nroReservaHtml}</td>`;
         tb.appendChild(tr);
       });
     });
