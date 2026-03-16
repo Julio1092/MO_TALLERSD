@@ -203,7 +203,7 @@ function agregarOT(){
   for(const oid of otIds){
     const otEl=document.getElementById(`otn-${oid}`);
     const otVal=otEl?.value.trim();
-    if(!otVal||(otVal.length!==6&&otVal.length!==8)){
+    if(!otVal||(otVal.length<6||otVal.length>8)){
       otEl?.classList.add('campo-error');
       notify('Completa el número de OT antes de agregar otra','error');
       otEl?.scrollIntoView({behavior:'smooth',block:'center'});
@@ -230,7 +230,7 @@ function agregarOT(){
       <button class="btn-remove-ot" onclick="eliminarOT(${id})">✕</button>
     </div>
     <div class="ot-input-row">
-      <label class="fl">Número de OT <span style="font-weight:400;color:#aaa;font-size:11px">(6 u 8 dígitos)</span></label>
+      <label class="fl">Número de OT <span style="font-weight:400;color:#aaa;font-size:11px">(6, 7 u 8 dígitos)</span></label>
       <input class="ot-num" id="otn-${id}" type="number" placeholder="000000" oninput="validarOTNum(this)">
     </div>
     <div class="lines-wrap" id="lines-${id}"></div>
@@ -252,7 +252,7 @@ function eliminarOT(id){
 function validarOTNum(el){
   let v=el.value.replace(/\D/g,'');if(v.length>8)v=v.slice(0,8);el.value=v;
   el.classList.remove('valido','invalido','campo-error');
-  if(!v)return;(v.length===6||v.length===8)?el.classList.add('valido'):el.classList.add('invalido');
+  if(!v)return;(v.length===6||v.length===7||v.length===8)?el.classList.add('valido'):el.classList.add('invalido');
 }
 
 /* LINES */
@@ -365,9 +365,9 @@ async function guardar(){
     const otVal = otEl?.value.trim();
 
     // Validar OT
-    if(!otVal || (otVal.length !== 6 && otVal.length !== 8)){
+    if(!otVal || (otVal.length < 6 || otVal.length > 8)){
       otEl?.classList.add('campo-error');
-      notify('Todas las OTs deben tener 6 u 8 dígitos','error');
+      notify('Todas las OTs deben tener entre 6 y 8 dígitos','error');
       otEl?.scrollIntoView({behavior:'smooth', block:'center'});
       hayError = true; break;
     }
