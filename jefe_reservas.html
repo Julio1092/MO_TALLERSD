@@ -148,7 +148,7 @@ tbody tr:hover td{background:rgba(255,215,0,.04)}
           <th>Fecha</th>
           <th>OT</th>
           <th>Mecánico</th>
-          <th>Cód. SAP</th>
+          <th>Cód. HANA</th>
           <th>Descripción</th>
           <th>Cant. Sol.</th>
           <th>Cant. Aprobada</th>
@@ -273,7 +273,7 @@ function aplicarFiltros(){
     if(tabActual==='apr'&&!esAprobado(r))return false;
     if(tabActual==='rej'&&!esRechazado(r))return false;
     if(tabActual==='grab'&&!esGrabado(r))return false;
-    if(q)return(r.ot||'').includes(q)||(r.articulosap||'').toLowerCase().includes(q)||(r.descripcion||'').toLowerCase().includes(q)||r._nom.toLowerCase().includes(q);
+    if(q)return(r.ot||'').includes(q)||(r.articulohana||'').toLowerCase().includes(q)||(r.descripcion||'').toLowerCase().includes(q)||r._nom.toLowerCase().includes(q);
     return true;
   });
   pag=1;renderKPIs(todos);renderTabla();
@@ -312,7 +312,7 @@ function renderTabla(){
       <td class="td-fecha">${r.fecha_reserva||'—'}</td>
       <td class="td-ot">${r.ot||'—'}</td>
       <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
-      <td class="td-cod">${r.articulosap||'—'}</td>
+      <td class="td-cod">${r.articulohana||'—'}</td>
       <td style="max-width:200px">${r.descripcion||'—'}</td>
       <td class="td-qty">${r.cantidad}</td>
       <td>${cantAprobada}</td>
@@ -345,7 +345,7 @@ function exportar(){
     if(esGrabado(r))estado='Grabado';
     else if(esAprobado(r))estado='Aprobado';
     else if(esRechazado(r))estado='Rechazado';
-    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.articulosap||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||'',r.um||'',estado];
+    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.articulohana||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||'',r.um||'',estado];
     filas.push(vals.join(','));
   });
   const blob=new Blob([filas.join('\n')],{type:'text/csv;charset=utf-8;'});

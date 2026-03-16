@@ -242,22 +242,10 @@ async function buscar(){
   setLoad(true);hide();
   try{
     const raw=await sbGet(`reservas?${p.join('&')}`);
-
-    // Lookup ArticuloHana
-    const codigosSAP=[...new Set((raw||[]).map(r=>r.articulosap).filter(Boolean))];
-    let mapaHana={};
-    if(codigosSAP.length){
-      const chunk=50;
-      for(let i=0;i<codigosSAP.length;i+=chunk){
-        const lote=codigosSAP.slice(i,i+chunk);
-        const query=lote.map(c=>`ArticuloSAP.eq.${encodeURIComponent(c)}`).join(',');
-        const arts=await sbGet(`Articulos_SAP?select=ArticuloSAP,ArticuloHana&or=(${query})`);
-        (arts||[]).forEach(a=>{ if(a.ArticuloSAP) mapaHana[String(a.ArticuloSAP)]=a.ArticuloHana||''; });
-      }
     }
 
     setLoad(false);
-    todos=(raw||[]).map(r=>({...r, articulohana: mapaHana[String(r.articulosap)]||''}));
+    todos=(raw||[]);
     if(!todos.length){
       setEstado('📦','No encontramos reservas','No hay solicitudes en el período seleccionado');
       show('kpis');renderKPIs([]);return;
@@ -307,7 +295,7 @@ function aplicarFiltros(){
     if(tabActual==='pend'&&!esPendiente(r))return false;
     if(tabActual==='apr'&&!esAprobado(r))return false;
     if(tabActual==='rej'&&!esRechazado(r))return false;
-    if(q)return(r.ot||'').includes(q)||(r.articulohana||r.articulosap||'').includes(q)||(r.descripcion||'').toLowerCase().includes(q);
+    if(q)return(r.ot||'').includes(q)||(r.articulohana||'').includes(q)||(r.descripcion||'').toLowerCase().includes(q);
     return true;
   });
   pag=1;renderKPIs(todos);renderTabla();
@@ -380,7 +368,7 @@ function renderTabla(){
         tr.innerHTML=`
           <td class="td-fecha">${r.fecha_reserva||'—'}</td>
           <td class="td-ot">${r.ot||'—'}</td>
-          <td class="td-cod">${r.articulohana||r.articulosap||'—'}</td>
+          <td class="td-cod">${r.articulohana||'—'}</td>
           <td style="max-width:200px">${r.descripcion||'—'}</td>
           <td class="td-qty">${r.cantidad}</td>
           <td>${cantAprobada}</td>
@@ -418,7 +406,7 @@ function exportar(){
     if(esAprobado(r))estado=r.cct_grabado?'Grabado':'Aprobado';
     else if(esRechazado(r))estado='Rechazado';
     const vals=[
-      r.fecha_reserva||'',r.ot||'',r.articulohana||r.articulosap||'',
+      r.fecha_reserva||'',r.ot||'',r.articulohana||'',
       `"${(r.descripcion||'').replace(/"/g,'""')}"`,
       r.cantidad,r.cantidadsupervisor||'',r.um||'',estado
     ];
