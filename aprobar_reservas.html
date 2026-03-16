@@ -251,8 +251,8 @@ async function buscar() {
 
   try {
     const rows = await sbGet(`reservas?${p.join('&')}`);
-    }
-    
+    rows.forEach(r=>{ r.articulohana = r.articulohana||''; });
+
     setLoad(false);
 
     grupos = {};
