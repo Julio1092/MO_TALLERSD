@@ -254,7 +254,7 @@ async function aplicarFiltros(){
     document.getElementById('kpi-bar').style.display='none';
 
     // Traer reportes del rango
-    let endpoint=`reportes_mo?Fecha_Reporte=gte.${ini}&Fecha_Reporte=lte.${fin}&select=codigo_operario,Fecha_Reporte,Turno,sup_autoriza,sup_decision`;
+    let endpoint=`reportes_mo?Fecha_Reporte=gte.${ini}&Fecha_Reporte=lte.${fin}&select=codigo_operario,Fecha_Reporte,Turno,sup_autoriza,sup_decision,H1,H2,H3,H4,H5,H6,H7,H8,H9,H10,H11,H12,H13,H14,H15,H16,H17,H18,H19,H20`;
     if(turno) endpoint+=`&Turno=eq.${encodeURIComponent(turno)}`;
     endpoint+='&order=Fecha_Reporte.asc';
     const reportes=await sbGet(endpoint);
@@ -279,11 +279,16 @@ async function aplicarFiltros(){
     const idx={};
     (reportes||[]).forEach(r=>{
       const k=`${r.codigo_operario}__${r.Fecha_Reporte}`;
-      // Puede haber varios turnos: tomamos el peor/mejor estado
-      if(!idx[k]) idx[k]={autorizado:false,pendiente:false,rechazado:false};
+      if(!idx[k]) idx[k]={autorizado:false,pendiente:false,rechazado:false,horas:0,turnos:[]};
       if(r.sup_autoriza===true) idx[k].autorizado=true;
       else if(r.sup_decision==='rechazado') idx[k].rechazado=true;
       else idx[k].pendiente=true;
+      // Sumar horas H1..H20
+      let h=0;
+      for(let i=1;i<=20;i++){const v=parseFloat(r[`H${i}`]||0);if(v>0)h+=v;}
+      idx[k].horas+=h;
+      // Acumular turno
+      if(r.Turno&&!idx[k].turnos.includes(r.Turno)) idx[k].turnos.push(r.Turno);
     });
 
     // Agrupar mecánicos por supervisor
@@ -336,7 +341,16 @@ async function aplicarFiltros(){
             else if(cls==='pendiente')kPend++;
             else kNr++;
           }
-          return `<td><div class="cel ${cls}${esHoy?' hoy':''}" title="${m.nombre} · ${f}">${ico}</div></td>`;
+          // Abreviación de turno
+          const turnoAbrev={'Diurno':'D','Nocturno':'N','Mantenimiento':'M','Extraordinario':'E'};
+          let infoHtml='';
+          if(!esFuturo&&idx[k]){
+            const hrs=idx[k].horas>0?`<span style="font-family:'Space Mono',monospace;font-size:9px;font-weight:700;color:#1a7a3c;display:block;line-height:1">${idx[k].horas.toFixed(1)}h</span>`:'';
+            const trn=idx[k].turnos.map(t=>turnoAbrev[t]||t.charAt(0)).join('/');
+            const trnHtml=trn?`<span style="font-size:8px;color:#6b9e7e;display:block;line-height:1.2">${trn}</span>`:'';
+            infoHtml=hrs+trnHtml;
+          }
+          return `<td><div class="cel ${cls}${esHoy?' hoy':''}" title="${m.nombre} · ${f}" style="flex-direction:column;gap:1px;height:auto;min-height:48px;padding:4px 2px">${ico}${infoHtml}</div></td>`;
         }).join('');
 
         const estadoGen=mecCorr?'correcto':'pendiente';
