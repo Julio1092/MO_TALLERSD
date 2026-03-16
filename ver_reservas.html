@@ -229,19 +229,6 @@ async function buscar(){
   try{
     const raw=await sbGet(`reservas?${p.join('&')}`);
 
-    // Obtener códigos HANA para todos los artículos únicos en el resultado
-    const codigosSAP=[...new Set((raw||[]).map(r=>r.articulosap).filter(Boolean))];
-    let mapaHana={};
-    if(codigosSAP.length){
-      const chunk=50;
-      for(let i=0;i<codigosSAP.length;i+=chunk){
-        const lote=codigosSAP.slice(i,i+chunk);
-        const query=lote.map(c=>`ArticuloSAP.eq.${encodeURIComponent(c)}`).join(',');
-        const arts=await sbGet(`Articulos_SAP?select=ArticuloSAP,ArticuloHana&or=(${query})`);
-        (arts||[]).forEach(a=>{ if(a.ArticuloSAP) mapaHana[String(a.ArticuloSAP)]=a.ArticuloHana||''; });
-      }
-    }
-
     setLoad(false);
     todos=(raw||[]).map(r=>({
       ...r,

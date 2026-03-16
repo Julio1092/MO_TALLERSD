@@ -189,7 +189,7 @@ async function cargarArticulos(){
     const LIMIT=1000;
     let offset=0, resultado=[], pagina=[];
     do {
-      pagina=await sbGet(`Articulos_SAP?select=ArticuloSAP,Descripcion,UM&order=Descripcion.asc&limit=${LIMIT}&offset=${offset}`);
+      pagina=await sbGet(`Articulos_SAP?select=ArticuloSAP,ArticuloHana,Descripcion,UM&order=Descripcion.asc&limit=${LIMIT}&offset=${offset}`);
       if(pagina&&pagina.length) resultado=resultado.concat(pagina);
       offset+=LIMIT;
     } while(pagina&&pagina.length===LIMIT);
@@ -284,6 +284,7 @@ function agregarLinea(otId){
         <span class="ss-arrow">▾</span>
         <div class="ss-dropdown" id="art-dd-${lid}"></div>
         <input type="hidden" id="art-cod-${lid}">
+        <input type="hidden" id="art-hana-${lid}">
       </div>
     </div>
     <div class="linea-row2">
@@ -318,7 +319,7 @@ function artRender(lid,q){
   dd.innerHTML=fil.slice(0,60).map((a,i)=>{
     let desc=String(a.Descripcion||''),cod=String(a.ArticuloSAP||'');
     if(qL){const hl=s=>{const p=s.toLowerCase().indexOf(qL);return p>=0?s.slice(0,p)+`<span class="ss-match">${s.slice(p,p+qL.length)}</span>`+s.slice(p+qL.length):s;};desc=hl(desc);cod=hl(cod);}
-    return `<div class="ss-option" data-idx="${i}" data-cod="${a.ArticuloSAP}" data-desc="${a.Descripcion}" data-um="${a.UM||''}"
+    return `<div class="ss-option" data-idx="${i}" data-cod="${a.ArticuloSAP}" data-hana="${a.ArticuloHana||''}" data-desc="${a.Descripcion}" data-um="${a.UM||''}"
       onmousedown="artSelect(${lid},this)"><span>${desc}</span><span class="ss-cod">${cod}</span></div>`;
   }).join('');
 }
@@ -326,6 +327,7 @@ function artOpen(lid){artRender(lid,document.getElementById(`art-${lid}`)?.value
 function artBlur(lid){setTimeout(()=>document.getElementById(`art-dd-${lid}`)?.classList.remove('open'),200);}
 function artFilter(lid){
   document.getElementById(`art-cod-${lid}`).value='';
+  document.getElementById(`art-hana-${lid}`).value='';
   document.getElementById(`um-${lid}`).textContent='—';
   document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
   artRender(lid,document.getElementById(`art-${lid}`)?.value);
@@ -334,6 +336,7 @@ function artFilter(lid){
 function artSelect(lid,el){
   document.getElementById(`art-${lid}`).value=el.dataset.desc;
   document.getElementById(`art-cod-${lid}`).value=el.dataset.cod;
+  document.getElementById(`art-hana-${lid}`).value=el.dataset.hana||'';
   document.getElementById(`um-${lid}`).textContent=el.dataset.um||'—';
   document.getElementById(`art-dd-${lid}`)?.classList.remove('open');
   document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
@@ -393,10 +396,12 @@ async function guardar(){
       }
 
       document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
+      const hana = document.getElementById(`art-hana-${lid}`)?.value?.trim()||null;
       filasListas.push({
         fecha_reserva: hoy,
         ot: otVal,
         articulosap: cod,
+        articulohana: hana,
         descripcion: desc,
         cantidad: qty,
         um: um === '—' ? null : um,

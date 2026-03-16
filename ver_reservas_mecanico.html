@@ -242,7 +242,6 @@ async function buscar(){
   setLoad(true);hide();
   try{
     const raw=await sbGet(`reservas?${p.join('&')}`);
-    }
 
     setLoad(false);
     todos=(raw||[]);
