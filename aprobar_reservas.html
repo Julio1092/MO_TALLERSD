@@ -209,10 +209,13 @@ async function cargarColabs() {
 }
 
 async function obtenerGuardiaActiva() {
-  // Busca si hay una guardia activa ahora mismo para este supervisor
   const ahora = new Date();
-  const fechaHoy = ahora.toISOString().slice(0,10);
-  const horaAhora = ahora.toTimeString().slice(0,8); // HH:MM:SS
+  // Usar hora LOCAL del dispositivo (GMT-6) — evita desfase con UTC
+  const fechaHoy = isoHoy();
+  const hh = String(ahora.getHours()).padStart(2,'0');
+  const mm = String(ahora.getMinutes()).padStart(2,'0');
+  const ss = String(ahora.getSeconds()).padStart(2,'0');
+  const horaAhora = `${hh}:${mm}:${ss}`;
   try {
     const data = await sbGet(`guardias?activa=eq.true&fecha_inicio=lte.${fechaHoy}&fecha_fin=gte.${fechaHoy}&select=*`);
     if (!data || !data.length) return null;
