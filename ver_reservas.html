@@ -190,9 +190,12 @@ window.onload=async()=>{
   if(!u){window.location.href='index.html';return;}
   if((u.rol||'').toUpperCase()!=='CCT'){window.location.href='index.html';return;}
   document.getElementById('tb-user').textContent=u.nombre;
-  const hoy=new Date(),d30=new Date();d30.setDate(hoy.getDate()-30);
-  document.getElementById('f-desde').value=d30.toISOString().slice(0,10);
-  document.getElementById('f-hasta').value=hoy.toISOString().slice(0,10);
+  // Usar isoHoy() (hora local GMT-6) para evitar desfase con UTC
+  const hoyStr=isoHoy();
+  const d30=new Date(hoyStr+'T12:00:00');d30.setDate(d30.getDate()-30);
+  const d30Str=`${d30.getFullYear()}-${String(d30.getMonth()+1).padStart(2,'0')}-${String(d30.getDate()).padStart(2,'0')}`;
+  document.getElementById('f-desde').value=d30Str;
+  document.getElementById('f-hasta').value=hoyStr;
   try{
     const data=await sbGet('Colaboradores?select=codigo,nombre,rol,jefe_codigo&order=nombre.asc');
     const selSup=document.getElementById('f-sup');
@@ -219,7 +222,8 @@ async function buscar(){
   const ot=document.getElementById('f-ot').value.trim();
 
   // Solo aprobadas, excluir grabadas
-  const p=['select=*','sup_aprueba=is.true','verificacionsupervisor=eq.Aprobado','cct_grabado=not.is.true'];
+  // cct_grabado=not.is.true incluye false y NULL (pendientes de grabar)
+  const p=['select=*','sup_aprueba=is.true','verificacionsupervisor=eq.Aprobado','or=(cct_grabado.is.null,cct_grabado.is.false)'];
   if(desde)p.push(`fecha_reserva=gte.${desde}`);
   if(hasta)p.push(`fecha_reserva=lte.${hasta}`);
   if(ot)p.push(`ot=eq.${encodeURIComponent(ot)}`);
