@@ -250,7 +250,12 @@ async function buscar() {
         esGuardia = true;
       } else {
         // NO es el de guardia — solo ve reservas creadas ANTES de que empezara la guardia
-        p.push(`created_at=lt.${guardia.fecha_inicio}T${guardia.hora_inicio}`);
+        // Convertir hora local Guatemala (GMT-6) a UTC sumando 6 horas
+        const [hGT, mGT] = guardia.hora_inicio.slice(0,5).split(':').map(Number);
+        const dtGuardia = new Date(`${guardia.fecha_inicio}T${guardia.hora_inicio}`);
+        dtGuardia.setHours(dtGuardia.getHours() + 6); // GMT-6 → UTC
+        const isoUTC = dtGuardia.toISOString().slice(0,19);
+        p.push(`created_at=lt.${isoUTC}`);
       }
     }
   }
@@ -259,8 +264,17 @@ async function buscar() {
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
 
   // Filtrar por mecánicos solo si NO está de guardia
-  if (!esGuardia && mecPermitidos && mecPermitidos.size > 0) {
-    p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
+  if (!esGuardia) {
+    if (mecPermitidos === null) {
+      // Jefe o supervisor que cargó como guardia — ve todo, sin filtro
+    } else if (mecPermitidos.size > 0) {
+      p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
+    } else {
+      // Supervisor sin mecánicos asignados y sin guardia — no debe ver nada
+      setLoad(false);
+      setEstado('👔','Sin mecánicos asignados','No tienes mecánicos bajo tu cargo actualmente');
+      return;
+    }
   }
   p.push('order=fecha_reserva.desc,ot.asc,id.asc');
 
