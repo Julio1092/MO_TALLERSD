@@ -445,7 +445,10 @@ async function aprobarGrupo(hid) {
           body: JSON.stringify({
             verificacionsupervisor: decision,
             cantidadsupervisor: decision === 'Aprobado' ? String(cantSup) : null,
-            sup_aprueba: decision === 'Aprobado' ? true : false
+            sup_aprueba: decision === 'Aprobado' ? true : false,
+            supervisor_codigo: String(userActual.codigo),
+            supervisor_nombre: userActual.nombre,
+            fecha_aprobacion: new Date().toISOString()
           })
         }
       ).then(r => { if(!r.ok) throw new Error(`Línea ${i+1}: ${r.statusText}`); });
