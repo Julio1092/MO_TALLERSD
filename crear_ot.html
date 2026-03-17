@@ -15,18 +15,29 @@ body{font-family:'DM Sans',sans-serif;background:var(--fondo);min-height:100vh}
 .btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
 .btn-back:hover{background:rgba(255,255,255,0.22)}
 
-/* PANTALLA */
 .screen{display:none;padding:24px 16px;max-width:500px;margin:0 auto;flex-direction:column;gap:20px}
 .screen.active{display:flex}
 
+/* SELECTOR UBICACION */
+.ubic-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ubic-card{background:white;border:2.5px solid var(--borde);border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.ubic-card:hover{border-color:var(--azul);transform:translateY(-3px);box-shadow:0 8px 28px rgba(56,96,178,0.18)}
+.ubic-card.taller{border-color:#0f6e56}
+.ubic-card.taller:hover{background:#e1f5ee;border-color:#0f6e56}
+.ubic-card.campo{border-color:var(--azul)}
+.ubic-card.campo:hover{background:var(--azul-bg);border-color:var(--azul)}
+.ubic-icon{font-size:52px;margin-bottom:12px}
+.ubic-label{font-size:16px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
+.ubic-desc{font-size:11px;color:#888;line-height:1.5}
+
 /* SELECTOR TIPO */
-.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.tipo-card{background:white;border:2.5px solid var(--borde);border-radius:20px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
-.tipo-card:hover{border-color:var(--azul);transform:translateY(-3px);box-shadow:0 8px 28px rgba(56,96,178,0.18)}
+.tipo-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tipo-card{background:white;border:2.5px solid var(--borde);border-radius:16px;padding:20px 18px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow)}
+.tipo-card:hover{border-color:var(--azul);transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,96,178,0.18)}
 .tipo-card.selected{border-color:var(--azul);background:var(--azul-bg)}
-.tipo-icon{font-size:52px;margin-bottom:12px}
-.tipo-label{font-size:16px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
-.tipo-desc{font-size:11px;color:#888;line-height:1.5}
+.tipo-icon{font-size:36px;flex-shrink:0}
+.tipo-label{font-size:15px;font-weight:700;color:var(--azul-d)}
+.tipo-desc{font-size:11px;color:#888;margin-top:3px;line-height:1.4}
 
 /* PUEDE/NO PUEDE */
 .decision-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -51,8 +62,23 @@ input.fi,textarea.fi{width:100%;padding:11px 13px;border:1.5px solid var(--borde
 input.fi:focus,textarea.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
 textarea.fi{resize:vertical;min-height:90px}
 .fi.error{border-color:var(--rojo)!important;background:#fff5f5!important}
+.fi.readonly{background:#f8fafc;color:var(--azul-d);font-weight:700;cursor:default;border-color:var(--bord2)}
 
-/* UBICACION */
+/* CAMPO PREFIJADO */
+.field-preset{background:#edf2ff;border:1.5px solid var(--bord2);border-radius:8px;padding:11px 13px;font-size:14px;font-weight:700;color:var(--azul-d);display:flex;align-items:center;gap:8px}
+.preset-ico{font-size:16px}
+
+/* BADGE */
+.badge-tipo{display:inline-flex;align-items:center;gap:6px;background:var(--azul-bg);border:1.5px solid var(--bord2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--azul);margin-bottom:12px;font-family:'Space Mono',monospace}
+.badge-taller{background:#e1f5ee;border-color:#9FE1CB;color:#085041}
+.badge-campo{background:var(--azul-bg);border-color:var(--bord2);color:var(--azul)}
+
+/* STEP HEADER */
+.step-hdr{text-align:center}
+.step-hdr h2{font-size:18px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
+.step-hdr p{font-size:13px;color:#888}
+
+/* UBICACION GPS */
 .ubic-box{background:#f8fafc;border:1.5px solid var(--borde);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .ubic-coords{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .coord-val{background:white;border:1.5px solid var(--bord2);border-radius:8px;padding:10px 12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d);text-align:center;min-height:42px;display:flex;align-items:center;justify-content:center}
@@ -68,27 +94,16 @@ textarea.fi{resize:vertical;min-height:90px}
 .foto-slot{position:relative;aspect-ratio:1;background:#f8fafc;border:2px dashed var(--bord2);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:all .2s}
 .foto-slot:hover{border-color:var(--azul);background:var(--azul-bg)}
 .foto-slot.taken{border-style:solid;border-color:var(--verde)}
-.foto-slot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
-.foto-slot .foto-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s}
-.foto-slot:hover .foto-overlay{opacity:1}
+.foto-slot img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:10px}
 .foto-slot .foto-lbl{font-size:11px;font-weight:700;color:var(--azul);z-index:1}
 .foto-slot .foto-icon{font-size:28px;z-index:1}
 .foto-num{position:absolute;top:6px;left:8px;background:var(--azul);color:white;font-size:10px;font-weight:700;border-radius:20px;padding:2px 7px;z-index:2}
 .foto-num.ok{background:var(--verde)}
-.foto-retake{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;z-index:3}
 
-/* BTN GUARDAR */
 .btn-guardar{background:var(--verde);color:white;border:none;border-radius:14px;padding:16px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;width:100%;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
 .btn-guardar:hover{background:#276040;transform:translateY(-1px)}
 .btn-guardar:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
-/* STEP HEADER */
-.step-hdr{text-align:center}
-.step-hdr h2{font-size:18px;font-weight:700;color:var(--azul-d);margin-bottom:6px}
-.step-hdr p{font-size:13px;color:#888}
-.badge-tipo{display:inline-flex;align-items:center;gap:6px;background:var(--azul-bg);border:1.5px solid var(--bord2);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--azul);margin-bottom:12px;font-family:'Space Mono',monospace}
-
-/* OVERLAYS */
 #saving-overlay{display:none;position:fixed;inset:0;background:rgba(56,96,178,.18);backdrop-filter:blur(3px);z-index:8000;align-items:center;justify-content:center;flex-direction:column;gap:16px}
 #saving-overlay.show{display:flex}
 .spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
@@ -119,30 +134,62 @@ textarea.fi{resize:vertical;min-height:90px}
   <div class="tb-logo">CREAR OT</div>
 </div>
 
-<!-- PASO 1: Tipo de OT -->
+<!-- PASO 1: Taller o Campo -->
 <div class="screen active" id="s1">
   <div class="step-hdr">
-    <h2>¿Qué tipo de orden deseas abrir?</h2>
-    <p>Selecciona el tipo de mantenimiento</p>
+    <h2>¿Dónde se realiza el trabajo?</h2>
+    <p>Selecciona la ubicación del trabajo</p>
   </div>
-  <div class="tipo-grid">
-    <div class="tipo-card" onclick="elegirTipo('CORRECTIVO')">
-      <div class="tipo-icon">🔧</div>
-      <div class="tipo-label">Correctivo</div>
-      <div class="tipo-desc">Reparación de fallas o averías que ya ocurrieron en la unidad</div>
+  <div class="ubic-grid">
+    <div class="ubic-card taller" onclick="elegirUbicacion('TALLER')">
+      <div class="ubic-icon">🏭</div>
+      <div class="ubic-label">Taller</div>
+      <div class="ubic-desc">Trabajo realizado dentro de las instalaciones del taller</div>
     </div>
-    <div class="tipo-card" onclick="elegirTipo('PREVENTIVO')">
-      <div class="tipo-icon">🛡️</div>
-      <div class="tipo-label">Preventivo</div>
-      <div class="tipo-desc">Mantenimiento programado para prevenir fallas futuras</div>
+    <div class="ubic-card campo" onclick="elegirUbicacion('CAMPO')">
+      <div class="ubic-icon">🚛</div>
+      <div class="ubic-label">Campo</div>
+      <div class="ubic-desc">Trabajo realizado fuera del taller, en campo o carretera</div>
     </div>
   </div>
 </div>
 
-<!-- PASO 2: ¿Puede laborar? (solo Correctivo) -->
+<!-- PASO 2: Tipo de OT -->
 <div class="screen" id="s2">
   <div class="step-hdr">
-    <div class="badge-tipo" id="badge-s2">🔧 CORRECTIVO</div>
+    <div class="badge-tipo" id="badge-s2">🏭 TALLER</div>
+    <h2>¿Qué tipo de orden es?</h2>
+    <p>Selecciona el tipo de mantenimiento</p>
+  </div>
+  <div class="tipo-grid">
+    <div class="tipo-card" onclick="elegirTipo('PREVENTIVO')">
+      <div class="tipo-icon">🛡️</div>
+      <div>
+        <div class="tipo-label">Preventivo</div>
+        <div class="tipo-desc">Mantenimiento programado — descripción: MP</div>
+      </div>
+    </div>
+    <div class="tipo-card" onclick="elegirTipo('CORRECTIVO')">
+      <div class="tipo-icon">🔧</div>
+      <div>
+        <div class="tipo-label">Correctivo</div>
+        <div class="tipo-desc">Reparación de falla — debes describir la avería</div>
+      </div>
+    </div>
+    <div class="tipo-card" id="tipo-servicio" onclick="elegirTipo('SERVICIO')">
+      <div class="tipo-icon">⚙️</div>
+      <div>
+        <div class="tipo-label">Servicio</div>
+        <div class="tipo-desc">Servicio de motor — descripción automática</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PASO 3 CAMPO: ¿Puede laborar? -->
+<div class="screen" id="s3-campo">
+  <div class="step-hdr">
+    <div class="badge-tipo badge-campo" id="badge-s3c">🚛 CAMPO · CORRECTIVO</div>
     <h2>¿La unidad puede laborar?</h2>
     <p>Indica si la unidad puede seguir operando</p>
   </div>
@@ -150,24 +197,78 @@ textarea.fi{resize:vertical;min-height:90px}
     <div class="dec-card puede" onclick="elegirPuede(true)">
       <div class="dec-icon">✅</div>
       <div class="dec-label">Sí puede laborar</div>
-      <div class="dec-desc">La unidad opera con limitaciones pero puede continuar</div>
+      <div class="dec-desc">Opera con limitaciones pero puede continuar</div>
     </div>
     <div class="dec-card nopuede" onclick="elegirPuede(false)">
       <div class="dec-icon">🚫</div>
       <div class="dec-label">No puede laborar</div>
-      <div class="dec-desc">La unidad está fuera de servicio, requiere atención inmediata</div>
+      <div class="dec-desc">Fuera de servicio, requiere atención inmediata</div>
     </div>
   </div>
 </div>
 
-<!-- PASO 3: Formulario -->
-<div class="screen" id="s3">
+<!-- PASO 4A: Formulario TALLER -->
+<div class="screen" id="s4-taller">
   <div class="step-hdr">
-    <div class="badge-tipo" id="badge-s3">🔧 CORRECTIVO</div>
-    <h2 id="s3-titulo">Datos de la Orden</h2>
+    <div class="badge-tipo badge-taller" id="badge-taller">🏭 TALLER · PREVENTIVO</div>
+    <h2>Datos de la Orden</h2>
   </div>
 
-  <!-- Unidad y falla -->
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Información de la Unidad</div>
+    <div class="field">
+      <label class="fl">ID de la Unidad *</label>
+      <input class="fi" id="t-unidad" type="text" placeholder="Ej. 1234, TK-05…">
+    </div>
+    <div class="field">
+      <label class="fl">Centro de Costo *</label>
+      <input class="fi" id="t-cc" type="text" placeholder="Ingresa el centro de costo">
+    </div>
+    <div class="field" id="t-averia-field">
+      <label class="fl">Descripción / Avería *</label>
+      <textarea class="fi" id="t-averia" placeholder="Describe detalladamente el problema…"></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label"><span class="dot"></span> Operador</div>
+    <div class="field">
+      <label class="fl">Código de Operador</label>
+      <div class="field-preset" id="t-cod-op-display">
+        <span class="preset-ico">🧑🏻‍🔧</span>
+        <span id="t-cod-op-val">—</span>
+        <span style="font-size:11px;color:#888;margin-left:4px">(código del técnico)</span>
+      </div>
+      <input type="hidden" id="t-cod-op">
+    </div>
+    <div class="field">
+      <label class="fl">Nombre del Operador</label>
+      <input class="fi" id="t-nom-op" type="text" placeholder="Nombre completo del operador">
+    </div>
+    <div class="field">
+      <label class="fl">Horómetro / Kilometraje *</label>
+      <input class="fi" id="t-horometro" type="text" placeholder="Ej. 12500 km / 3200 h">
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="fl" style="font-size:11px;color:#888">
+      🚫 Disponibilidad seteada automáticamente: <strong>No puede laborar</strong><br>
+      📍 Ubicación GPS: no requerida para trabajos en taller<br>
+      📷 Fotos: no requeridas para trabajos en taller
+    </label>
+  </div>
+
+  <button class="btn-guardar" id="btn-guardar-taller" onclick="guardarTaller()">✅ Crear Orden de Trabajo</button>
+</div>
+
+<!-- PASO 4B: Formulario CAMPO -->
+<div class="screen" id="s4-campo">
+  <div class="step-hdr">
+    <div class="badge-tipo badge-campo" id="badge-campo">🚛 CAMPO · CORRECTIVO</div>
+    <h2>Datos de la Orden</h2>
+  </div>
+
   <div class="card">
     <div class="card-label"><span class="dot"></span> Información de la Unidad</div>
     <div class="field">
@@ -180,7 +281,6 @@ textarea.fi{resize:vertical;min-height:90px}
     </div>
   </div>
 
-  <!-- Operador -->
   <div class="card">
     <div class="card-label"><span class="dot"></span> Datos del Operador</div>
     <div class="field">
@@ -197,7 +297,6 @@ textarea.fi{resize:vertical;min-height:90px}
     </div>
   </div>
 
-  <!-- Horómetro -->
   <div class="card">
     <div class="card-label"><span class="dot"></span> Horómetro / Kilometraje</div>
     <div class="field">
@@ -214,7 +313,6 @@ textarea.fi{resize:vertical;min-height:90px}
     </div>
   </div>
 
-  <!-- Ubicación -->
   <div class="card">
     <div class="card-label"><span class="dot"></span> Ubicación GPS</div>
     <div class="ubic-box">
@@ -233,39 +331,29 @@ textarea.fi{resize:vertical;min-height:90px}
     </div>
   </div>
 
-  <!-- 4 Fotos del problema -->
   <div class="card">
     <div class="card-label"><span class="dot"></span> Fotos del Problema (4 requeridas)</div>
     <div class="fotos-grid">
-      <!-- inputs fuera del slot para evitar bloqueo por overflow -->
       <input type="file" id="inp-1" capture="camera" style="display:none" onchange="previsualizarFoto(1,this)">
       <input type="file" id="inp-2" capture="camera" style="display:none" onchange="previsualizarFoto(2,this)">
       <input type="file" id="inp-3" capture="camera" style="display:none" onchange="previsualizarFoto(3,this)">
       <input type="file" id="inp-4" capture="camera" style="display:none" onchange="previsualizarFoto(4,this)">
       <div class="foto-slot" id="slot-1" onclick="document.getElementById('inp-1').click()">
-        <span class="foto-num" id="num-1">1</span>
-        <span class="foto-icon">📷</span>
-        <span class="foto-lbl">Foto 1</span>
+        <span class="foto-num" id="num-1">1</span><span class="foto-icon">📷</span><span class="foto-lbl">Foto 1</span>
       </div>
       <div class="foto-slot" id="slot-2" onclick="document.getElementById('inp-2').click()">
-        <span class="foto-num" id="num-2">2</span>
-        <span class="foto-icon">📷</span>
-        <span class="foto-lbl">Foto 2</span>
+        <span class="foto-num" id="num-2">2</span><span class="foto-icon">📷</span><span class="foto-lbl">Foto 2</span>
       </div>
       <div class="foto-slot" id="slot-3" onclick="document.getElementById('inp-3').click()">
-        <span class="foto-num" id="num-3">3</span>
-        <span class="foto-icon">📷</span>
-        <span class="foto-lbl">Foto 3</span>
+        <span class="foto-num" id="num-3">3</span><span class="foto-icon">📷</span><span class="foto-lbl">Foto 3</span>
       </div>
       <div class="foto-slot" id="slot-4" onclick="document.getElementById('inp-4').click()">
-        <span class="foto-num" id="num-4">4</span>
-        <span class="foto-icon">📷</span>
-        <span class="foto-lbl">Foto 4</span>
+        <span class="foto-num" id="num-4">4</span><span class="foto-icon">📷</span><span class="foto-lbl">Foto 4</span>
       </div>
     </div>
   </div>
 
-  <button class="btn-guardar" id="btn-guardar" onclick="guardar()">✅ Crear Orden de Trabajo</button>
+  <button class="btn-guardar" id="btn-guardar-campo" onclick="guardarCampo()">✅ Crear Orden de Trabajo</button>
 </div>
 
 <div id="notif" class="notif"></div>
@@ -275,7 +363,7 @@ const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
 const BUCKET='fotos_Avisos';
 
-let userActual=null, tipoOT=null, puedeLaboral=null, paso=1;
+let userActual=null, ubicacion='', tipoOT=null, puedeLaboral=null, paso=1;
 let latitud=null, longitud=null;
 let fotosArchivos={horo:null,1:null,2:null,3:null,4:null};
 
@@ -284,66 +372,98 @@ window.onload=()=>{
   if(!userActual){window.location.href='index.html';return;}
   const rol=(userActual.rol||'').toUpperCase();
   if(rol!=='MECANICO'){window.location.href='index.html';return;}
+  document.getElementById('btn-back').style.display='none';
 };
 
-function irAlMenu(){
-  window.location.href='menu_mecanico.html';
-}
+function irAlMenu(){ window.location.href='menu_mecanico.html'; }
 
-function mostrarPaso(n){
+function mostrarPantalla(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(`s${n}`).classList.add('active');
-  paso=n;
-  document.getElementById('btn-back').style.display=n===1?'none':'block';
+  document.getElementById(id).classList.add('active');
+  document.getElementById('btn-back').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function volverPaso(){
-  if(paso===1){irAlMenu();return;}
-  if(paso===2){tipoOT=null;mostrarPaso(1);return;}
-  if(paso===3){
-    if(tipoOT==='CORRECTIVO'){puedeLaboral=null;mostrarPaso(2);}
-    else mostrarPaso(1);
+  const activa=document.querySelector('.screen.active')?.id;
+  if(activa==='s1'){irAlMenu();return;}
+  if(activa==='s2'){ubicacion='';tipoOT=null;mostrarPantalla('s1');document.getElementById('btn-back').style.display='none';return;}
+  if(activa==='s3-campo'){tipoOT=null;mostrarPantalla('s2');return;}
+  if(activa==='s4-taller'){tipoOT=null;mostrarPantalla('s2');return;}
+  if(activa==='s4-campo'){
+    if(tipoOT==='CORRECTIVO'){puedeLaboral=null;mostrarPantalla('s3-campo');}
+    else mostrarPantalla('s2');
     return;
   }
   irAlMenu();
 }
 
+function elegirUbicacion(u){
+  ubicacion=u;
+  // Mostrar/ocultar opción SERVICIO solo en taller
+  document.getElementById('tipo-servicio').style.display= u==='TALLER'?'flex':'none';
+  const badge=document.getElementById('badge-s2');
+  badge.textContent= u==='TALLER'?'🏭 TALLER':'🚛 CAMPO';
+  badge.className='badge-tipo '+(u==='TALLER'?'badge-taller':'badge-campo');
+  mostrarPantalla('s2');
+}
+
 function elegirTipo(tipo){
   tipoOT=tipo;
-  if(tipo==='CORRECTIVO'){
-    document.getElementById('badge-s2').textContent='🔧 CORRECTIVO';
-    mostrarPaso(2);
+  if(ubicacion==='TALLER'){
+    // Setear avería según tipo
+    const averiaField=document.getElementById('t-averia-field');
+    const averiaInput=document.getElementById('t-averia');
+    if(tipo==='PREVENTIVO'){
+      averiaInput.value='MP';
+      averiaInput.readOnly=true;
+      averiaInput.className='fi readonly';
+    } else if(tipo==='SERVICIO'){
+      averiaInput.value='SERVICIO DE MOTOR';
+      averiaInput.readOnly=true;
+      averiaInput.className='fi readonly';
+    } else {
+      // CORRECTIVO — dejar escribir
+      averiaInput.value='';
+      averiaInput.readOnly=false;
+      averiaInput.className='fi';
+      averiaInput.placeholder='Describe detalladamente la avería…';
+    }
+    // Setear código operador = código del técnico
+    document.getElementById('t-cod-op').value=String(userActual.codigo);
+    document.getElementById('t-cod-op-val').textContent=String(userActual.codigo);
+
+    const ico={'PREVENTIVO':'🛡️ PREVENTIVO','CORRECTIVO':'🔧 CORRECTIVO','SERVICIO':'⚙️ SERVICIO'}[tipo];
+    document.getElementById('badge-taller').textContent=`🏭 TALLER · ${ico.replace(/[🛡️🔧⚙️] /,'')}`;
+    mostrarPantalla('s4-taller');
+
   } else {
-    // Preventivo — va directo al formulario
-    puedeLaboral=null;
-    actualizarFormulario();
-    mostrarPaso(3);
+    // CAMPO
+    if(tipo==='CORRECTIVO'){
+      document.getElementById('badge-s3c').textContent='🚛 CAMPO · CORRECTIVO';
+      mostrarPantalla('s3-campo');
+    } else {
+      puedeLaboral=null;
+      const ico={'PREVENTIVO':'🛡️ PREVENTIVO'}[tipo]||tipo;
+      document.getElementById('badge-campo').textContent=`🚛 CAMPO · ${tipo}`;
+      mostrarPantalla('s4-campo');
+    }
   }
 }
 
 function elegirPuede(puede){
   puedeLaboral=puede;
-  actualizarFormulario();
-  mostrarPaso(3);
+  const label=puede?'✅ PUEDE LABORAR':'🚫 NO PUEDE LABORAR';
+  document.getElementById('badge-campo').textContent=`🚛 CAMPO · CORRECTIVO · ${label.replace(/[✅🚫] /,'')}`;
+  mostrarPantalla('s4-campo');
 }
 
-function actualizarFormulario(){
-  const icono=tipoOT==='CORRECTIVO'?'🔧':'🛡️';
-  const label=tipoOT==='CORRECTIVO'
-    ?(puedeLaboral===true?'✅ PUEDE LABORAR':puedeLaboral===false?'🚫 NO PUEDE LABORAR':'🔧 CORRECTIVO')
-    :'🛡️ PREVENTIVO';
-  document.getElementById('badge-s3').textContent=`${icono} ${label.replace(/^[^ ]+ /,'')}`;
-  document.getElementById('s3-titulo').textContent=
-    puedeLaboral===false?'Datos de la Unidad — Fuera de Servicio':'Datos de la Orden de Trabajo';
-}
-
-/* UBICACION */
+/* UBICACION GPS */
 function obtenerUbicacion(){
   const btn=document.getElementById('btn-ubic');
   const status=document.getElementById('ubic-status');
-  if(!navigator.geolocation){status.textContent='GPS no disponible en este dispositivo';status.className='ubic-status err';return;}
-  btn.disabled=true;btn.textContent='📍 Detectando…';status.textContent='Obteniendo coordenadas…';status.className='ubic-status';
+  if(!navigator.geolocation){status.textContent='GPS no disponible';status.className='ubic-status err';return;}
+  btn.disabled=true;btn.textContent='📍 Detectando…';
   navigator.geolocation.getCurrentPosition(
     pos=>{
       latitud=pos.coords.latitude.toFixed(6);
@@ -355,7 +475,7 @@ function obtenerUbicacion(){
       btn.textContent='📍 Actualizar ubicación';
       btn.disabled=false;
     },
-    err=>{
+    ()=>{
       btn.disabled=false;btn.textContent='📍 Detectar mi ubicación';
       status.textContent='No se pudo obtener la ubicación. Verifica los permisos.';
       status.className='ubic-status err';
@@ -365,25 +485,21 @@ function obtenerUbicacion(){
 }
 
 /* FOTOS */
-function previsualizarFoto(id, input){
+function previsualizarFoto(id,input){
   if(!input.files||!input.files[0])return;
-  const file=input.files[0];
-  fotosArchivos[id]=file;
+  fotosArchivos[id]=input.files[0];
   const slot=document.getElementById(`slot-${id}`);
-  const num=document.getElementById(`num-${id}`);
-  // Limpiar icono/label previos
-  slot.querySelectorAll('.foto-icon,.foto-lbl,.foto-retake').forEach(el=>el.remove());
-  // Quitar img anterior
-  slot.querySelectorAll('img').forEach(el=>el.remove());
+  slot.querySelectorAll('.foto-icon,.foto-lbl,img').forEach(el=>el.remove());
   const img=document.createElement('img');
-  img.src=URL.createObjectURL(file);
+  img.src=URL.createObjectURL(input.files[0]);
   slot.insertBefore(img,slot.firstChild);
   slot.classList.add('taken');
-  if(num){num.classList.add('ok');}
+  const num=document.getElementById(`num-${id}`);
+  if(num) num.classList.add('ok');
 }
 
-/* UPLOAD A SUPABASE STORAGE */
-async function subirFoto(file, nombre){
+/* UPLOAD SUPABASE */
+async function subirFoto(file,nombre){
   const ext=file.name.split('.').pop()||'jpg';
   const path=`ots/${Date.now()}_${nombre}.${ext}`;
   const res=await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${path}`,{
@@ -391,13 +507,70 @@ async function subirFoto(file, nombre){
     headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':file.type,'x-upsert':'true'},
     body:file
   });
-  if(!res.ok){const t=await res.text();throw new Error(`Error subiendo ${nombre}: ${t}`);}
+  if(!res.ok) throw new Error(`Error subiendo ${nombre}: ${await res.text()}`);
   return `${SB_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 }
 
-/* GUARDAR */
-async function guardar(){
-  // Validar campos
+/* GUARDAR TALLER */
+async function guardarTaller(){
+  const unidad=document.getElementById('t-unidad').value.trim();
+  const cc=document.getElementById('t-cc').value.trim();
+  const averia=document.getElementById('t-averia').value.trim();
+  const nomOp=document.getElementById('t-nom-op').value.trim();
+  const horometro=document.getElementById('t-horometro').value.trim();
+
+  if(!unidad){marcarError('t-unidad','ID de la Unidad requerido');return;}
+  if(!cc){marcarError('t-cc','Centro de Costo requerido');return;}
+  if(!averia){marcarError('t-averia','Descripción requerida');return;}
+  if(!horometro){marcarError('t-horometro','Horómetro / Km requerido');return;}
+
+  document.getElementById('btn-guardar-taller').disabled=true;
+  document.getElementById('saving-overlay').classList.add('show');
+  document.getElementById('saving-txt').textContent='Guardando orden de trabajo…';
+
+  try{
+    const payload={
+      tipo_ot: tipoOT,
+      tipo_manto: tipoOT,
+      puede_laborar: false, // siempre No puede laborar en taller
+      id_unidad: unidad,
+      averia: averia,
+      codigo_operador: String(userActual.codigo),
+      nombre_operador: nomOp||userActual.nombre,
+      telefono: '',
+      horometro_km: horometro,
+      centro_costo: cc,
+      ubicacion_trabajo: 'TALLER',
+      latitud: null,
+      longitud: null,
+      foto_horometro: null,
+      foto1: null, foto2: null, foto3: null, foto4: null,
+      codigo_mecanico: String(userActual.codigo),
+      nombre_mecanico: userActual.nombre,
+      fecha_reporte: isoHoy(),
+      cct_grabado: false
+    };
+
+    const res=await fetch(`${SB_URL}/rest/v1/ordenes_trabajo`,{
+      method:'POST',
+      headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(await res.text());
+
+    document.getElementById('saving-overlay').classList.remove('show');
+    document.getElementById('suc-sub').textContent=`OT ${tipoOT} registrada en Taller — ${averia}`;
+    document.getElementById('success-overlay').classList.add('show');
+    setTimeout(()=>irAlMenu(),2800);
+  }catch(e){
+    document.getElementById('saving-overlay').classList.remove('show');
+    document.getElementById('btn-guardar-taller').disabled=false;
+    notify(`Error: ${e.message}`,'error');
+  }
+}
+
+/* GUARDAR CAMPO */
+async function guardarCampo(){
   const campos=[
     {id:'f-unidad',label:'ID de la Unidad'},
     {id:'f-averia',label:'Avería o Falla'},
@@ -408,12 +581,7 @@ async function guardar(){
   ];
   for(const c of campos){
     const el=document.getElementById(c.id);
-    if(!el.value.trim()){
-      el.classList.add('error');
-      notify(`Campo requerido: ${c.label}`,'error');
-      el.scrollIntoView({behavior:'smooth',block:'center'});
-      return;
-    }
+    if(!el.value.trim()){marcarError(c.id,`Campo requerido: ${c.label}`);return;}
     el.classList.remove('error');
   }
   if(!fotosArchivos['horo']){notify('Toma la foto del horómetro','error');return;}
@@ -422,12 +590,11 @@ async function guardar(){
   }
   if(!latitud||!longitud){notify('Debes detectar la ubicación GPS','error');return;}
 
-  document.getElementById('btn-guardar').disabled=true;
+  document.getElementById('btn-guardar-campo').disabled=true;
   document.getElementById('saving-overlay').classList.add('show');
   document.getElementById('saving-txt').textContent='Subiendo fotos…';
 
   try{
-    const mecanico=userActual;
     const [urlHoro,url1,url2,url3,url4]=await Promise.all([
       subirFoto(fotosArchivos['horo'],'horometro'),
       subirFoto(fotosArchivos[1],'foto1'),
@@ -435,7 +602,6 @@ async function guardar(){
       subirFoto(fotosArchivos[3],'foto3'),
       subirFoto(fotosArchivos[4],'foto4'),
     ]);
-
     document.getElementById('saving-txt').textContent='Guardando orden de trabajo…';
 
     const payload={
@@ -448,15 +614,13 @@ async function guardar(){
       nombre_operador: document.getElementById('f-nom-op').value.trim(),
       telefono: document.getElementById('f-tel').value.trim(),
       horometro_km: document.getElementById('f-horometro').value.trim(),
+      ubicacion_trabajo: 'CAMPO',
       latitud: parseFloat(latitud),
       longitud: parseFloat(longitud),
       foto_horometro: urlHoro,
-      foto1: url1,
-      foto2: url2,
-      foto3: url3,
-      foto4: url4,
-      codigo_mecanico: String(mecanico.codigo),
-      nombre_mecanico: mecanico.nombre,
+      foto1: url1, foto2: url2, foto3: url3, foto4: url4,
+      codigo_mecanico: String(userActual.codigo),
+      nombre_mecanico: userActual.nombre,
       fecha_reporte: isoHoy(),
       cct_grabado: false
     };
@@ -466,26 +630,28 @@ async function guardar(){
       headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},
       body:JSON.stringify(payload)
     });
-    if(!res.ok)throw new Error(await res.text());
+    if(!res.ok) throw new Error(await res.text());
 
     document.getElementById('saving-overlay').classList.remove('show');
-    document.getElementById('suc-sub').textContent=`OT ${tipoOT} registrada — ${puedeLaboral===false?'Unidad fuera de servicio':'Unidad operativa'}`;
+    document.getElementById('suc-sub').textContent=`OT ${tipoOT} registrada en Campo — ${puedeLaboral===false?'Unidad fuera de servicio':'Unidad operativa'}`;
     document.getElementById('success-overlay').classList.add('show');
     setTimeout(()=>irAlMenu(),2800);
   }catch(e){
     document.getElementById('saving-overlay').classList.remove('show');
-    document.getElementById('btn-guardar').disabled=false;
+    document.getElementById('btn-guardar-campo').disabled=false;
     notify(`Error: ${e.message}`,'error');
   }
 }
 
+function marcarError(id,msg){
+  const el=document.getElementById(id);
+  el.classList.add('error');
+  notify(msg,'error');
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
 let nTO;
 function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
-
-// Ocultar botón atrás en paso 1
-window.addEventListener('DOMContentLoaded',()=>{
-  document.getElementById('btn-back').style.display='none';
-});
 </script>
 </body>
 </html>
