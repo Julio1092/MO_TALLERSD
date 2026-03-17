@@ -85,6 +85,34 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
 .e-ico{font-size:48px;opacity:.35}.e-txt{font-family:'Space Mono',monospace;font-size:14px;font-weight:700;color:var(--txt3)}.e-sub{font-size:13px;color:var(--txt3);opacity:.7}
 .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
 .notif.show{transform:translateX(-50%) translateY(0)} .notif.error{background:var(--rojo)} .notif.success{background:var(--verde)}
+
+/* AGRUPACIÓN POR OT */
+.ot-group-hdr{background:linear-gradient(90deg,#f0f4fb 0%,#e8edf8 100%);border-bottom:2px solid var(--bord2)}
+.ot-group-hdr td{padding:10px 14px;font-weight:700}
+.ot-group-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.ot-group-toggle:hover{color:var(--lila)}
+.ot-arrow{font-size:12px;transition:transform .2s;display:inline-block}
+.ot-arrow.collapsed{transform:rotate(-90deg)}
+.ot-badge-grp{background:var(--lila);color:white;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px}
+.ot-cnt-badge{background:var(--azul-bg);color:var(--azul-d);font-family:'Space Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid var(--bord2)}
+.ot-grabado-badge{background:#e8f5e9;color:#276040;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid #a5d6b7}
+.ot-mec-badge{font-size:11px;color:var(--txt3);font-weight:500}
+.btn-grab-all{padding:5px 12px;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;background:#e8f5e9;color:#276040;border:1.5px solid #a5d6b7;transition:all .2s;white-space:nowrap}
+.btn-grab-all:hover{background:var(--verde);color:white;border-color:var(--verde)}
+.tr-oculta{display:none}
+
+/* ORDENAMIENTO */
+th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+th.sortable:hover{color:var(--lila)}
+th.sortable::after{content:' ⇅';opacity:.35;font-size:9px}
+th.sort-asc::after{content:' ↑';opacity:1;color:var(--lila)}
+th.sort-desc::after{content:' ↓';opacity:1;color:var(--lila)}
+
+/* TOGGLE VISTA */
+.vista-btns{display:flex;gap:6px}
+.btn-vista{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:700;border:1.5px solid var(--border);background:white;color:var(--txt3);cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-vista.active{background:var(--lila);color:white;border-color:var(--lila)}
+
 @media(max-width:900px){.f-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:500px){.f-grid{grid-template-columns:1fr}.kpi-row{grid-template-columns:1fr 1fr}}
 </style>
@@ -135,17 +163,21 @@ tbody tr:hover td{background:rgba(85,60,154,.04)}
         <button class="tab"         id="tab-seg"    onclick="setTab('seg')">🔄 En Seguimiento</button>
       </div>
       <input class="srch" id="srch" type="text" placeholder="Buscar OT, artículo, mecánico…" oninput="aplicarFiltros()">
+      <div class="vista-btns">
+        <button class="btn-vista" id="btn-vista-linea" onclick="setVista('linea')">≡ Líneas</button>
+        <button class="btn-vista active" id="btn-vista-ot" onclick="setVista('ot')">⊞ Por OT</button>
+      </div>
       <span class="tbl-cnt" id="tblCnt"></span>
     </div>
     <div style="overflow-x:auto">
       <table>
         <thead><tr>
-          <th>Fecha</th>
-          <th>OT</th>
-          <th>Mecánico</th>
+          <th class="sortable" onclick="sortBy('fecha_reserva')">Fecha</th>
+          <th class="sortable" onclick="sortBy('ot')">OT</th>
+          <th class="sortable" onclick="sortBy('_nom')">Mecánico</th>
           <th>Cód. HANA</th>
-          <th>Descripción</th>
-          <th>Cant. Sol.</th>
+          <th class="sortable" onclick="sortBy('descripcion')">Descripción</th>
+          <th class="sortable" onclick="sortBy('cantidad')">Cant. Sol.</th>
           <th>Cant. Sup.</th>
           <th>UM</th>
           <th>Estado</th>
@@ -182,8 +214,9 @@ async function sbPatch(id,body){
   if(!r.ok)throw new Error(await r.text());
 }
 
-let colabs={},mecsPorSup={},todos=[],filtrados=[],tabActual='todos',pag=1;
+let colabs={},mecsPorSup={},todos=[],filtrados=[],tabActual='todos',pag=1,vistaActual='ot',sortCol='fecha_reserva',sortDir=1;
 const PPG=30;
+let gruposCollapsed={};
 
 window.onload=async()=>{
   const u=getSession();
@@ -245,6 +278,8 @@ async function buscar(){
     }
     document.getElementById('srch').value='';
     tabActual='todos';syncTabs();
+    gruposCollapsed={};
+    setVista('ot'); // Por defecto vista agrupada por OT
     aplicarFiltros();
     show('kpis');show('cardTbl');
     document.getElementById('evacio').style.display='none';
@@ -288,48 +323,156 @@ function aplicarFiltros(){
   pag=1;renderKPIs(todos);renderTabla();
 }
 
+/* ── VISTA y SORT ── */
+function setVista(v){
+  vistaActual=v;
+  document.getElementById('btn-vista-linea').className='btn-vista'+(v==='linea'?' active':'');
+  document.getElementById('btn-vista-ot').className='btn-vista'+(v==='ot'?' active':'');
+  // En vista por OT ocultar columna Fecha y OT del thead (se muestran en cabecera grupo)
+  const ths=document.querySelectorAll('thead th');
+  if(v==='ot'){ths[0].style.display='none';ths[1].style.display='none';}
+  else{ths[0].style.display='';ths[1].style.display='';}
+  pag=1;renderTabla();
+}
+
+function sortBy(col){
+  if(sortCol===col) sortDir*=-1; else{sortCol=col;sortDir=1;}
+  // Actualizar clases de th
+  document.querySelectorAll('th.sortable').forEach(th=>{th.classList.remove('sort-asc','sort-desc');});
+  const cols=['fecha_reserva','ot','_nom',null,'descripcion','cantidad'];
+  const idx=cols.indexOf(col);
+  if(idx>=0){
+    const th=document.querySelectorAll('th.sortable')[idx];
+    if(th) th.classList.add(sortDir===1?'sort-asc':'sort-desc');
+  }
+  filtrados.sort((a,b)=>{
+    const va=String(a[col]||'').toLowerCase(), vb=String(b[col]||'').toLowerCase();
+    return va<vb?-sortDir:va>vb?sortDir:0;
+  });
+  pag=1;renderTabla();
+}
+
+function toggleGrupo(ot){
+  gruposCollapsed[ot]=!gruposCollapsed[ot];
+  document.querySelectorAll(`.tr-grupo-${CSS.escape(ot)}`).forEach(tr=>{
+    tr.classList.toggle('tr-oculta', gruposCollapsed[ot]);
+  });
+  const arrow=document.getElementById(`arrow-${CSS.escape(ot)}`);
+  if(arrow) arrow.classList.toggle('collapsed', gruposCollapsed[ot]);
+}
+
+function filaHtml(r, ocultarOTFecha=false){
+  const esSeg=r.cct_seguimiento===true;
+  const cantS=r.cantidadsupervisor||r.cantidad;
+  const estadoBadge=esSeg
+    ?`<span class="est-badge seguimiento">🔄 En seguimiento</span>`
+    :`<span class="est-badge pendiente">⏳ Pendiente</span>`;
+  const accCell=`<div class="acc-cell">
+    <textarea class="comentario-input" id="com-${r.id}" rows="2" placeholder="Comentario opcional…">${r.cct_comentario||''}</textarea>
+    <div class="btns-row">
+      <button class="btn-accion btn-grabado" id="btn-grab-${r.id}" onclick="accion(${r.id},'grabado')">📥 Grabado</button>
+      <button class="btn-accion btn-seg${esSeg?' activo':''}" id="btn-seg-${r.id}" onclick="accion(${r.id},'seguimiento')" ${esSeg?'disabled':''}>🔄 En seguimiento</button>
+    </div>
+  </div>`;
+  const fechaTd = ocultarOTFecha ? '' : `<td class="td-fecha">${r.fecha_reserva||'—'}</td>`;
+  const otTd    = ocultarOTFecha ? '' : `<td class="td-ot">${r.ot||'—'}</td>`;
+  return `${fechaTd}${otTd}
+    <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
+    <td class="td-cod">${r.articulohana||'—'}</td>
+    <td style="max-width:200px">${r.descripcion||'—'}</td>
+    <td class="td-qty">${r.cantidad}</td>
+    <td class="td-qtyS">${cantS}</td>
+    <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
+    <td>${estadoBadge}</td>
+    <td>${accCell}</td>`;
+}
+
 function renderTabla(){
-  const total=filtrados.length,ini=(pag-1)*PPG,fin=Math.min(ini+PPG,total);
+  const total=filtrados.length;
   document.getElementById('tblCnt').textContent=`${total} línea${total!==1?'s':''}`;
   const tb=document.getElementById('tbody');tb.innerHTML='';
 
   if(!filtrados.length){
-    tb.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--txt3);font-family:'Space Mono',monospace;font-size:13px">Sin registros para este filtro</td></tr>`;
+    const cols=vistaActual==='ot'?8:10;
+    tb.innerHTML=`<tr><td colspan="${cols}" style="text-align:center;padding:40px;color:var(--txt3);font-family:'Space Mono',monospace;font-size:13px">Sin registros para este filtro</td></tr>`;
     renderPag(0,0,0);return;
   }
 
-  filtrados.slice(ini,fin).forEach(r=>{
-    const esSeg=r.cct_seguimiento===true;
-    const cantS=r.cantidadsupervisor||r.cantidad;
-    const estadoBadge=esSeg
-      ?`<span class="est-badge seguimiento">🔄 En seguimiento</span>`
-      :`<span class="est-badge pendiente">⏳ Pendiente</span>`;
+  if(vistaActual==='ot'){
+    // Agrupar por OT
+    const grupos={};
+    filtrados.forEach(r=>{
+      const k=r.ot||'—';
+      if(!grupos[k]) grupos[k]={ot:k,fecha:r.fecha_reserva,mec:r._nom,lineas:[]};
+      grupos[k].lineas.push(r);
+    });
+    const otsOrden=[...new Set(filtrados.map(r=>r.ot||'—'))];
 
-    const accCell=`<div class="acc-cell">
-      <textarea class="comentario-input" id="com-${r.id}" rows="2" placeholder="Comentario opcional…">${r.cct_comentario||''}</textarea>
-      <div class="btns-row">
-        <button class="btn-accion btn-grabado" id="btn-grab-${r.id}" onclick="accion(${r.id},'grabado')">📥 Grabado</button>
-        <button class="btn-accion btn-seg${esSeg?' activo':''}" id="btn-seg-${r.id}" onclick="accion(${r.id},'seguimiento')" ${esSeg?'disabled':''}>🔄 En seguimiento</button>
-      </div>
-    </div>`;
+    otsOrden.forEach(ot=>{
+      const g=grupos[ot];
+      const collapsed=gruposCollapsed[ot]||false;
+      const pendCnt=g.lineas.filter(x=>!x.cct_seguimiento).length;
+      const segCnt=g.lineas.filter(x=>x.cct_seguimiento).length;
+      const mecNombre=g.lineas[0]?._nom||'—';
+      const mecCod=g.lineas[0]?.codigo_operario||'—';
+      const idsSinGrabar=g.lineas.filter(x=>!x.cct_seguimiento).map(x=>x.id);
 
-    const tr=document.createElement('tr');
-    tr.id=`row-${r.id}`;
-    tr.innerHTML=`
-      <td class="td-fecha">${r.fecha_reserva||'—'}</td>
-      <td class="td-ot">${r.ot||'—'}</td>
-      <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
-      <td class="td-cod">${r.articulohana||'—'}</td>
-      <td style="max-width:200px">${r.descripcion||'—'}</td>
-      <td class="td-qty">${r.cantidad}</td>
-      <td class="td-qtyS">${cantS}</td>
-      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
-      <td>${estadoBadge}</td>
-      <td>${accCell}</td>`;
-    tb.appendChild(tr);
-  });
+      // Cabecera grupo
+      const trHdr=document.createElement('tr');
+      trHdr.className='ot-group-hdr';
+      trHdr.innerHTML=`<td colspan="8">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div class="ot-group-toggle" onclick="toggleGrupo('${ot}')">
+            <span class="ot-arrow${collapsed?' collapsed':''}" id="arrow-${ot}">▼</span>
+            <span class="ot-badge-grp">OT ${ot}</span>
+            <span class="ot-cnt-badge">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
+            ${pendCnt>0?`<span style="font-size:11px;color:#713f12;background:#fef9c3;border:1px solid #fde047;border-radius:20px;padding:2px 8px;font-weight:700">⏳ ${pendCnt} pendiente${pendCnt!==1?'s':''}</span>`:''}
+            ${segCnt>0?`<span style="font-size:11px;color:#b45309;background:#fff7ed;border:1px solid #fcd34d;border-radius:20px;padding:2px 8px;font-weight:700">🔄 ${segCnt} en seguimiento</span>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span class="ot-mec-badge">👷 ${mecNombre} <span style="font-family:'Space Mono',monospace;font-size:10px">(${mecCod})</span></span>
+            <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--txt3)">${g.fecha||''}</span>
+            ${idsSinGrabar.length>0?`<button class="btn-grab-all" onclick="grabarTodos([${idsSinGrabar.join(',')}],'${ot}')">📥 Grabar todos (${idsSinGrabar.length})</button>`:'<span class="ot-grabado-badge">✅ Todos grabados</span>'}
+          </div>
+        </div>
+      </td>`;
+      tb.appendChild(trHdr);
 
-  renderPag(total,ini,fin);
+      // Filas del grupo
+      g.lineas.forEach(r=>{
+        const tr=document.createElement('tr');
+        tr.id=`row-${r.id}`;
+        tr.className=`tr-grupo-${ot}${collapsed?' tr-oculta':''}`;
+        tr.innerHTML=filaHtml(r, true);
+        tb.appendChild(tr);
+      });
+    });
+    renderPag(0,0,0); // sin paginación en vista OT
+
+  } else {
+    // Vista líneas plana con paginación
+    const ini=(pag-1)*PPG, fin=Math.min(ini+PPG,total);
+    filtrados.slice(ini,fin).forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.id=`row-${r.id}`;
+      tr.innerHTML=filaHtml(r, false);
+      tb.appendChild(tr);
+    });
+    renderPag(total,ini,fin);
+  }
+}
+
+async function grabarTodos(ids, ot){
+  if(!confirm(`¿Grabar todas las ${ids.length} líneas pendientes de la OT ${ot}?`)) return;
+  const comentario='';
+  try{
+    await Promise.all(ids.map(id=>sbPatch(id,{cct_grabado:true,cct_comentario:null,cct_seguimiento:false})));
+    todos=todos.filter(x=>!ids.includes(x.id));
+    filtrados=filtrados.filter(x=>!ids.includes(x.id));
+    renderKPIs(todos);
+    renderTabla();
+    notify(`OT ${ot} — ${ids.length} líneas grabadas ✅`,'success');
+  }catch(e){ notify('Error: '+e.message,'error'); }
 }
 
 async function accion(id,tipo){
