@@ -193,7 +193,18 @@ async function cargarColabs() {
         }
       }
     });
-    mecPermitidos=esJefe?null:new Set(mecanicos.filter(c=>String(c.jefe_codigo)===String(userActual.codigo)).map(c=>String(c.codigo)));
+    // mecPermitidos: null = ve todos, Set = solo esos mecánicos
+    if(esJefe){
+      mecPermitidos = null; // jefe ve todo
+    } else {
+      // Verificar si está de guardia activa — si sí, ve todos
+      const guardiaNow = await obtenerGuardiaActiva();
+      if(guardiaNow && String(guardiaNow.supervisor_codigo)===String(userActual.codigo)){
+        mecPermitidos = null; // supervisor de guardia ve todos
+      } else {
+        mecPermitidos = new Set(mecanicos.filter(m=>String(m.jefe_codigo)===String(userActual.codigo)).map(m=>String(m.codigo)));
+      }
+    }
   } catch(e){ console.warn('colabs',e.message); }
 }
 
@@ -223,23 +234,29 @@ async function buscar() {
   const supFil = document.getElementById('f-sup').value;
 
   const p = ['select=*','sup_aprueba=is.null'];
-  // Lógica de guardia: si hay guardia activa, solo el supervisor de guardia ve las reservas de ese período
   const rol = (userActual?.rol||'').toUpperCase();
+  let esGuardia = false;
+
   if (rol === 'SUPERVISOR') {
     const guardia = await obtenerGuardiaActiva();
     if (guardia) {
-      // Hay guardia activa — solo el supervisor de guardia ve estas reservas
-      if (String(guardia.supervisor_codigo) !== String(userActual.codigo)) {
-        // Este supervisor NO es el de guardia — no muestra nada del período de guardia
-        // Filtra reservas FUERA del período de guardia (antes de la hora de inicio)
+      const esElDeGuardia = String(guardia.supervisor_codigo) === String(userActual.codigo);
+      if (esElDeGuardia) {
+        // ES el supervisor de guardia — ve TODOS los mecánicos sin restricción
+        // No aplicar filtro mecPermitidos
+        esGuardia = true;
+      } else {
+        // NO es el de guardia — solo ve reservas creadas ANTES de que empezara la guardia
         p.push(`created_at=lt.${guardia.fecha_inicio}T${guardia.hora_inicio}`);
       }
-      // Si ES el de guardia, ve todo sin restricción adicional
     }
   }
+
   if (desde) p.push(`fecha_reserva=gte.${desde}`);
   if (hasta)  p.push(`fecha_reserva=lte.${hasta}`);
-  if(mecPermitidos&&mecPermitidos.size>0){
+
+  // Filtrar por mecánicos solo si NO está de guardia
+  if (!esGuardia && mecPermitidos && mecPermitidos.size > 0) {
     p.push(`codigo_operario=in.(${[...mecPermitidos].join(',')})`);
   }
   p.push('order=fecha_reserva.desc,ot.asc,id.asc');
