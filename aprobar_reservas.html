@@ -210,7 +210,6 @@ async function cargarColabs() {
 
 async function obtenerGuardiaActiva() {
   const ahora = new Date();
-  // Usar hora LOCAL del dispositivo (GMT-6) — evita desfase con UTC
   const fechaHoy = isoHoy();
   const hh = String(ahora.getHours()).padStart(2,'0');
   const mm = String(ahora.getMinutes()).padStart(2,'0');
@@ -219,14 +218,17 @@ async function obtenerGuardiaActiva() {
   try {
     const data = await sbGet(`guardias?activa=eq.true&fecha_inicio=lte.${fechaHoy}&fecha_fin=gte.${fechaHoy}&select=*`);
     if (!data || !data.length) return null;
-    // Filtrar por hora actual
-    const activa = data.find(g => {
+    // Filtrar TODAS las guardias activas en este momento (puede haber más de una)
+    const activas = data.filter(g => {
       const hI = g.hora_inicio, hF = g.hora_fin;
       if (hF > hI) return horaAhora >= hI && horaAhora <= hF;
-      // cruza medianoche
-      return horaAhora >= hI || horaAhora <= hF;
+      return horaAhora >= hI || horaAhora <= hF; // cruza medianoche
     });
-    return activa || null;
+    if (!activas.length) return null;
+    // Devolver la guardia del supervisor actual si está de turno
+    // Si no está de turno, devolver la primera (para aplicar restricción)
+    const mia = activas.find(g => String(g.supervisor_codigo) === String(userActual?.codigo));
+    return mia || activas[0];
   } catch(e) { return null; }
 }
 
@@ -465,7 +467,14 @@ async function aprobarGrupo(hid) {
             fecha_aprobacion: new Date().toISOString()
           })
         }
-      ).then(r => { if(!r.ok) throw new Error(`Línea ${i+1}: ${r.statusText}`); });
+      ).then(async r => {
+        if(!r.ok){
+          const txt = await r.text().catch(()=>'');
+          let msg = txt;
+          try { const j=JSON.parse(txt); msg=j.message||j.hint||j.details||txt; } catch(e){}
+          throw new Error(`Línea ${i+1} (id:${row.id}): ${msg||r.status}`);
+        }
+      });
     });
 
     await Promise.all(promises);
