@@ -176,10 +176,14 @@
 <div id="notif" class="notif"></div>
 
 <script>
+// Configuración de turnos — Mantenimiento varía según día
+const TURNO_CFG_MANT_NORMAL  = { horas:["06","07","08","09","10","11","12","13","14","15","16"],      inicio:"06", inicioMin:"45", limite:600 }; // Lun-Jue-Sáb-Dom: 10h hasta 16:45
+const TURNO_CFG_MANT_VIERNES = { horas:["06","07","08","09","10","11","12","13","14","15"],            inicio:"06", inicioMin:"45", limite:540 }; // Viernes: 9h hasta 15:45
+
 const TURNO_CFG = {
   Diurno:        { horas:["06","07","08","09","10","11","12","13","14","15","16","17","18"], inicio:"06", inicioMin:"45", limite:720 },
   Nocturno:      { horas:["18","19","20","21","22","23","00","01","02","03","04","05","06"], inicio:"18", inicioMin:"45", limite:720 },
-  Mantenimiento: { horas:["06","07","08","09","10","11","12","13","14","15","16"],           inicio:"06", inicioMin:"45", limite:600 },
+  Mantenimiento: TURNO_CFG_MANT_NORMAL, // se sobreescribe dinámicamente según la fecha
   Extraordinario:{ horas:["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23"], inicio:"00", inicioMin:"00", limite:0 },
 };
 const MINUTOS = ["00","05","10","15","20","25","30","35","40","45","50","55"];
@@ -254,9 +258,34 @@ function salir() {
 }
 
 // ── FECHA CHANGE ──
+function esFechaViernes(fechaISO) {
+  if (!fechaISO) return false;
+  const d = new Date(fechaISO + 'T12:00:00'); // T12 evita desfase de zona horaria
+  return d.getDay() === 5; // 5 = viernes
+}
+
+function actualizarConfigMantenimiento(fechaISO) {
+  const esViernes = esFechaViernes(fechaISO);
+  TURNO_CFG['Mantenimiento'] = esViernes ? TURNO_CFG_MANT_VIERNES : TURNO_CFG_MANT_NORMAL;
+  // Actualizar el label del select para que el técnico vea el horario correcto
+  const opt = document.querySelector('#turno option[value="Mantenimiento"]');
+  if (opt) {
+    opt.textContent = esViernes
+      ? 'Mantenimiento (06:45–15:45 · 9 h) — Viernes'
+      : 'Mantenimiento (06:45–16:45 · 10 h)';
+  }
+}
+
 function onFechaChange() {
   const turno = document.getElementById('turno').value;
   const fecha = document.getElementById('fecha').value;
+  // Actualizar config de Mantenimiento según si es viernes
+  actualizarConfigMantenimiento(fecha);
+  // Si ya hay actividades y el turno es Mantenimiento, limpiar para evitar inconsistencias
+  if (turno === 'Mantenimiento' && actIds.length > 0) {
+    notify('Fecha cambiada — se reiniciaron las actividades de Mantenimiento', 'warning');
+    limpiarActividades();
+  }
   if (turno && fecha) validarDuplicado(turno, fecha);
 }
 
@@ -265,6 +294,8 @@ async function onTurnoChange(){
   const t = document.getElementById('turno').value;
   const fecha = document.getElementById('fecha').value;
   if (!t) return;
+  // Si seleccionan Mantenimiento, asegurar que la config esté actualizada para la fecha
+  if (t === 'Mantenimiento') actualizarConfigMantenimiento(fecha);
   if (actIds.length > 0) { notify('Turno cambiado — se reiniciaron las actividades','warning'); limpiarActividades(); }
   actualizarReloj(0);
   if (fecha) await validarDuplicado(t, fecha);
