@@ -43,6 +43,9 @@
   .divider { display:flex; align-items:center; gap:10px; width:100%; }
   .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--borde)}
   .divider span{font-size:11px;color:#aaa;white-space:nowrap}
+  .input-manual { width:100%; padding:13px 14px; border:1.5px solid var(--borde); border-radius:10px; font-family:'Space Mono',monospace; font-size:18px; outline:none; text-align:center; letter-spacing:3px; }
+  .input-manual:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,0.12)}
+  .input-manual::placeholder{letter-spacing:0;font-family:'DM Sans',sans-serif;font-size:13px;color:#bbb}
   .btn-primary { width:100%; padding:14px; background:var(--azul); color:white; border:none; border-radius:12px; font-size:15px; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; }
   .btn-primary:hover{background:var(--azul-oscuro)} .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
   .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:14px 24px;border-radius:12px;font-size:14px;font-weight:600;z-index:9999;transition:transform 0.3s;max-width:90vw;text-align:center}
@@ -70,6 +73,9 @@
   </div>
   <div class="scan-status leyendo" id="scan-status">📷 Iniciando cámara…</div>
   <button class="btn-retry" id="btn-retry" onclick="reiniciarScanner()">🔄 Reintentar cámara</button>
+  <div class="divider"><span>o ingresa el código manualmente</span></div>
+  <input class="input-manual" type="text" id="codigo-manual" placeholder="Código de empleado" maxlength="30" onkeydown="if(event.key==='Enter') loginManual()">
+  <button class="btn-primary" id="btn-ingresar" onclick="loginManual()">Ingresar →</button>
 </div>
 
 <div id="notif" class="notif"></div>
@@ -104,15 +110,22 @@ async function iniciarScanner() {
 async function detenerScanner() { if(html5QrCode&&scannerActivo){try{await html5QrCode.stop();}catch(e){}try{html5QrCode.clear();}catch(e){}html5QrCode=null;scannerActivo=false;} }
 async function reiniciarScanner() { await detenerScanner(); setTimeout(iniciarScanner,600); }
 
+async function loginManual() {
+  const codigo = document.getElementById('codigo-manual').value.trim();
+  if(!codigo){notify('Ingresa tu código','error');return;}
+  await detenerScanner(); await procesarLogin(codigo);
+}
+
 async function procesarLogin(codigoRaw) {
   const codigo = codigoRaw.trim().slice(0,5);
   const status = document.getElementById('scan-status');
-  status.textContent = '🔍 Verificando…'; status.className = 'scan-status leyendo';
+  const btn    = document.getElementById('btn-ingresar');
+  btn.disabled = true; status.textContent = '🔍 Verificando…'; status.className = 'scan-status leyendo';
   try {
     const { ok, data } = await supaFetch(`Colaboradores?codigo=eq.${encodeURIComponent(codigo)}&select=codigo,nombre,rol,CC`, { method:'GET' });
     if (!ok || !data || data.length===0) {
       notify(`Código "${codigo}" no registrado`, 'error');
-      procesando = false;
+      btn.disabled = false; procesando = false;
       status.textContent = '❌ No encontrado'; status.className = 'scan-status error';
       setTimeout(()=>{ status.textContent='📷 Apunta el código de barras'; status.className='scan-status leyendo'; procesando=false; },2500);
       return;
@@ -124,7 +137,7 @@ async function procesarLogin(codigoRaw) {
     setTimeout(() => redirigirPorRol(user), 800);
   } catch(e) {
     status.textContent = '❌ Error de conexión'; status.className = 'scan-status error';
-    procesando=false;
+    btn.disabled=false; procesando=false;
   }
 }
 
