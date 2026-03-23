@@ -175,6 +175,7 @@ th.sort-desc::after{content:' ↓';opacity:1;color:var(--lila)}
           <th class="sortable" onclick="sortBy('fecha_reserva')">Fecha</th>
           <th class="sortable" onclick="sortBy('ot')">OT</th>
           <th class="sortable" onclick="sortBy('_nom')">Mecánico</th>
+          <th>C.C.</th>
           <th>Cód. HANA</th>
           <th class="sortable" onclick="sortBy('descripcion')">Descripción</th>
           <th class="sortable" onclick="sortBy('cantidad')">Cant. Sol.</th>
@@ -375,8 +376,9 @@ function filaHtml(r, ocultarOTFecha=false){
     </div>
   </div>`;
   const fechaTd = ocultarOTFecha ? '' : `<td class="td-fecha">${r.fecha_reserva||'—'}</td>`;
+  const ccTd = `<td style="font-family:'Space Mono',monospace;font-size:11px;color:#5521B5">${r.centro_costo||'—'}</td>`;
   const otTd    = ocultarOTFecha ? '' : `<td class="td-ot">${r.ot||'—'}</td>`;
-  return `${fechaTd}${otTd}
+  return `${fechaTd}${ccTd}${otTd}
     <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
     <td class="td-cod">${r.articulohana||'—'}</td>
     <td style="max-width:200px">${r.descripcion||'—'}</td>
@@ -522,11 +524,11 @@ function goPag(p){const tp=Math.ceil(filtrados.length/PPG);if(p<1||p>tp)return;p
 
 function exportar(){
   if(!filtrados.length){notify('No hay datos para exportar','warning');return;}
-  const heads=['Fecha','OT','Mecánico','Cód.SAP','Descripción','Cant.Sol.','Cant.Sup.','UM','Estado','Comentario'];
+  const heads=['Fecha','OT','Mecánico','C.C.','Cód.SAP','Descripción','Cant.Sol.','Cant.Sup.','UM','Estado','Comentario'];
   const filas=[heads.join(',')];
   filtrados.forEach(r=>{
     const estado=r.cct_seguimiento?'En Seguimiento':'Pendiente';
-    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.articulohana||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||r.cantidad,r.um||'',estado,`"${(r.cct_comentario||'').replace(/"/g,'""')}"`];
+    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.centro_costo||'',r.articulohana||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||r.cantidad,r.um||'',estado,`"${(r.cct_comentario||'').replace(/"/g,'""')}"`];
     filas.push(vals.join(','));
   });
   const blob=new Blob([filas.join('\n')],{type:'text/csv;charset=utf-8;'});

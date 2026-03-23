@@ -148,6 +148,7 @@ tbody tr:hover td{background:rgba(255,215,0,.04)}
           <th>Fecha</th>
           <th>OT</th>
           <th>Mecánico</th>
+          <th>C.C.</th>
           <th>Cód. HANA</th>
           <th>Descripción</th>
           <th>Cant. Sol.</th>
@@ -312,6 +313,7 @@ function renderTabla(){
       <td class="td-fecha">${r.fecha_reserva||'—'}</td>
       <td class="td-ot">${r.ot||'—'}</td>
       <td class="td-mec">${r._nom}<br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa;font-weight:400">Cód: ${r.codigo_operario||'—'}</span></td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:#5521B5;font-weight:700">${r.centro_costo||'—'}</td>
       <td class="td-cod">${r.articulohana||'—'}</td>
       <td style="max-width:200px">${r.descripcion||'—'}</td>
       <td class="td-qty">${r.cantidad}</td>
@@ -338,14 +340,14 @@ function goPag(p){const tp=Math.ceil(filtrados.length/PPG);if(p<1||p>tp)return;p
 
 function exportar(){
   if(!filtrados.length){notify('No hay datos para exportar','error');return;}
-  const heads=['Fecha','OT','Mecánico','Cód.SAP','Descripción','Cant.Sol.','Cant.Aprobada','UM','Estado'];
+  const heads=['Fecha','OT','Mecánico','C.C.','Cód.SAP','Descripción','Cant.Sol.','Cant.Aprobada','UM','Estado'];
   const filas=[heads.join(',')];
   filtrados.forEach(r=>{
     let estado='Pendiente';
     if(esGrabado(r))estado='Grabado';
     else if(esAprobado(r))estado='Aprobado';
     else if(esRechazado(r))estado='Rechazado';
-    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.articulohana||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||'',r.um||'',estado];
+    const vals=[r.fecha_reserva||'',r.ot||'',`"${r._nom}"`,r.centro_costo||'',r.articulohana||'',`"${(r.descripcion||'').replace(/"/g,'""')}"`,r.cantidad,r.cantidadsupervisor||'',r.um||'',estado];
     filas.push(vals.join(','));
   });
   const blob=new Blob([filas.join('\n')],{type:'text/csv;charset=utf-8;'});

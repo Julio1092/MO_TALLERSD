@@ -298,11 +298,12 @@ async function buscar() {
       if (!grupos[key]) {
         grupos[key] = {
           key,
-          gid: key, // usamos la key directamente como gid — sin btoa()
+          gid: key,
           fecha: r.fecha_reserva,
           ot: r.ot,
           cod: String(r.codigo_operario),
           nombre: colabs[String(r.codigo_operario)] || r.codigo_operario || '—',
+          cc: r.centro_costo || '—',
           lineas: []
         };
       }
@@ -395,6 +396,7 @@ function renderGrupos(listaGrupos) {
           <span class="grupo-ot">OT ${g.ot}</span>
           <span class="grupo-mec">👷 ${g.nombre}</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:12px;padding:2px 8px">Cód: ${g.cod}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:11px;color:#5521B5;background:#EDE9FE;border:1px solid #C4B5FD;border-radius:12px;padding:2px 8px">C.C.: ${g.cc}</span>
           <span class="grupo-meta">${g.fecha}</span>
           <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${g.lineas.length} artículo${g.lineas.length!==1?'s':''}</span>
         </div>

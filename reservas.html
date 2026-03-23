@@ -145,6 +145,13 @@
 </div>
 
 <div class="content">
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-label"><span class="dot"></span> Centro de Costo</div>
+    <div class="field">
+      <label class="fl">C.C. *</label>
+      <input class="fi" id="f-cc" type="text" placeholder="Ingresa el centro de costo" style="max-width:300px">
+    </div>
+  </div>
   <div class="card">
     <div class="card-label"><span class="dot"></span> Órdenes de Trabajo y Materiales</div>
     <div class="ot-section" id="ot-section"></div>
@@ -412,6 +419,17 @@ async function guardar(){
   }
   if(hayError) return;
   if(!filasListas.length){ notify('Agrega al menos un artículo','warning'); return; }
+  // Validar C.C.
+  const ccVal = document.getElementById('f-cc')?.value?.trim();
+  if(!ccVal){ 
+    document.getElementById('f-cc')?.classList.add('campo-error');
+    notify('El Centro de Costo (C.C.) es requerido','error');
+    document.getElementById('f-cc')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  document.getElementById('f-cc')?.classList.remove('campo-error');
+  // Agregar CC a todas las filas
+  filasListas = filasListas.map(f => ({...f, centro_costo: ccVal}));
 
   // Construir resumen para el modal
   let htmlModal = '';
