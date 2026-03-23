@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Planer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:#553c9a;color:white;display:flex;align-items:center;padding:0 20px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(85,60,154,0.35);gap:12px}
+.tb-logo{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+.page{max-width:860px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+.page-title{font-family:"Space Mono",monospace;font-size:17px;font-weight:700;color:#2d1b69}
+.filtros{background:white;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;box-shadow:var(--shadow)}
+.f-grp{display:flex;flex-direction:column;gap:4px}
+.f-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#718096}
+.f-inp,.f-sel{padding:8px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;outline:none;-webkit-appearance:none;background:white}
+.btn-buscar{padding:9px 20px;background:#553c9a;color:white;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;align-self:flex-end}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:white;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi-val{font-family:"Space Mono",monospace;font-size:24px;font-weight:700}
+.kpi-lbl{font-size:10px;color:#718096;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.kpi.a .kpi-val{color:#553c9a}.kpi.p .kpi-val{color:var(--azul)}.kpi.v .kpi-val{color:var(--verde)}.kpi.r .kpi-val{color:var(--rojo)}
+/* Req cards */
+.req-card{background:white;border:1.5px solid var(--borde);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.req-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1.5px solid var(--borde);background:#f8fafc}
+.req-id{font-family:"Space Mono",monospace;font-size:12px;font-weight:700;color:#2d1b69}
+.req-meta{font-size:12px;color:#718096}
+.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-family:"Space Mono",monospace}
+.badge-pend{background:#EDE9FE;color:#5521B5;border:1px solid #C4B5FD}
+.badge-seg{background:#DBEAFE;color:#1E40AF;border:1px solid #93C5FD}
+.badge-conf{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7}
+.badge-canc{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.badge-crit-1{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.badge-crit-2{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
+.badge-crit-3{background:#FEE2E2;color:#9B1C1C;border:1px solid #FCA5A5}
+.badge-crit-4{background:#7F1D1D;color:white;border:1px solid #991B1B}
+.req-body{padding:14px 16px}
+.linea-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--borde);gap:8px;font-size:13px}
+.linea-row:last-child{border-bottom:none}
+.linea-desc{font-weight:600;flex:1}
+.linea-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-top:2px}
+.linea-uso{font-size:11px;color:#718096;margin-top:2px;font-style:italic}
+.linea-qty{font-family:"Space Mono",monospace;font-size:12px;color:#718096;white-space:nowrap}
+.nota-jefe{margin:10px 0 0;padding:8px 12px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;font-size:12px;color:#92400E}
+/* Estado panel */
+.estado-panel{margin-top:14px;padding:14px;background:#F5F3FF;border:1.5px solid #C4B5FD;border-radius:10px}
+.estado-panel-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#5521B5;margin-bottom:10px;font-family:"Space Mono",monospace}
+.estado-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-seg{background:#DBEAFE;color:#1E40AF;border:1.5px solid #93C5FD;border-radius:8px;padding:9px 16px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-seg:hover{background:#BFDBFE}
+.btn-conf{background:#D1FAE5;color:#065F46;border:1.5px solid #6EE7B7;border-radius:8px;padding:9px 16px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-conf:hover{background:#A7F3D0}
+.btn-canc{background:#F3F4F6;color:#374151;border:1.5px solid #D1D5DB;border-radius:8px;padding:9px 16px;font-family:"DM Sans",sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.btn-canc:hover{background:#E5E7EB}
+.btn-est:disabled{opacity:.5;cursor:wait}
+.estado-actual{font-size:13px;font-weight:700;margin-bottom:8px}
+.estado{padding:48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:44px;opacity:.35}.e-txt{font-family:"Space Mono",monospace;font-size:13px;color:#718096}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(85,60,154,.25);border-top-color:#553c9a;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--nrj)}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_planer.html'">← Menú</button>
+  <div class="tb-logo">PLANER — REQUISICIONES</div>
+  <div id="tb-user" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">—</div>
+</div>
+<div class="page">
+  <div><div class="page-title">Bandeja de Requisiciones Aprobadas</div></div>
+  <div class="filtros">
+    <div class="f-grp"><div class="f-lbl">Desde</div><input type="date" class="f-inp" id="f-desde" style="width:140px"></div>
+    <div class="f-grp"><div class="f-lbl">Hasta</div><input type="date" class="f-inp" id="f-hasta" style="width:140px"></div>
+    <div class="f-grp"><div class="f-lbl">Estado Planer</div>
+      <select class="f-sel" id="f-estado-p" style="width:160px">
+        <option value="">Todos</option>
+        <option value="null" selected>Sin gestionar</option>
+        <option value="En Seguimiento">En Seguimiento</option>
+        <option value="Confirmado">Confirmado</option>
+        <option value="Cancelado">Cancelado</option>
+      </select>
+    </div>
+    <div class="f-grp"><div class="f-lbl">Criticidad</div>
+      <select class="f-sel" id="f-crit" style="width:140px">
+        <option value="">Todas</option>
+        <option value="4-Muy Critico">4 - Muy Crítico</option>
+        <option value="3-Critico">3 - Crítico</option>
+        <option value="2-Poco Critico">2 - Poco Crítico</option>
+        <option value="1-No Critico">1 - No Crítico</option>
+      </select>
+    </div>
+    <button class="btn-buscar" onclick="cargar()">🔍 Buscar</button>
+  </div>
+  <div class="kpi-row" id="kpi-row" style="display:none">
+    <div class="kpi a"><div class="kpi-val" id="k-tot">0</div><div class="kpi-lbl">Total</div></div>
+    <div class="kpi p"><div class="kpi-val" id="k-pen">0</div><div class="kpi-lbl">Sin gestionar</div></div>
+    <div class="kpi v"><div class="kpi-val" id="k-con">0</div><div class="kpi-lbl">✓ Confirmadas</div></div>
+    <div class="kpi r"><div class="kpi-val" id="k-can">0</div><div class="kpi-lbl">✕ Canceladas</div></div>
+  </div>
+  <div id="contenido"><div class="estado"><div class="e-ico">🔍</div><div class="e-txt">Presiona Buscar para cargar</div></div></div>
+</div>
+<div id="notif" class="notif"></div>
+<script>
+const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
+let userActual=null,todos=[];
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(id,b){const r=await fetch(`${SB_URL}/rest/v1/requisiciones?id=eq.${id}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+window.onload=async()=>{
+  userActual=getSession();
+  if(!userActual){window.location.href="index.html";return;}
+  if((userActual.rol||"").toUpperCase()!=="PLANER"){window.location.href="index.html";return;}
+  document.getElementById("tb-user").textContent=userActual.nombre;
+  const hoy=isoHoy(),d30=new Date(hoy+"T12:00:00");d30.setDate(d30.getDate()-30);
+  document.getElementById("f-desde").value=d30.toISOString().slice(0,10);
+  document.getElementById("f-hasta").value=hoy;
+  await cargar();
+};
+async function cargar(){
+  const desde=document.getElementById("f-desde").value;
+  const hasta=document.getElementById("f-hasta").value;
+  const estP=document.getElementById("f-estado-p").value;
+  const crit=document.getElementById("f-crit").value;
+  document.getElementById("contenido").innerHTML='<div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>';
+  document.getElementById("kpi-row").style.display="none";
+  try{
+    let p=["select=*,requisicion_lineas(*)","estado=eq.Aprobado","order=created_at.desc"];
+    if(desde)p.push(`fecha_requisicion=gte.${desde}`);
+    if(hasta)p.push(`fecha_requisicion=lte.${hasta}`);
+    if(estP==="null")p.push("estado_planer=is.null");
+    else if(estP)p.push(`estado_planer=eq.${encodeURIComponent(estP)}`);
+    if(crit)p.push(`criticidad=eq.${encodeURIComponent(crit)}`);
+    todos=await sbGet(`requisiciones?${p.join("&")}`)||[];
+    document.getElementById("k-tot").textContent=todos.length;
+    document.getElementById("k-pen").textContent=todos.filter(r=>!r.estado_planer).length;
+    document.getElementById("k-con").textContent=todos.filter(r=>r.estado_planer==="Confirmado").length;
+    document.getElementById("k-can").textContent=todos.filter(r=>r.estado_planer==="Cancelado").length;
+    document.getElementById("kpi-row").style.display="grid";
+    renderizar();
+  }catch(e){document.getElementById("contenido").innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;}
+}
+function badgeCrit(c){const n=parseInt(c)||1;return`<span class="badge badge-crit-${n}">${c}</span>`;}
+function badgeEstP(ep){
+  if(!ep)return`<span class="badge badge-pend">📋 Pendiente gestión</span>`;
+  if(ep==="En Seguimiento")return`<span class="badge badge-seg">● En Seguimiento</span>`;
+  if(ep==="Confirmado")return`<span class="badge badge-conf">✓ Confirmado</span>`;
+  if(ep==="Cancelado")return`<span class="badge badge-canc">✕ Cancelado</span>`;
+  return`<span class="badge">${ep}</span>`;
+}
+function renderizar(){
+  if(!todos.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin requisiciones en este filtro</div></div>';return;}
+  document.getElementById("contenido").innerHTML=todos.map(r=>{
+    const lineas=(r.requisicion_lineas||[]);
+    const linesHtml=lineas.map(l=>`<div class="linea-row">
+      <div><div class="linea-desc">${l.descripcion||"—"}</div><div class="linea-cod">${l.articulosap||""}</div><div class="linea-uso">${l.utilizacion||""}</div></div>
+      <div class="linea-qty">${r.cantidad_jefe||l.cantidad} ${l.um||""}</div>
+    </div>`).join("");
+    const notaJefe=r.notas_jefe?`<div class="nota-jefe">💬 Jefe: ${r.notas_jefe}</div>`:"";
+    const ep=r.estado_planer;
+    const actsDisabled=(s)=>ep===s?"disabled":"";
+    const estPanel=`<div class="estado-panel">
+      <div class="estado-panel-ttl">Gestión Planer <span style="font-weight:400;color:#7C3AED">${ep?`— Estado actual: ${ep}`:""}</span></div>
+      <div class="estado-btns">
+        <button class="btn-est btn-seg" ${actsDisabled("En Seguimiento")} onclick="cambiarEstado(${r.id},'En Seguimiento')">● En Seguimiento</button>
+        <button class="btn-est btn-conf" ${actsDisabled("Confirmado")} onclick="cambiarEstado(${r.id},'Confirmado')">✓ Confirmar</button>
+        <button class="btn-est btn-canc" ${actsDisabled("Cancelado")} onclick="cambiarEstado(${r.id},'Cancelado')">✕ Cancelar</button>
+      </div>
+    </div>`;
+    return`<div class="req-card" id="rcard-${r.id}">
+      <div class="req-hdr">
+        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} · Jefe: ${r.jefe_nombre||"—"}</div></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${badgeCrit(r.criticidad)} ${badgeEstP(ep)}</div>
+      </div>
+      <div class="req-body">${linesHtml}${notaJefe}${estPanel}</div>
+    </div>`;
+  }).join("");
+}
+async function cambiarEstado(id,nuevoEst){
+  document.querySelectorAll(`#rcard-${id} .btn-est`).forEach(b=>b.disabled=true);
+  try{
+    const payload={estado_planer:nuevoEst};
+    if(nuevoEst==="Confirmado")payload.fecha_confirmacion=new Date().toISOString();
+    await sbPatch(id,payload);
+    const r=todos.find(x=>x.id===id);
+    if(r){r.estado_planer=nuevoEst;if(nuevoEst==="Confirmado")r.fecha_confirmacion=new Date().toISOString();}
+    notify(`REQ-${String(id).padStart(5,"0")} → ${nuevoEst} ✅`,"success");
+    renderizar();
+    document.getElementById("k-pen").textContent=todos.filter(r=>!r.estado_planer).length;
+    document.getElementById("k-con").textContent=todos.filter(r=>r.estado_planer==="Confirmado").length;
+    document.getElementById("k-can").textContent=todos.filter(r=>r.estado_planer==="Cancelado").length;
+  }catch(e){notify("Error: "+e.message,"error");document.querySelectorAll(`#rcard-${id} .btn-est`).forEach(b=>b.disabled=false);}
+}
+let nTO;
+function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
+</script>
+</body>
+</html>
