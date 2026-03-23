@@ -37,7 +37,7 @@ textarea.fi{resize:vertical;min-height:72px}
 .ss-drop.open{display:block}
 .ss-option{padding:9px 13px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--borde)}
 .ss-option:last-child{border-bottom:none}
-.ss-option:hover{background:var(--azul-bg)}
+.ss-option:hover,.ss-option.hi{background:var(--azul-bg);color:var(--azul)}
 .ss-option .opt-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-left:6px}
 
 /* Líneas */
@@ -188,7 +188,7 @@ function agregarLinea(){
     <div class="field">
       <label class="fl">Artículo (código SAP o descripción) *</label>
       <div class="ss-wrap">
-        <input class="ss-input" id="ss-inp-${lid}" placeholder="Busca por código o descripción…" oninput="filtrarArts(${lid})" onblur="cerrarDrop(${lid})" autocomplete="off">
+        <input class="ss-input" id="ss-inp-${lid}" placeholder="Busca por código o descripción…" oninput="filtrarArts(${lid})" onfocus="abrirDrop(${lid})" onblur="cerrarDrop(${lid})" onkeydown="artKey(event,${lid})" autocomplete="off">
         <div class="ss-drop" id="ss-drop-${lid}"></div>
         <input type="hidden" id="art-cod-${lid}">
         <input type="hidden" id="art-hana-${lid}">
@@ -218,25 +218,46 @@ function eliminarLinea(lid){
   // Renumerar
   document.querySelectorAll(".linea-num").forEach((el,i)=>el.textContent=`Artículo #${i+1}`);
 }
+function renderDrop(lid,q){
+  const drop=document.getElementById(`ss-drop-${lid}`);if(!drop)return;
+  const qL=(q||"").toLowerCase().trim();
+  const fil=qL?articulos.filter(a=>(a.Descripcion||"").toLowerCase().includes(qL)||String(a.ArticuloSAP||"").includes(qL)||String(a.ArticuloHana||"").includes(qL)):articulos;
+  if(!fil.length){drop.innerHTML='<div class="ss-option" style="color:#aaa;font-style:italic">Sin resultados</div>';return;}
+  drop.innerHTML=fil.slice(0,60).map((a,i)=>{
+    const desc=String(a.Descripcion||""),cod=String(a.ArticuloSAP||"");
+    return `<div class="ss-option" data-idx="${i}" data-cod="${a.ArticuloSAP}" data-hana="${a.ArticuloHana||''}" data-desc="${(a.Descripcion||'').replace(/"/g,'&quot;')}" data-um="${a.UM||''}"
+      onmousedown="selArt(${lid},this)">${desc}<span class="opt-cod">${cod}</span></div>`;
+  }).join("");
+}
+function abrirDrop(lid){renderDrop(lid,document.getElementById(`ss-inp-${lid}`)?.value);document.getElementById(`ss-drop-${lid}`)?.classList.add("open");}
 function filtrarArts(lid){
-  const q=document.getElementById(`ss-inp-${lid}`).value.toLowerCase().trim();
-  const drop=document.getElementById(`ss-drop-${lid}`);
-  if(q.length<2){drop.classList.remove("open");return;}
-  const matches=articulos.filter(a=>(a.Descripcion||"").toLowerCase().includes(q)||(a.ArticuloSAP||"").includes(q)||(a.ArticuloHana||"").includes(q)).slice(0,30);
-  if(!matches.length){drop.innerHTML=`<div class="ss-option" style="color:#aaa">Sin resultados</div>`;drop.classList.add("open");return;}
-  drop.innerHTML=matches.map((a,i)=>`<div class="ss-option" data-idx="${i}" onclick="selArt(${lid},${JSON.stringify(a.ArticuloSAP)},${JSON.stringify(a.ArticuloHana||"")},${JSON.stringify(a.Descripcion)},${JSON.stringify(a.UM||"")})">${a.Descripcion}<span class="opt-cod">${a.ArticuloSAP}</span></div>`).join("");
-  drop.classList.add("open");
+  document.getElementById(`art-cod-${lid}`).value="";
+  document.getElementById(`art-hana-${lid}`).value="";
+  document.getElementById(`art-um-${lid}`).value="";
+  document.getElementById(`um-${lid}`).value="—";
+  document.getElementById(`ss-inp-${lid}`)?.classList.remove("error");
+  renderDrop(lid,document.getElementById(`ss-inp-${lid}`)?.value);
+  document.getElementById(`ss-drop-${lid}`)?.classList.add("open");
 }
-function selArt(lid,cod,hana,desc,um){
-  document.getElementById(`ss-inp-${lid}`).value=desc;
-  document.getElementById(`art-cod-${lid}`).value=cod;
-  document.getElementById(`art-hana-${lid}`).value=hana;
-  document.getElementById(`art-um-${lid}`).value=um;
-  document.getElementById(`um-${lid}`).value=um||"—";
-  document.getElementById(`ss-drop-${lid}`).classList.remove("open");
-  document.getElementById(`ss-inp-${lid}`).classList.remove("error");
+function selArt(lid,el){
+  document.getElementById(`ss-inp-${lid}`).value=el.dataset.desc;
+  document.getElementById(`art-cod-${lid}`).value=el.dataset.cod;
+  document.getElementById(`art-hana-${lid}`).value=el.dataset.hana||"";
+  document.getElementById(`art-um-${lid}`).value=el.dataset.um||"";
+  document.getElementById(`um-${lid}`).value=el.dataset.um||"—";
+  document.getElementById(`ss-drop-${lid}`)?.classList.remove("open");
+  document.getElementById(`ss-inp-${lid}`)?.classList.remove("error");
+  document.getElementById(`qty-${lid}`)?.focus();
 }
-function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),300);}
+function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),200);}
+function artKey(event,lid){
+  const dd=document.getElementById(`ss-drop-${lid}`);if(!dd||!dd.classList.contains("open"))return;
+  const opts=dd.querySelectorAll(".ss-option");let cur=dd.querySelector(".ss-option.hi");let idx=cur?parseInt(cur.dataset.idx):-1;
+  if(event.key==="ArrowDown"){event.preventDefault();cur?.classList.remove("hi");idx=Math.min(idx+1,opts.length-1);opts[idx]?.classList.add("hi");opts[idx]?.scrollIntoView({block:"nearest"});}
+  else if(event.key==="ArrowUp"){event.preventDefault();cur?.classList.remove("hi");idx=Math.max(idx-1,0);opts[idx]?.classList.add("hi");opts[idx]?.scrollIntoView({block:"nearest"});}
+  else if(event.key==="Enter"){event.preventDefault();if(cur)selArt(lid,cur);else if(opts.length===1)selArt(lid,opts[0]);}
+  else if(event.key==="Escape")dd.classList.remove("open");
+}
 let filasListas=[];
 function cerrarModal(){document.getElementById("modal-confirm").classList.remove("show");}
 async function guardar(){
