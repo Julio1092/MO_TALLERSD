@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Mis Requerimientos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 20px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
+.tb-logo{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+.btn-nueva{background:var(--verde);color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700}
+.page{max-width:800px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+.page-title{font-family:"Space Mono",monospace;font-size:17px;font-weight:700;color:var(--azul-d)}
+.page-sub{font-size:13px;color:#718096;margin-top:3px}
+.filtros{background:white;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;box-shadow:var(--shadow)}
+.f-grp{display:flex;flex-direction:column;gap:4px}
+.f-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#718096}
+.f-inp,.f-sel{padding:8px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;outline:none;-webkit-appearance:none;background:white}
+.f-inp:focus,.f-sel:focus{border-color:var(--azul)}
+.btn-buscar{padding:9px 20px;background:var(--azul);color:white;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;align-self:flex-end}
+/* Tabs */
+.tabs{display:flex;gap:4px;background:white;border:1.5px solid var(--borde);border-radius:12px;padding:4px;box-shadow:var(--shadow)}
+.tab{flex:1;padding:8px;text-align:center;font-size:12px;font-weight:700;cursor:pointer;border-radius:9px;transition:all .15s;color:#718096;border:none;background:none;font-family:"DM Sans",sans-serif}
+.tab.active{background:var(--azul);color:white}
+/* Cards requerimiento */
+.req-card{background:white;border:1.5px solid var(--borde);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.req-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1.5px solid var(--borde);background:#f8fafc}
+.req-id{font-family:"Space Mono",monospace;font-size:12px;font-weight:700;color:var(--azul-d)}
+.req-meta{font-size:12px;color:#718096}
+.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-family:"Space Mono",monospace;white-space:nowrap}
+.badge-pend{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
+.badge-apro{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7}
+.badge-rech{background:#FEE2E2;color:#7F1D1D;border:1px solid #FCA5A5}
+.badge-seg{background:#EDE9FE;color:#5521B5;border:1px solid #C4B5FD}
+.badge-conf{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7}
+.badge-canc{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.badge-crit-1{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.badge-crit-2{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
+.badge-crit-3{background:#FEE2E2;color:#9B1C1C;border:1px solid #FCA5A5}
+.badge-crit-4{background:#7F1D1D;color:white;border:1px solid #991B1B}
+.req-body{padding:14px 16px}
+.linea-row{display:flex;align-items:flex-start;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--borde);gap:10px;font-size:13px}
+.linea-row:last-child{border-bottom:none}
+.linea-desc{font-weight:600;color:#1a202c;flex:1}
+.linea-uso{font-size:11px;color:#718096;margin-top:2px}
+.linea-qty{font-family:"Space Mono",monospace;font-size:12px;color:#718096;white-space:nowrap}
+.notas-jefe{margin-top:10px;padding:10px 12px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;font-size:12px;color:#92400E}
+.estado{padding:48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:44px;opacity:.35}.e-txt{font-family:"Space Mono",monospace;font-size:13px;color:#718096}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(56,96,178,.25);border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_supervisor.html'">← Menú</button>
+  <div class="tb-logo">MIS REQUISICIONES</div>
+  <button class="btn-nueva" onclick="window.location.href='crear_requerimiento.html'">＋ Nueva</button>
+</div>
+<div class="page">
+  <div>
+    <div class="page-title">Mis Solicitudes de Requerimiento</div>
+    <div class="page-sub">Historial y estado de tus requerimientos</div>
+  </div>
+  <div class="filtros">
+    <div class="f-grp"><div class="f-lbl">Desde</div><input type="date" class="f-inp" id="f-desde" style="width:140px"></div>
+    <div class="f-grp"><div class="f-lbl">Hasta</div><input type="date" class="f-inp" id="f-hasta" style="width:140px"></div>
+    <button class="btn-buscar" onclick="cargar()">🔍 Buscar</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="todos" onclick="setTab('todos')">Todas</button>
+    <button class="tab" data-tab="Pendiente" onclick="setTab('Pendiente')">⏳ Pendientes</button>
+    <button class="tab" data-tab="Aprobado" onclick="setTab('Aprobado')">✅ Aprobadas</button>
+    <button class="tab" data-tab="Rechazado" onclick="setTab('Rechazado')">❌ Rechazadas</button>
+    <button class="tab" data-tab="planner" onclick="setTab('planner')">📋 En Planner</button>
+  </div>
+  <div id="contenido"><div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div></div>
+</div>
+<div id="notif" class="notif"></div>
+<script>
+const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
+let userActual=null,todos=[],tabActual="todos";
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+window.onload=async()=>{
+  userActual=getSession();
+  if(!userActual){window.location.href="index.html";return;}
+  if((userActual.rol||"").toUpperCase()!=="SUPERVISOR"){window.location.href="index.html";return;}
+  const hoy=isoHoy(),d30=new Date(hoy+"T12:00:00");d30.setDate(d30.getDate()-30);
+  document.getElementById("f-desde").value=d30.toISOString().slice(0,10);
+  document.getElementById("f-hasta").value=hoy;
+  await cargar();
+};
+async function cargar(){
+  const desde=document.getElementById("f-desde").value;
+  const hasta=document.getElementById("f-hasta").value;
+  document.getElementById("contenido").innerHTML='<div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>';
+  try{
+    let p=["select=*,requisicion_lineas(*)",`codigo_solicitante=eq.${encodeURIComponent(String(userActual.codigo))}`,"order=created_at.desc"];
+    if(desde)p.push(`fecha_requisicion=gte.${desde}`);
+    if(hasta)p.push(`fecha_requisicion=lte.${hasta}`);
+    todos=await sbGet(`requerimientos?${p.join("&")}`);
+    renderizar();
+  }catch(e){document.getElementById("contenido").innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;}
+}
+function setTab(t){tabActual=t;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));renderizar();}
+function badgeEstado(r){
+  const est=r.estado||"Pendiente";
+  const ep=r.estado_planner;
+  if(ep==="Confirmado")return`<span class="badge badge-conf">✓ Confirmado</span>`;
+  if(ep==="Cancelado")return`<span class="badge badge-canc">✕ Cancelado</span>`;
+  if(ep==="En Seguimiento")return`<span class="badge badge-seg">● En Seguimiento</span>`;
+  if(est==="Aprobado")return`<span class="badge badge-apro">✅ Aprobado · En Planner</span>`;
+  if(est==="Rechazado")return`<span class="badge badge-rech">❌ Rechazado</span>`;
+  return`<span class="badge badge-pend">⏳ Pendiente</span>`;
+}
+function badgeCrit(c){const n=parseInt(c)||1;return`<span class="badge badge-crit-${n}">${c}</span>`;}
+function renderizar(){
+  let filtrados=todos;
+  if(tabActual==="planner") filtrados=todos.filter(r=>r.estado==="Aprobado");
+  else if(tabActual!=="todos") filtrados=todos.filter(r=>r.estado===tabActual);
+  if(!filtrados.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📋</div><div class="e-txt">Sin requerimientos en este filtro</div></div>';return;}
+  document.getElementById("contenido").innerHTML=filtrados.map(r=>{
+    const lineas=(r.requisicion_lineas||[]);
+    const linesHtml=lineas.map(l=>`<div class="linea-row"><div><div class="linea-desc">${l.descripcion||"—"}</div><div class="linea-uso">${l.utilizacion||""}</div></div><div class="linea-qty">${l.cantidad} ${l.um||""}</div></div>`).join("");
+    const notaJefe=r.notas_jefe?`<div class="notas-jefe">💬 Nota del jefe: ${r.notas_jefe}</div>`:"";
+    const cantJefe=r.cantidad_jefe?`<div style="font-size:12px;color:#065F46;margin-top:6px">✏️ Cantidad ajustada por jefe: ${r.cantidad_jefe}</div>`:"";
+    return`<div class="req-card">
+      <div class="req-hdr">
+        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante}</div></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${badgeCrit(r.criticidad)} ${badgeEstado(r)}</div>
+      </div>
+      <div class="req-body">${linesHtml}${notaJefe}${cantJefe}</div>
+    </div>`;
+  }).join("");
+}
+let nTO;
+function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
+</script>
+</body>
+</html>

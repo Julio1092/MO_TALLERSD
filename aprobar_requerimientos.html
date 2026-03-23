@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Aprobar Requerimientos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
+.topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 20px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
+.tb-logo{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+.page{max-width:860px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
+.page-title{font-family:"Space Mono",monospace;font-size:17px;font-weight:700;color:var(--azul-d)}
+.filtros{background:white;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;box-shadow:var(--shadow)}
+.f-grp{display:flex;flex-direction:column;gap:4px}
+.f-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#718096}
+.f-inp,.f-sel{padding:8px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;outline:none;-webkit-appearance:none;background:white}
+.btn-buscar{padding:9px 20px;background:var(--azul);color:white;border:none;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;align-self:flex-end}
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:white;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.kpi-val{font-family:"Space Mono",monospace;font-size:26px;font-weight:700}
+.kpi-lbl{font-size:10px;color:#718096;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.kpi.a .kpi-val{color:var(--azul)}.kpi.p .kpi-val{color:var(--nrj)}.kpi.v .kpi-val{color:var(--verde)}
+/* req cards */
+.req-card{background:white;border:1.5px solid var(--borde);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
+.req-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1.5px solid var(--borde);background:#f8fafc}
+.req-id{font-family:"Space Mono",monospace;font-size:12px;font-weight:700;color:var(--azul-d)}
+.req-meta{font-size:12px;color:#718096}
+.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-family:"Space Mono",monospace}
+.badge-pend{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
+.badge-crit-1{background:#F3F4F6;color:#374151;border:1px solid #D1D5DB}
+.badge-crit-2{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
+.badge-crit-3{background:#FEE2E2;color:#9B1C1C;border:1px solid #FCA5A5}
+.badge-crit-4{background:#7F1D1D;color:white;border:1px solid #991B1B}
+.req-body{padding:14px 16px}
+.linea-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borde);gap:8px;font-size:13px;align-items:flex-start}
+.linea-row:last-child{border-bottom:none}
+.linea-desc{font-weight:600;color:#1a202c;flex:1}
+.linea-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-top:2px}
+.linea-uso{font-size:11px;color:#718096;margin-top:2px;font-style:italic}
+.linea-qty-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.qty-orig{font-family:"Space Mono",monospace;font-size:11px;color:#aaa;white-space:nowrap}
+/* Decision panel */
+.decision-panel{margin-top:14px;padding:14px;background:#f0f4fb;border:1.5px solid var(--bord2);border-radius:10px;display:flex;flex-direction:column;gap:10px}
+.dec-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:4px}
+label.fl{font-size:11px;font-weight:700;color:#4d4d4d;text-transform:uppercase;letter-spacing:.6px}
+input.fi,textarea.fi{padding:9px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;background:white;outline:none;transition:border-color .2s}
+input.fi:focus,textarea.fi:focus{border-color:var(--azul)}
+textarea.fi{resize:vertical;min-height:60px;width:100%}
+.dec-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-aprobar{background:var(--verde);color:white;border:none;border-radius:9px;padding:10px 20px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.btn-aprobar:hover{background:#276040;transform:translateY(-1px)}
+.btn-rechazar{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5;border-radius:9px;padding:10px 20px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-rechazar:hover{background:#fecaca}
+.btn-aprobar:disabled,.btn-rechazar:disabled{opacity:.5;cursor:wait;transform:none}
+.btn-done{background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;border-radius:9px;padding:10px 20px;font-size:13px;font-weight:700;cursor:default}
+.estado{padding:48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:44px;opacity:.35}.e-txt{font-family:"Space Mono",monospace;font-size:13px;color:#718096}
+.spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(56,96,178,.25);border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--nrj)}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
+  <div class="tb-logo">APROBAR REQUISICIONES</div>
+  <div id="tb-user" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">—</div>
+</div>
+<div class="page">
+  <div><div class="page-title">Bandeja de Requerimientos</div></div>
+  <div class="filtros">
+    <div class="f-grp"><div class="f-lbl">Desde</div><input type="date" class="f-inp" id="f-desde" style="width:140px"></div>
+    <div class="f-grp"><div class="f-lbl">Hasta</div><input type="date" class="f-inp" id="f-hasta" style="width:140px"></div>
+    <div class="f-grp"><div class="f-lbl">Supervisor</div><input type="text" class="f-inp" id="f-sup" placeholder="Nombre o código" style="width:180px"></div>
+    <div class="f-grp"><div class="f-lbl">Estado</div>
+      <select class="f-sel" id="f-estado" style="width:140px">
+        <option value="">Todos</option>
+        <option value="Pendiente" selected>Pendientes</option>
+        <option value="Aprobado">Aprobados</option>
+        <option value="Rechazado">Rechazados</option>
+      </select>
+    </div>
+    <button class="btn-buscar" onclick="cargar()">🔍 Buscar</button>
+  </div>
+  <div class="kpi-row" id="kpi-row" style="display:none">
+    <div class="kpi a"><div class="kpi-val" id="k-tot">0</div><div class="kpi-lbl">Total</div></div>
+    <div class="kpi p"><div class="kpi-val" id="k-pend">0</div><div class="kpi-lbl">⏳ Pendientes</div></div>
+    <div class="kpi v"><div class="kpi-val" id="k-apro">0</div><div class="kpi-lbl">✅ Aprobadas</div></div>
+  </div>
+  <div id="contenido"><div class="estado"><div class="e-ico">🔍</div><div class="e-txt">Presiona Buscar para cargar</div></div></div>
+</div>
+<div id="notif" class="notif"></div>
+<script>
+const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
+let userActual=null,todos=[];
+async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function sbPatch(id,b){const r=await fetch(`${SB_URL}/rest/v1/requerimientos?id=eq.${id}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+window.onload=async()=>{
+  userActual=getSession();
+  if(!userActual){window.location.href="index.html";return;}
+  if((userActual.rol||"").toUpperCase()!=="JEFE"){window.location.href="index.html";return;}
+  document.getElementById("tb-user").textContent=userActual.nombre;
+  const hoy=isoHoy(),d30=new Date(hoy+"T12:00:00");d30.setDate(d30.getDate()-30);
+  document.getElementById("f-desde").value=d30.toISOString().slice(0,10);
+  document.getElementById("f-hasta").value=hoy;
+  await cargar();
+};
+async function cargar(){
+  const desde=document.getElementById("f-desde").value;
+  const hasta=document.getElementById("f-hasta").value;
+  const supTxt=document.getElementById("f-sup").value.trim().toLowerCase();
+  const estado=document.getElementById("f-estado").value;
+  document.getElementById("contenido").innerHTML='<div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>';
+  document.getElementById("kpi-row").style.display="none";
+  try{
+    let p=["select=*,requisicion_lineas(*)","order=created_at.desc"];
+    if(desde)p.push(`fecha_requisicion=gte.${desde}`);
+    if(hasta)p.push(`fecha_requisicion=lte.${hasta}`);
+    if(estado)p.push(`estado=eq.${encodeURIComponent(estado)}`);
+    let data=await sbGet(`requerimientos?${p.join("&")}`);
+    if(supTxt)data=(data||[]).filter(r=>(r.nombre_solicitante||"").toLowerCase().includes(supTxt)||String(r.codigo_solicitante||"").includes(supTxt));
+    todos=data||[];
+    document.getElementById("k-tot").textContent=todos.length;
+    document.getElementById("k-pend").textContent=todos.filter(r=>r.estado==="Pendiente").length;
+    document.getElementById("k-apro").textContent=todos.filter(r=>r.estado==="Aprobado").length;
+    document.getElementById("kpi-row").style.display="grid";
+    renderizar();
+  }catch(e){document.getElementById("contenido").innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;}
+}
+function badgeCrit(c){const n=parseInt(c)||1;return`<span class="badge badge-crit-${n}">${c}</span>`;}
+function renderizar(){
+  if(!todos.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin requerimientos en este filtro</div></div>';return;}
+  document.getElementById("contenido").innerHTML=todos.map(r=>{
+    const lineas=(r.requisicion_lineas||[]);
+    const linesHtml=lineas.map(l=>`<div class="linea-row">
+      <div><div class="linea-desc">${l.descripcion||"—"}</div><div class="linea-cod">${l.articulosap||""} ${l.articulohana?`· HANA: ${l.articulohana}`:""}</div><div class="linea-uso">${l.utilizacion||""}</div></div>
+      <div class="linea-qty-wrap"><span class="qty-orig">Cant: ${l.cantidad} ${l.um||""}</span></div>
+    </div>`).join("");
+    const isPend=r.estado==="Pendiente";
+    const decPanel=isPend?`
+      <div class="decision-panel" id="dec-${r.id}">
+        <div class="dec-row">
+          <div class="field" style="flex:1"><label class="fl">Cantidad ajustada (opcional)</label><input class="fi" id="cant-${r.id}" type="text" placeholder="Dejar vacío para mantener"></div>
+          <div class="field" style="flex:2"><label class="fl">Notas (opcional)</label><input class="fi" id="nota-${r.id}" type="text" placeholder="Comentario para el supervisor…"></div>
+        </div>
+        <div class="dec-btns">
+          <button class="btn-aprobar" id="ba-${r.id}" onclick="decidir(${r.id},'Aprobado')">✅ Aprobar</button>
+          <button class="btn-rechazar" id="br-${r.id}" onclick="decidir(${r.id},'Rechazado')">❌ Rechazar</button>
+        </div>
+      </div>`
+      :r.estado==="Aprobado"?`<div class="decision-panel" style="background:#f0fff4;border-color:#9ae6b4"><span class="btn-done">✅ Aprobada — enviada al Planner</span>${r.notas_jefe?`<div style="font-size:12px;color:#065F46;margin-top:6px">Nota: ${r.notas_jefe}</div>`:""}</div>`
+      :`<div class="decision-panel" style="background:#fff5f5;border-color:#fca5a5"><span style="font-size:13px;font-weight:700;color:#7f1d1d">❌ Rechazada${r.notas_jefe?` — ${r.notas_jefe}`:""}</span></div>`;
+    return`<div class="req-card" id="card-${r.id}">
+      <div class="req-hdr">
+        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} (${r.codigo_solicitante})</div></div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${badgeCrit(r.criticidad)}<span class="badge badge-pend">${r.estado}</span></div>
+      </div>
+      <div class="req-body">${linesHtml}${decPanel}</div>
+    </div>`;
+  }).join("");
+}
+async function decidir(id,decision){
+  const ba=document.getElementById(`ba-${id}`);
+  const br=document.getElementById(`br-${id}`);
+  if(ba)ba.disabled=true;if(br)br.disabled=true;
+  const cant=document.getElementById(`cant-${id}`)?.value?.trim()||null;
+  const nota=document.getElementById(`nota-${id}`)?.value?.trim()||null;
+  try{
+    await sbPatch(id,{
+      estado:decision,
+      jefe_codigo:String(userActual.codigo),
+      jefe_nombre:userActual.nombre,
+      fecha_aprobacion:new Date().toISOString(),
+      cantidad_jefe:cant,
+      notas_jefe:nota
+    });
+    notify(`REQ-${String(id).padStart(5,"0")} ${decision==="Aprobado"?"aprobada ✅":"rechazada ❌"}`,"success");
+    // Actualizar en memoria y re-render
+    const r=todos.find(x=>x.id===id);
+    if(r){r.estado=decision;r.cantidad_jefe=cant;r.notas_jefe=nota;}
+    renderizar();
+    document.getElementById("k-pend").textContent=todos.filter(r=>r.estado==="Pendiente").length;
+    document.getElementById("k-apro").textContent=todos.filter(r=>r.estado==="Aprobado").length;
+  }catch(e){
+    notify("Error: "+e.message,"error");
+    if(ba)ba.disabled=false;if(br)br.disabled=false;
+  }
+}
+let nTO;
+function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
+</script>
+</body>
+</html>
