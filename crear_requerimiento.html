@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MANODEOBRA – Nuevo Requerimiento</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="config.js"><\/script>
+<script src="config.js"></script>
 <style>
 :root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -255,6 +255,6 @@ async function ejecutar(){
 }
 let nTO;
 function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
-<\/script>
+</script>
 </body>
 </html>
