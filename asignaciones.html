@@ -7,214 +7,281 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
-:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
+:root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 .topbar{background:var(--azul-d);color:white;display:flex;align-items:center;padding:0 20px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,18,107,0.22);gap:12px}
 .tb-logo{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
 .btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
 .btn-back:hover{background:rgba(255,255,255,0.22)}
-.page{max-width:900px;margin:0 auto;padding:24px 16px;display:flex;flex-direction:column;gap:20px}
+.page{max-width:760px;margin:0 auto;padding:24px 16px;display:flex;flex-direction:column;gap:20px}
 .page-title{font-family:"Space Mono",monospace;font-size:18px;font-weight:700;color:var(--azul-d)}
 .page-sub{font-size:13px;color:#718096;margin-top:4px}
 .card{background:white;border:1.5px solid var(--borde);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
-.card-hdr{padding:14px 20px;background:#f8fafc;border-bottom:1.5px solid var(--borde);display:flex;align-items:center;justify-content:space-between}
+.card-hdr{padding:14px 20px;background:#f8fafc;border-bottom:1.5px solid var(--borde);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
 .card-ttl{font-family:"Space Mono",monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);display:flex;align-items:center;gap:8px}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .card-body{padding:20px}
-.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-label.fl{font-size:12px;font-weight:600;color:var(--gris)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.field{display:flex;flex-direction:column;gap:5px}
+label.fl{font-size:12px;font-weight:600;color:#4d4d4d}
 select.fi{width:100%;padding:10px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
 select.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
-.btn-accion{padding:10px 22px;border:none;border-radius:10px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
-.btn-asignar{background:var(--azul);color:white}
-.btn-asignar:hover{background:var(--azul-d);transform:translateY(-1px)}
+.fi.error{border-color:var(--rojo)!important;background:#fff5f5!important}
+
+/* Preview de mecánicos */
+.preview-box{background:#f0f4fb;border:1.5px solid var(--bord2);border-radius:10px;padding:14px 16px;min-height:56px;display:none}
+.preview-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--azul);margin-bottom:10px;font-family:"Space Mono",monospace}
+.mec-tags{display:flex;flex-wrap:wrap;gap:6px}
+.mec-tag{background:white;border:1.5px solid var(--bord2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:#2d3748}
+.mec-tag span{font-size:10px;color:#aaa;margin-left:4px;font-family:"Space Mono",monospace}
+.count-badge{background:var(--azul);color:white;border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;font-family:"Space Mono",monospace;margin-left:8px}
+
+.btn-asignar{width:100%;padding:13px;background:var(--verde);color:white;border:none;border-radius:10px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.btn-asignar:hover{background:#276040;transform:translateY(-1px)}
 .btn-asignar:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn-limpiar{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5}
-.btn-limpiar:hover{background:#fecaca}
-table{width:100%;border-collapse:collapse}
-thead th{padding:10px 14px;text-align:left;font-family:"Space Mono",monospace;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#718096;background:#f8fafc;border-bottom:1.5px solid var(--borde)}
-tbody td{padding:11px 14px;font-size:13px;color:#2d3748;border-bottom:1px solid var(--borde);vertical-align:middle}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover{background:rgba(56,96,178,0.03)}
-.badge-asig{display:inline-flex;align-items:center;gap:4px;background:#EDE9FE;border:1px solid #C4B5FD;color:#5521B5;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;font-family:"Space Mono",monospace}
-.info-box{background:#edf2ff;border:1.5px solid var(--bord2);border-radius:10px;padding:14px 16px;font-size:13px;color:#3730a3;line-height:1.6}
+
+/* Tabla asignaciones */
+.asig-item{padding:14px 20px;border-bottom:1.5px solid var(--borde);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.asig-item:last-child{border-bottom:none}
+.asig-info{display:flex;flex-direction:column;gap:4px}
+.asig-titulo{font-size:14px;font-weight:700;color:#2d3748;display:flex;align-items:center;gap:8px}
+.asig-detalle{font-size:12px;color:#718096}
+.asig-acciones{display:flex;gap:8px;align-items:center}
+.btn-eliminar{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;font-family:"DM Sans",sans-serif}
+.btn-eliminar:hover{background:#fecaca}
+
+.badge-mecs{background:#EDE9FE;border:1px solid #C4B5FD;color:#5521B5;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;font-family:"Space Mono",monospace}
+.flecha{font-size:18px;color:var(--azul)}
+
 .estado{padding:40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
 .e-ico{font-size:40px;opacity:.35}.e-txt{font-family:"Space Mono",monospace;font-size:13px;color:#718096}
-.mec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-top:8px}
-.mec-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--borde);border-radius:8px;cursor:pointer;transition:all .15s}
-.mec-item:hover{border-color:var(--azul);background:var(--azul-bg)}
-.mec-item.checked{border-color:var(--azul);background:var(--azul-bg)}
-.mec-item input{accent-color:var(--azul);width:15px;height:15px;cursor:pointer}
-.mec-nombre{font-size:13px;font-weight:600;color:#2d3748}
-.mec-codigo{font-size:10px;color:#aaa;font-family:"Space Mono",monospace}
 .spin{display:inline-block;width:14px;height:14px;border:2.5px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
 .notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--nrj)}
+@media(max-width:540px){.form-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <button class="btn-back" onclick="irAlMenu()">← Menú</button>
+  <button class="btn-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
   <div class="tb-logo">ASIGNACIONES TEMPORALES</div>
   <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)" id="tb-user">—</div>
 </div>
+
 <div class="page">
   <div>
-    <div class="page-title">Asignaciones Temporales de Mecánicos</div>
-    <div class="page-sub">Asigna mecánicos de un supervisor a otro para cobertura temporal sin modificar la estructura permanente</div>
+    <div class="page-title">Asignaciones Temporales</div>
+    <div class="page-sub">Selecciona el supervisor que se ausenta y el que lo cubre — la app asigna sus mecánicos automáticamente</div>
   </div>
-  <div class="info-box">
-    💡 <strong>¿Cómo funciona?</strong> Selecciona el supervisor que cubre, marca los mecánicos que le asignas y presiona <strong>Aplicar</strong>. Esos mecánicos aparecerán en su módulo de aprobación de MO y Reservas. Para quitar la asignación usa <strong>Limpiar</strong>.
-  </div>
+
+  <!-- FORMULARIO -->
   <div class="card">
     <div class="card-hdr">
-      <div class="card-ttl"><span class="dot" style="background:var(--azul)"></span> Asignar Mecánicos a Supervisor</div>
+      <div class="card-ttl"><span class="dot" style="background:var(--azul)"></span> Nueva Asignación</div>
     </div>
     <div class="card-body">
-      <div class="field">
-        <label class="fl">Supervisor que recibirá los mecánicos *</label>
-        <select class="fi" id="f-sup-destino" onchange="onSupDestinoChange()">
-          <option value="">— Seleccionar supervisor —</option>
-        </select>
+      <div class="form-row">
+        <div class="field">
+          <label class="fl">Supervisor que se ausenta (origen) *</label>
+          <select class="fi" id="f-origen" onchange="onSelChange()">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="fl">Supervisor que lo cubre (destino) *</label>
+          <select class="fi" id="f-destino" onchange="onSelChange()">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
       </div>
-      <div class="field" id="mec-field" style="display:none">
-        <label class="fl">Mecánicos disponibles — marca los que quieres asignar</label>
-        <div class="mec-grid" id="mec-grid"></div>
+
+      <!-- Preview automático de mecánicos -->
+      <div class="preview-box" id="preview-box">
+        <div class="preview-ttl">Mecánicos que se asignarán automáticamente <span class="count-badge" id="preview-count">0</span></div>
+        <div class="mec-tags" id="preview-tags"></div>
       </div>
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
-        <button class="btn-accion btn-asignar" id="btn-asignar" onclick="asignar()" style="display:none">
-          <span id="btn-ico">✅</span> <span id="btn-txt">Aplicar Asignación</span>
-        </button>
-      </div>
+
+      <button class="btn-asignar" id="btn-asignar" onclick="asignar()" disabled style="margin-top:16px">
+        <span id="btn-ico">✅</span> <span id="btn-txt">Aplicar Asignación</span>
+      </button>
     </div>
   </div>
+
+  <!-- ASIGNACIONES ACTIVAS -->
   <div class="card">
     <div class="card-hdr">
-      <div class="card-ttl"><span class="dot" style="background:var(--nrj)"></span> Asignaciones Activas Ahora</div>
-      <button onclick="cargarEstado()" style="background:var(--azul-bg);border:1.5px solid var(--bord2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--azul);cursor:pointer">🔄 Actualizar</button>
+      <div class="card-ttl"><span class="dot" style="background:var(--nrj)"></span> Asignaciones Activas</div>
+      <button onclick="cargarAsignaciones()" style="background:var(--azul-bg);border:1.5px solid var(--bord2);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--azul);cursor:pointer">🔄 Actualizar</button>
     </div>
-    <div id="tabla-estado">
+    <div id="lista-asig">
       <div class="estado"><div class="e-ico">⏳</div><div class="e-txt">Cargando…</div></div>
     </div>
   </div>
 </div>
+
 <div id="notif" class="notif"></div>
+
 <script>
 const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
-let userActual=null,supervisores=[],mecanicos=[];
+let userActual=null, supervisores=[], mecanicos=[];
+
 async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbPatch(tabla,filtro,body){const r=await fetch(`${SB_URL}/rest/v1/${tabla}?${filtro}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());}
-function irAlMenu(){window.location.href="menu_jefe.html";}
+
 window.onload=async()=>{
   userActual=getSession();
   if(!userActual){window.location.href="index.html";return;}
-  const rol=(userActual.rol||"").toUpperCase();
-  if(rol!=="JEFE"){window.location.href="index.html";return;}
+  if((userActual.rol||"").toUpperCase()!=="JEFE"){window.location.href="index.html";return;}
   document.getElementById("tb-user").textContent=userActual.nombre;
   await cargarDatos();
-  await cargarEstado();
+  await cargarAsignaciones();
 };
+
 async function cargarDatos(){
   try{
     const data=await sbGet("Colaboradores?select=codigo,nombre,rol,jefe_codigo,supervisor_temporal&order=nombre.asc");
     supervisores=(data||[]).filter(c=>(c.rol||"").toUpperCase()==="SUPERVISOR");
     mecanicos=(data||[]).filter(c=>(c.rol||"").toUpperCase()==="MECANICO");
-    const sel=document.getElementById("f-sup-destino");
-    supervisores.forEach(s=>{const o=document.createElement("option");o.value=s.codigo;o.textContent=`${s.nombre} (${s.codigo})`;sel.appendChild(o);});
+    const selO=document.getElementById("f-origen");
+    const selD=document.getElementById("f-destino");
+    supervisores.forEach(s=>{
+      const o1=document.createElement("option");o1.value=s.codigo;o1.textContent=`${s.nombre} (${s.codigo})`;selO.appendChild(o1);
+      const o2=document.createElement("option");o2.value=s.codigo;o2.textContent=`${s.nombre} (${s.codigo})`;selD.appendChild(o2);
+    });
   }catch(e){notify("Error cargando datos: "+e.message,"error");}
 }
-function onSupDestinoChange(){
-  const destCod=document.getElementById("f-sup-destino").value;
-  if(!destCod){document.getElementById("mec-field").style.display="none";document.getElementById("btn-asignar").style.display="none";return;}
-  const grid=document.getElementById("mec-grid");
-  grid.innerHTML="";
-  const mecsFiltrados=mecanicos.filter(m=>String(m.jefe_codigo)!==String(destCod));
-  if(!mecsFiltrados.length){
-    grid.innerHTML="<div style='font-size:13px;color:#888;padding:8px'>No hay mecánicos disponibles para asignar</div>";
-  } else {
-    mecsFiltrados.forEach(m=>{
-      const yaAsig=String(m.supervisor_temporal||"")===String(destCod);
-      const supTitular=supervisores.find(s=>String(s.codigo)===String(m.jefe_codigo));
-      const div=document.createElement("div");
-      div.className="mec-item"+(yaAsig?" checked":"");
-      div.innerHTML=`<input type="checkbox" id="chk-${m.codigo}" value="${m.codigo}" ${yaAsig?"checked":""}><div><div class="mec-nombre">${m.nombre}</div><div class="mec-codigo">${m.codigo} · ${supTitular?.nombre||m.jefe_codigo||"—"}</div></div>`;
-      div.onclick=(e)=>{if(e.target.tagName!=="INPUT"){const chk=div.querySelector("input");chk.checked=!chk.checked;}div.classList.toggle("checked",div.querySelector("input").checked);};
-      grid.appendChild(div);
-    });
+
+function onSelChange(){
+  const origen=document.getElementById("f-origen").value;
+  const destino=document.getElementById("f-destino").value;
+  const preview=document.getElementById("preview-box");
+  const btn=document.getElementById("btn-asignar");
+
+  if(!origen||!destino||origen===destino){
+    preview.style.display="none";
+    btn.disabled=true;
+    if(origen&&destino&&origen===destino) notify("El supervisor origen y destino no pueden ser el mismo","error");
+    return;
   }
-  document.getElementById("mec-field").style.display="block";
-  document.getElementById("btn-asignar").style.display="flex";
+
+  // Mecánicos del supervisor origen
+  const mecOrigen=mecanicos.filter(m=>String(m.jefe_codigo)===String(origen));
+  const tags=document.getElementById("preview-tags");
+  document.getElementById("preview-count").textContent=mecOrigen.length;
+
+  if(!mecOrigen.length){
+    tags.innerHTML="<span style='font-size:13px;color:#888'>Este supervisor no tiene mecánicos asignados</span>";
+    btn.disabled=true;
+  } else {
+    tags.innerHTML=mecOrigen.map(m=>`<div class="mec-tag">${m.nombre}<span>${m.codigo}</span></div>`).join("");
+    btn.disabled=false;
+  }
+  preview.style.display="block";
 }
+
 async function asignar(){
-  const destCod=document.getElementById("f-sup-destino").value;
-  if(!destCod){notify("Selecciona un supervisor destino","error");return;}
-  const checks=document.querySelectorAll("#mec-grid input[type=checkbox]");
-  if(!checks.length){notify("No hay mecánicos disponibles","warning");return;}
+  const origen=document.getElementById("f-origen").value;
+  const destino=document.getElementById("f-destino").value;
+  if(!origen||!destino||origen===destino) return;
+
+  const mecOrigen=mecanicos.filter(m=>String(m.jefe_codigo)===String(origen));
+  if(!mecOrigen.length){notify("El supervisor origen no tiene mecánicos","warning");return;}
+
   const btn=document.getElementById("btn-asignar");
   btn.disabled=true;
   document.getElementById("btn-ico").innerHTML="<span class='spin'></span>";
   document.getElementById("btn-txt").textContent="Aplicando…";
+
   try{
-    const mecsFiltrados=mecanicos.filter(m=>String(m.jefe_codigo)!==String(destCod));
-    let cambios=0;
-    for(const chk of checks){
-      const mecCod=chk.value;
-      const mec=mecsFiltrados.find(m=>String(m.codigo)===String(mecCod));
-      if(!mec)continue;
-      const nuevoVal=chk.checked?String(destCod):null;
-      const valorActual=mec.supervisor_temporal||null;
-      if(String(nuevoVal||"")!==String(valorActual||"")){
-        await sbPatch("Colaboradores",`codigo=eq.${encodeURIComponent(mecCod)}`,{supervisor_temporal:nuevoVal});
-        mec.supervisor_temporal=nuevoVal;
-        cambios++;
-      }
+    // Actualizar supervisor_temporal en todos los mecánicos del origen
+    for(const m of mecOrigen){
+      await sbPatch("Colaboradores",`codigo=eq.${encodeURIComponent(String(m.codigo))}`,{supervisor_temporal:String(destino)});
+      m.supervisor_temporal=String(destino);
     }
-    notify(`${cambios} cambio${cambios!==1?"s":""} aplicado${cambios!==1?"s":""} correctamente ✅`,"success");
-    await cargarEstado();
-  }catch(e){notify("Error: "+e.message,"error");}
-  finally{btn.disabled=false;document.getElementById("btn-ico").textContent="✅";document.getElementById("btn-txt").textContent="Aplicar Asignación";}
+    const supDest=supervisores.find(s=>String(s.codigo)===String(destino));
+    notify(`${mecOrigen.length} mecánicos asignados a ${supDest?.nombre||destino} ✅`,"success");
+    document.getElementById("f-origen").value="";
+    document.getElementById("f-destino").value="";
+    document.getElementById("preview-box").style.display="none";
+    await cargarAsignaciones();
+  }catch(e){
+    notify("Error: "+e.message,"error");
+  }finally{
+    btn.disabled=false;
+    document.getElementById("btn-ico").textContent="✅";
+    document.getElementById("btn-txt").textContent="Aplicar Asignación";
+  }
 }
-async function limpiarMecanico(mecCod){
+
+async function cargarAsignaciones(){
+  const lista=document.getElementById("lista-asig");
   try{
-    await sbPatch("Colaboradores",`codigo=eq.${encodeURIComponent(mecCod)}`,{supervisor_temporal:null});
-    const mec=mecanicos.find(m=>String(m.codigo)===String(mecCod));
-    if(mec)mec.supervisor_temporal=null;
-    notify("Asignación eliminada ✅","success");
-    await cargarEstado();
-  }catch(e){notify("Error: "+e.message,"error");}
-}
-async function limpiarTodos(){
-  if(!confirm("¿Limpiar TODAS las asignaciones temporales activas?"))return;
-  try{
-    await sbPatch("Colaboradores","supervisor_temporal=not.is.null",{supervisor_temporal:null});
-    mecanicos.forEach(m=>{m.supervisor_temporal=null;});
-    notify("Todas las asignaciones limpiadas ✅","success");
-    await cargarEstado();
-  }catch(e){notify("Error: "+e.message,"error");}
-}
-async function cargarEstado(){
-  const wrap=document.getElementById("tabla-estado");
-  try{
+    // Traer mecánicos con supervisor_temporal asignado
     const data=await sbGet("Colaboradores?select=codigo,nombre,jefe_codigo,supervisor_temporal&rol=eq.MECANICO&supervisor_temporal=not.is.null&order=nombre.asc");
-    (data||[]).forEach(d=>{const m=mecanicos.find(m=>String(m.codigo)===String(d.codigo));if(m)m.supervisor_temporal=d.supervisor_temporal;});
-    if(!data||!data.length){wrap.innerHTML="<div class='estado'><div class='e-ico'>✅</div><div class='e-txt'>No hay asignaciones temporales activas</div></div>";return;}
+    // Actualizar en memoria
+    (data||[]).forEach(d=>{const m=mecanicos.find(x=>String(x.codigo)===String(d.codigo));if(m)m.supervisor_temporal=d.supervisor_temporal;});
+
+    if(!data||!data.length){
+      lista.innerHTML='<div class="estado"><div class="e-ico">✅</div><div class="e-txt">No hay asignaciones activas</div></div>';
+      return;
+    }
+
     const mapSup=Object.fromEntries(supervisores.map(s=>[String(s.codigo),s.nombre]));
-    const rows=data.map(m=>`<tr>
-      <td><span style="font-weight:600">${m.nombre}</span><br><span style="font-family:'Space Mono',monospace;font-size:10px;color:#aaa">${m.codigo}</span></td>
-      <td>${mapSup[String(m.jefe_codigo)]||m.jefe_codigo||"—"}</td>
-      <td><span class="badge-asig">→ ${mapSup[String(m.supervisor_temporal)]||m.supervisor_temporal}</span></td>
-      <td><button class="btn-accion btn-limpiar" style="padding:5px 12px;font-size:11px" onclick="limpiarMecanico('${m.codigo}')">✕ Limpiar</button></td>
-    </tr>`).join("");
-    wrap.innerHTML=`<div style="padding:12px 16px;display:flex;justify-content:flex-end;border-bottom:1px solid var(--borde)"><button class="btn-accion btn-limpiar" onclick="limpiarTodos()" style="font-size:12px;padding:7px 14px">✕ Limpiar Todas</button></div>
-    <div style="overflow-x:auto"><table>
-      <thead><tr><th>Mecánico</th><th>Supervisor Titular</th><th>Asignado Temporalmente A</th><th>Acción</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>`;
-  }catch(e){wrap.innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;}
+
+    // Agrupar por supervisor_temporal (destino) y jefe_codigo (origen)
+    const grupos={};
+    data.forEach(m=>{
+      const key=`${m.jefe_codigo}__${m.supervisor_temporal}`;
+      if(!grupos[key])grupos[key]={origen:m.jefe_codigo,destino:m.supervisor_temporal,mecs:[]};
+      grupos[key].mecs.push(m);
+    });
+
+    lista.innerHTML=Object.values(grupos).map(g=>{
+      const nomOrigen=mapSup[String(g.origen)]||g.origen||"—";
+      const nomDestino=mapSup[String(g.destino)]||g.destino||"—";
+      const tags=g.mecs.map(m=>`<div class="mec-tag">${m.nombre}<span>${m.codigo}</span></div>`).join("");
+      return `<div class="asig-item">
+        <div class="asig-info">
+          <div class="asig-titulo">
+            <span style="font-weight:700">${nomOrigen}</span>
+            <span class="flecha">→</span>
+            <span style="color:var(--azul);font-weight:700">${nomDestino}</span>
+            <span class="badge-mecs">${g.mecs.length} mecánico${g.mecs.length!==1?"s":""}</span>
+          </div>
+          <div class="mec-tags" style="margin-top:8px">${tags}</div>
+        </div>
+        <div class="asig-acciones">
+          <button class="btn-eliminar" onclick="eliminarAsignacion('${g.origen}','${g.destino}',${g.mecs.length})">
+            ✕ Eliminar
+          </button>
+        </div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    lista.innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;
+  }
 }
+
+async function eliminarAsignacion(origen,destino,cantidad){
+  const mapSup=Object.fromEntries(supervisores.map(s=>[String(s.codigo),s.nombre]));
+  const nomOrigen=mapSup[origen]||origen;
+  const nomDestino=mapSup[destino]||destino;
+  if(!confirm(`¿Eliminar la asignación de ${cantidad} mecánico${cantidad!==1?"s":""} de ${nomOrigen} → ${nomDestino}?`)) return;
+  try{
+    // Limpiar supervisor_temporal de todos los mecánicos de ese grupo
+    const mecGrupo=mecanicos.filter(m=>String(m.jefe_codigo)===String(origen)&&String(m.supervisor_temporal||"")===String(destino));
+    for(const m of mecGrupo){
+      await sbPatch("Colaboradores",`codigo=eq.${encodeURIComponent(String(m.codigo))}`,{supervisor_temporal:null});
+      m.supervisor_temporal=null;
+    }
+    notify(`Asignación eliminada correctamente ✅`,"success");
+    await cargarAsignaciones();
+  }catch(e){notify("Error: "+e.message,"error");}
+}
+
 let nTO;
 function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
 </script>
