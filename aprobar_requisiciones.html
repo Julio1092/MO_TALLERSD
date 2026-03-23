@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANODEOBRA – Aprobar Requisiciones</title>
+<title>MANODEOBRA – Aprobar Requerimientoes</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -76,7 +76,7 @@ textarea.fi{resize:vertical;min-height:60px;width:100%}
   <div id="tb-user" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">—</div>
 </div>
 <div class="page">
-  <div><div class="page-title">Bandeja de Requisiciones</div></div>
+  <div><div class="page-title">Bandeja de Requerimientoes</div></div>
   <div class="filtros">
     <div class="f-grp"><div class="f-lbl">Desde</div><input type="date" class="f-inp" id="f-desde" style="width:140px"></div>
     <div class="f-grp"><div class="f-lbl">Hasta</div><input type="date" class="f-inp" id="f-hasta" style="width:140px"></div>
@@ -104,7 +104,7 @@ const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
 let userActual=null,todos=[];
 async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
-async function sbPatch(id,b){const r=await fetch(`${SB_URL}/rest/v1/requisiciones?id=eq.${id}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+async function sbPatch(id,b){const r=await fetch(`${SB_URL}/rest/v1/requerimientoes?id=eq.${id}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
 window.onload=async()=>{
   userActual=getSession();
   if(!userActual){window.location.href="index.html";return;}
@@ -123,11 +123,11 @@ async function cargar(){
   document.getElementById("contenido").innerHTML='<div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>';
   document.getElementById("kpi-row").style.display="none";
   try{
-    let p=["select=*,requisicion_lineas(*)","order=created_at.desc"];
-    if(desde)p.push(`fecha_requisicion=gte.${desde}`);
-    if(hasta)p.push(`fecha_requisicion=lte.${hasta}`);
+    let p=["select=*,requerimiento_lineas(*)","order=created_at.desc"];
+    if(desde)p.push(`fecha_requerimiento=gte.${desde}`);
+    if(hasta)p.push(`fecha_requerimiento=lte.${hasta}`);
     if(estado)p.push(`estado=eq.${encodeURIComponent(estado)}`);
-    let data=await sbGet(`requisiciones?${p.join("&")}`);
+    let data=await sbGet(`requerimientoes?${p.join("&")}`);
     if(supTxt)data=(data||[]).filter(r=>(r.nombre_solicitante||"").toLowerCase().includes(supTxt)||String(r.codigo_solicitante||"").includes(supTxt));
     todos=data||[];
     document.getElementById("k-tot").textContent=todos.length;
@@ -139,9 +139,9 @@ async function cargar(){
 }
 function badgeCrit(c){const n=parseInt(c)||1;return`<span class="badge badge-crit-${n}">${c}</span>`;}
 function renderizar(){
-  if(!todos.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin requisiciones en este filtro</div></div>';return;}
+  if(!todos.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin requerimientoes en este filtro</div></div>';return;}
   document.getElementById("contenido").innerHTML=todos.map(r=>{
-    const lineas=(r.requisicion_lineas||[]);
+    const lineas=(r.requerimiento_lineas||[]);
     const linesHtml=lineas.map(l=>`<div class="linea-row">
       <div><div class="linea-desc">${l.descripcion||"—"}</div><div class="linea-cod">${l.articulosap||""} ${l.articulohana?`· HANA: ${l.articulohana}`:""}</div><div class="linea-uso">${l.utilizacion||""}</div></div>
       <div class="linea-qty-wrap"><span class="qty-orig">Cant: ${l.cantidad} ${l.um||""}</span></div>
@@ -158,11 +158,11 @@ function renderizar(){
           <button class="btn-rechazar" id="br-${r.id}" onclick="decidir(${r.id},'Rechazado')">❌ Rechazar</button>
         </div>
       </div>`
-      :r.estado==="Aprobado"?`<div class="decision-panel" style="background:#f0fff4;border-color:#9ae6b4"><span class="btn-done">✅ Aprobada — enviada al Planer</span>${r.notas_jefe?`<div style="font-size:12px;color:#065F46;margin-top:6px">Nota: ${r.notas_jefe}</div>`:""}</div>`
+      :r.estado==="Aprobado"?`<div class="decision-panel" style="background:#f0fff4;border-color:#9ae6b4"><span class="btn-done">✅ Aprobada — enviada al Planner</span>${r.notas_jefe?`<div style="font-size:12px;color:#065F46;margin-top:6px">Nota: ${r.notas_jefe}</div>`:""}</div>`
       :`<div class="decision-panel" style="background:#fff5f5;border-color:#fca5a5"><span style="font-size:13px;font-weight:700;color:#7f1d1d">❌ Rechazada${r.notas_jefe?` — ${r.notas_jefe}`:""}</span></div>`;
     return`<div class="req-card" id="card-${r.id}">
       <div class="req-hdr">
-        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} (${r.codigo_solicitante})</div></div>
+        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requerimiento} · ${r.nombre_solicitante} (${r.codigo_solicitante})</div></div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${badgeCrit(r.criticidad)}<span class="badge badge-pend">${r.estado}</span></div>
       </div>
       <div class="req-body">${linesHtml}${decPanel}</div>

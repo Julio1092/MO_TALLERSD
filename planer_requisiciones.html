@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANODEOBRA – Planer</title>
+<title>MANODEOBRA – Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -71,16 +71,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 </head>
 <body>
 <div class="topbar">
-  <button class="btn-back" onclick="window.location.href='menu_planer.html'">← Menú</button>
+  <button class="btn-back" onclick="window.location.href='menu_planner.html'">← Menú</button>
   <div class="tb-logo">PLANER — REQUISICIONES</div>
   <div id="tb-user" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">—</div>
 </div>
 <div class="page">
-  <div><div class="page-title">Bandeja de Requisiciones Aprobadas</div></div>
+  <div><div class="page-title">Bandeja de Requerimientoes Aprobadas</div></div>
   <div class="filtros">
     <div class="f-grp"><div class="f-lbl">Desde</div><input type="date" class="f-inp" id="f-desde" style="width:140px"></div>
     <div class="f-grp"><div class="f-lbl">Hasta</div><input type="date" class="f-inp" id="f-hasta" style="width:140px"></div>
-    <div class="f-grp"><div class="f-lbl">Estado Planer</div>
+    <div class="f-grp"><div class="f-lbl">Estado Planner</div>
       <select class="f-sel" id="f-estado-p" style="width:160px">
         <option value="">Todos</option>
         <option value="null" selected>Sin gestionar</option>
@@ -114,7 +114,7 @@ const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
 let userActual=null,todos=[];
 async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
-async function sbPatch(id,b){const r=await fetch(`${SB_URL}/rest/v1/requisiciones?id=eq.${id}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
+async function sbPatch(id,b){const r=await fetch(`${SB_URL}/rest/v1/requerimientoes?id=eq.${id}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
 window.onload=async()=>{
   userActual=getSession();
   if(!userActual){window.location.href="index.html";return;}
@@ -133,17 +133,17 @@ async function cargar(){
   document.getElementById("contenido").innerHTML='<div class="estado"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>';
   document.getElementById("kpi-row").style.display="none";
   try{
-    let p=["select=*,requisicion_lineas(*)","estado=eq.Aprobado","order=created_at.desc"];
-    if(desde)p.push(`fecha_requisicion=gte.${desde}`);
-    if(hasta)p.push(`fecha_requisicion=lte.${hasta}`);
-    if(estP==="null")p.push("estado_planer=is.null");
-    else if(estP)p.push(`estado_planer=eq.${encodeURIComponent(estP)}`);
+    let p=["select=*,requerimiento_lineas(*)","estado=eq.Aprobado","order=created_at.desc"];
+    if(desde)p.push(`fecha_requerimiento=gte.${desde}`);
+    if(hasta)p.push(`fecha_requerimiento=lte.${hasta}`);
+    if(estP==="null")p.push("estado_planner=is.null");
+    else if(estP)p.push(`estado_planner=eq.${encodeURIComponent(estP)}`);
     if(crit)p.push(`criticidad=eq.${encodeURIComponent(crit)}`);
-    todos=await sbGet(`requisiciones?${p.join("&")}`)||[];
+    todos=await sbGet(`requerimientoes?${p.join("&")}`)||[];
     document.getElementById("k-tot").textContent=todos.length;
-    document.getElementById("k-pen").textContent=todos.filter(r=>!r.estado_planer).length;
-    document.getElementById("k-con").textContent=todos.filter(r=>r.estado_planer==="Confirmado").length;
-    document.getElementById("k-can").textContent=todos.filter(r=>r.estado_planer==="Cancelado").length;
+    document.getElementById("k-pen").textContent=todos.filter(r=>!r.estado_planner).length;
+    document.getElementById("k-con").textContent=todos.filter(r=>r.estado_planner==="Confirmado").length;
+    document.getElementById("k-can").textContent=todos.filter(r=>r.estado_planner==="Cancelado").length;
     document.getElementById("kpi-row").style.display="grid";
     renderizar();
   }catch(e){document.getElementById("contenido").innerHTML=`<div class="estado"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;}
@@ -157,18 +157,18 @@ function badgeEstP(ep){
   return`<span class="badge">${ep}</span>`;
 }
 function renderizar(){
-  if(!todos.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin requisiciones en este filtro</div></div>';return;}
+  if(!todos.length){document.getElementById("contenido").innerHTML='<div class="estado"><div class="e-ico">📭</div><div class="e-txt">Sin requerimientoes en este filtro</div></div>';return;}
   document.getElementById("contenido").innerHTML=todos.map(r=>{
-    const lineas=(r.requisicion_lineas||[]);
+    const lineas=(r.requerimiento_lineas||[]);
     const linesHtml=lineas.map(l=>`<div class="linea-row">
       <div><div class="linea-desc">${l.descripcion||"—"}</div><div class="linea-cod">${l.articulosap||""}</div><div class="linea-uso">${l.utilizacion||""}</div></div>
       <div class="linea-qty">${r.cantidad_jefe||l.cantidad} ${l.um||""}</div>
     </div>`).join("");
     const notaJefe=r.notas_jefe?`<div class="nota-jefe">💬 Jefe: ${r.notas_jefe}</div>`:"";
-    const ep=r.estado_planer;
+    const ep=r.estado_planner;
     const actsDisabled=(s)=>ep===s?"disabled":"";
     const estPanel=`<div class="estado-panel">
-      <div class="estado-panel-ttl">Gestión Planer <span style="font-weight:400;color:#7C3AED">${ep?`— Estado actual: ${ep}`:""}</span></div>
+      <div class="estado-panel-ttl">Gestión Planner <span style="font-weight:400;color:#7C3AED">${ep?`— Estado actual: ${ep}`:""}</span></div>
       <div class="estado-btns">
         <button class="btn-est btn-seg" ${actsDisabled("En Seguimiento")} onclick="cambiarEstado(${r.id},'En Seguimiento')">● En Seguimiento</button>
         <button class="btn-est btn-conf" ${actsDisabled("Confirmado")} onclick="cambiarEstado(${r.id},'Confirmado')">✓ Confirmar</button>
@@ -177,7 +177,7 @@ function renderizar(){
     </div>`;
     return`<div class="req-card" id="rcard-${r.id}">
       <div class="req-hdr">
-        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} · Jefe: ${r.jefe_nombre||"—"}</div></div>
+        <div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requerimiento} · ${r.nombre_solicitante} · Jefe: ${r.jefe_nombre||"—"}</div></div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${badgeCrit(r.criticidad)} ${badgeEstP(ep)}</div>
       </div>
       <div class="req-body">${linesHtml}${notaJefe}${estPanel}</div>
@@ -187,16 +187,16 @@ function renderizar(){
 async function cambiarEstado(id,nuevoEst){
   document.querySelectorAll(`#rcard-${id} .btn-est`).forEach(b=>b.disabled=true);
   try{
-    const payload={estado_planer:nuevoEst};
+    const payload={estado_planner:nuevoEst};
     if(nuevoEst==="Confirmado")payload.fecha_confirmacion=new Date().toISOString();
     await sbPatch(id,payload);
     const r=todos.find(x=>x.id===id);
-    if(r){r.estado_planer=nuevoEst;if(nuevoEst==="Confirmado")r.fecha_confirmacion=new Date().toISOString();}
+    if(r){r.estado_planner=nuevoEst;if(nuevoEst==="Confirmado")r.fecha_confirmacion=new Date().toISOString();}
     notify(`REQ-${String(id).padStart(5,"0")} → ${nuevoEst} ✅`,"success");
     renderizar();
-    document.getElementById("k-pen").textContent=todos.filter(r=>!r.estado_planer).length;
-    document.getElementById("k-con").textContent=todos.filter(r=>r.estado_planer==="Confirmado").length;
-    document.getElementById("k-can").textContent=todos.filter(r=>r.estado_planer==="Cancelado").length;
+    document.getElementById("k-pen").textContent=todos.filter(r=>!r.estado_planner).length;
+    document.getElementById("k-con").textContent=todos.filter(r=>r.estado_planner==="Confirmado").length;
+    document.getElementById("k-can").textContent=todos.filter(r=>r.estado_planner==="Cancelado").length;
   }catch(e){notify("Error: "+e.message,"error");document.querySelectorAll(`#rcard-${id} .btn-est`).forEach(b=>b.disabled=false);}
 }
 let nTO;

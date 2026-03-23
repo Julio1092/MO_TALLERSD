@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANODEOBRA – Nueva Requisición</title>
+<title>MANODEOBRA – Nueva Requerimiento</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -81,10 +81,10 @@ textarea.fi{resize:vertical;min-height:72px}
 </style>
 </head>
 <body>
-<div id="saving-overlay"><div class="spinner"></div><div class="saving-txt">Enviando requisición…</div></div>
+<div id="saving-overlay"><div class="spinner"></div><div class="saving-txt">Enviando requerimiento…</div></div>
 <div id="success-overlay">
   <div class="suc-icon">✅</div>
-  <div class="suc-title">¡Requisición Enviada!</div>
+  <div class="suc-title">¡Requerimiento Enviada!</div>
   <div class="suc-sub" id="suc-sub">Tu solicitud fue enviada al jefe para aprobación</div>
   <div style="font-size:12px;color:#999;margin-top:8px">Regresando al menú…</div>
 </div>
@@ -114,7 +114,7 @@ textarea.fi{resize:vertical;min-height:72px}
     <div class="card-body">
       <div class="form-row">
         <div class="field">
-          <label class="fl">Fecha de Requisición</label>
+          <label class="fl">Fecha de Requerimiento</label>
           <input class="fi readonly" id="f-fecha" type="text" readonly>
         </div>
         <div class="field">
@@ -143,7 +143,7 @@ textarea.fi{resize:vertical;min-height:72px}
     </div>
   </div>
 
-  <button class="btn-guardar" onclick="guardar()">💾 Enviar Requisición</button>
+  <button class="btn-guardar" onclick="guardar()">💾 Enviar Requerimiento</button>
 </div>
 <div id="notif" class="notif"></div>
 
@@ -290,8 +290,8 @@ async function ejecutarGuardado(){
   document.getElementById("saving-overlay").classList.add("show");
   try{
     // Insertar cabecera
-    const cab=await sbPost("requisiciones",{
-      fecha_requisicion:isoHoy(),
+    const cab=await sbPost("requerimientoes",{
+      fecha_requerimiento:isoHoy(),
       codigo_solicitante:String(userActual.codigo),
       nombre_solicitante:userActual.nombre,
       criticidad:document.getElementById("f-criticidad").value,
@@ -299,8 +299,8 @@ async function ejecutarGuardado(){
     },"return=representation");
     const reqId=Array.isArray(cab)?cab[0]?.id:cab?.id;
     // Insertar líneas
-    const lineasPayload=filasListas.map(f=>({...f,requisicion_id:reqId}));
-    await sbPost("requisicion_lineas",lineasPayload);
+    const lineasPayload=filasListas.map(f=>({...f,requerimiento_id:reqId}));
+    await sbPost("requerimiento_lineas",lineasPayload);
     document.getElementById("saving-overlay").classList.remove("show");
     document.getElementById("success-overlay").classList.add("show");
     setTimeout(()=>irAlMenu(),2800);
