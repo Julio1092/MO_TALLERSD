@@ -33,7 +33,7 @@ textarea.fi{resize:vertical;min-height:74px}
 .ss-input{width:100%;padding:10px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;color:#222;outline:none;transition:border-color .2s;background:white}
 .ss-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
 .ss-input.error{border-color:var(--rojo)!important;background:#fff5f5!important}
-.ss-drop{position:absolute;top:calc(100% + 3px);left:0;right:0;background:white;border:1.5px solid var(--bord2);border-radius:10px;max-height:220px;overflow-y:auto;z-index:500;display:none;box-shadow:0 8px 28px rgba(0,0,0,.14)}
+.ss-drop{position:absolute;top:calc(100% + 3px);left:0;right:0;background:white;border:1.5px solid var(--azul);border-radius:10px;max-height:220px;overflow-y:auto;z-index:600;display:none;box-shadow:0 8px 24px rgba(56,96,178,.18)}
 .ss-drop.open{display:block}
 .ss-opt{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--borde)}
 .ss-opt:last-child{border-bottom:none}
@@ -171,7 +171,7 @@ function addLinea(){
   d.innerHTML=`<div class="linea-hdr"><span class="linea-num">Artículo #${lids.length}</span>${lids.length>1?`<button class="btn-rm" onclick="rmLinea(${lid})">✕ Quitar</button>`:""}</div>
     <div class="field"><label class="fl">Artículo (código SAP, HANA o descripción) *</label>
       <div class="ss-wrap">
-        <input class="ss-input" id="si${lid}" placeholder="Escribe para buscar…" oninput="filtrar(${lid})" onblur="cDrop(${lid})" autocomplete="off">
+        <input class="ss-input" id="si${lid}" placeholder="Escribe para buscar…" oninput="filtrar(${lid})" onfocus="abrirDrop(${lid})" onblur="cDrop(${lid})" onkeydown="navDrop(event,${lid})" autocomplete="off">
         <div class="ss-drop" id="sd${lid}" onmousedown="event.preventDefault()"></div>
         <input type="hidden" id="sc${lid}"><input type="hidden" id="sh${lid}"><input type="hidden" id="su${lid}">
       </div></div>
@@ -189,25 +189,42 @@ function rmLinea(lid){
   lids=lids.filter(x=>x!==lid);
   lids.forEach((l,i)=>{const e=document.querySelector("#l"+l+" .linea-num");if(e)e.textContent="Artículo #"+(i+1);});
 }
+function renderDrop(lid,q){
+  const d=document.getElementById("sd"+lid);if(!d)return;
+  const ql=(q||"").toLowerCase().trim();
+  const m=ql?arts.filter(a=>(a.Descripcion||"").toLowerCase().includes(ql)||(a.ArticuloSAP||"").includes(ql)||(a.ArticuloHana||"").toLowerCase().includes(ql)):arts;
+  if(!m.length){d.innerHTML='<div class="ss-empty">Sin resultados</div>';return;}
+  d.innerHTML=m.slice(0,60).map((a,i)=>`<div class="ss-opt" data-idx="${i}" data-cod="${a.ArticuloSAP}" data-han="${a.ArticuloHana||''}" data-desc="${a.Descripcion}" data-um="${a.UM||''}" onmousedown="selOpt(${lid},this)"><span class="ss-opt-desc">${a.Descripcion}</span><span class="ss-opt-cod">${a.ArticuloSAP}</span></div>`).join("");
+}
+function abrirDrop(lid){renderDrop(lid,document.getElementById("si"+lid)?.value);document.getElementById("sd"+lid)?.classList.add("open");}
 function filtrar(lid){
-  const q=(document.getElementById("si"+lid)?.value||"").toLowerCase().trim();
-  const d=document.getElementById("sd"+lid);
-  if(q.length<2){d.classList.remove("open");return;}
-  const m=arts.filter(a=>(a.Descripcion||"").toLowerCase().includes(q)||(a.ArticuloSAP||"").includes(q)||(a.ArticuloHana||"").toLowerCase().includes(q)).slice(0,40);
-  if(!m.length){d.innerHTML=`<div class="ss-empty">Sin resultados para "${q}"</div>`;d.classList.add("open");return;}
-  d.innerHTML=m.map(a=>`<div class="ss-opt" onmousedown="sel(${lid},${JSON.stringify(a.ArticuloSAP)},${JSON.stringify(a.ArticuloHana||"")},${JSON.stringify(a.Descripcion)},${JSON.stringify(a.UM||"")})"><div class="ss-opt-desc">${a.Descripcion}</div><div class="ss-opt-cod">${a.ArticuloSAP}${a.ArticuloHana?" · HANA: "+a.ArticuloHana:""}</div></div>`).join("");
-  d.classList.add("open");
+  document.getElementById("sc"+lid).value="";
+  document.getElementById("sh"+lid).value="";
+  document.getElementById("su"+lid).value="";
+  document.getElementById("sm"+lid).value="—";
+  document.getElementById("si"+lid)?.classList.remove("error");
+  renderDrop(lid,document.getElementById("si"+lid)?.value);
+  document.getElementById("sd"+lid)?.classList.add("open");
 }
-function sel(lid,cod,hana,desc,um){
-  document.getElementById("si"+lid).value=desc;
-  document.getElementById("sc"+lid).value=cod;
-  document.getElementById("sh"+lid).value=hana;
-  document.getElementById("su"+lid).value=um;
-  document.getElementById("sm"+lid).value=um||"—";
-  document.getElementById("sd"+lid).classList.remove("open");
-  document.getElementById("si"+lid).classList.remove("error");
+function selOpt(lid,el){
+  document.getElementById("si"+lid).value=el.dataset.desc;
+  document.getElementById("sc"+lid).value=el.dataset.cod;
+  document.getElementById("sh"+lid).value=el.dataset.han||"";
+  document.getElementById("su"+lid).value=el.dataset.um||"";
+  document.getElementById("sm"+lid).value=el.dataset.um||"—";
+  document.getElementById("sd"+lid)?.classList.remove("open");
+  document.getElementById("si"+lid)?.classList.remove("error");
+  document.getElementById("sq"+lid)?.focus();
 }
-function cDrop(lid){setTimeout(()=>document.getElementById("sd"+lid)?.classList.remove("open"),250);}
+function navDrop(event,lid){
+  const d=document.getElementById("sd"+lid);if(!d||!d.classList.contains("open"))return;
+  const opts=d.querySelectorAll(".ss-opt");let cur=d.querySelector(".ss-opt.hi");let idx=cur?parseInt(cur.dataset.idx):-1;
+  if(event.key==="ArrowDown"){event.preventDefault();cur?.classList.remove("hi");idx=Math.min(idx+1,opts.length-1);opts[idx]?.classList.add("hi");opts[idx]?.scrollIntoView({block:"nearest"});}
+  else if(event.key==="ArrowUp"){event.preventDefault();cur?.classList.remove("hi");idx=Math.max(idx-1,0);opts[idx]?.classList.add("hi");opts[idx]?.scrollIntoView({block:"nearest"});}
+  else if(event.key==="Enter"){event.preventDefault();if(cur)selOpt(lid,cur);else if(opts.length===1)selOpt(lid,opts[0]);}
+  else if(event.key==="Escape")d.classList.remove("open");
+}
+function cDrop(lid){setTimeout(()=>document.getElementById("sd"+lid)?.classList.remove("open"),300);}
 function cerrarModal(){document.getElementById("modal").classList.remove("show");}
 async function guardar(){
   filas=[];let err=null;
