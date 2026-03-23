@@ -224,7 +224,7 @@ function filtrarArts(lid){
   if(q.length<2){drop.classList.remove("open");return;}
   const matches=articulos.filter(a=>(a.Descripcion||"").toLowerCase().includes(q)||(a.ArticuloSAP||"").includes(q)||(a.ArticuloHana||"").includes(q)).slice(0,30);
   if(!matches.length){drop.innerHTML=`<div class="ss-option" style="color:#aaa">Sin resultados</div>`;drop.classList.add("open");return;}
-  drop.innerHTML=matches.map((a,i)=>`<div class="ss-option" data-idx="${i}" onmousedown="selArt(${lid},${JSON.stringify(a.ArticuloSAP)},${JSON.stringify(a.ArticuloHana||"")},${JSON.stringify(a.Descripcion)},${JSON.stringify(a.UM||"")})">${a.Descripcion}<span class="opt-cod">${a.ArticuloSAP}</span></div>`).join("");
+  drop.innerHTML=matches.map((a,i)=>`<div class="ss-option" data-idx="${i}" onclick="selArt(${lid},${JSON.stringify(a.ArticuloSAP)},${JSON.stringify(a.ArticuloHana||"")},${JSON.stringify(a.Descripcion)},${JSON.stringify(a.UM||"")})">${a.Descripcion}<span class="opt-cod">${a.ArticuloSAP}</span></div>`).join("");
   drop.classList.add("open");
 }
 function selArt(lid,cod,hana,desc,um){
@@ -236,7 +236,7 @@ function selArt(lid,cod,hana,desc,um){
   document.getElementById(`ss-drop-${lid}`).classList.remove("open");
   document.getElementById(`ss-inp-${lid}`).classList.remove("error");
 }
-function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),200);}
+function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),300);}
 let filasListas=[];
 function cerrarModal(){document.getElementById("modal-confirm").classList.remove("show");}
 async function guardar(){
