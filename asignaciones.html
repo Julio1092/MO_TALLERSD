@@ -107,12 +107,12 @@ const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 let userActual=null,supervisores=[],mecanicos=[];
 async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbPatch(tabla,filtro,body){const r=await fetch(`${SB_URL}/rest/v1/${tabla}?${filtro}`,{method:"PATCH",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(body)});if(!r.ok)throw new Error(await r.text());}
-function irAlMenu(){const rol=(userActual?.rol||"").toUpperCase();if(rol==="JEFE")window.location.href="menu_jefe.html";else window.location.href="menu_supervisor.html";}
+function irAlMenu(){window.location.href="menu_jefe.html";}
 window.onload=async()=>{
   userActual=getSession();
   if(!userActual){window.location.href="index.html";return;}
   const rol=(userActual.rol||"").toUpperCase();
-  if(rol!=="JEFE"&&rol!=="SUPERVISOR"){window.location.href="index.html";return;}
+  if(rol!=="JEFE"){window.location.href="index.html";return;}
   document.getElementById("tb-user").textContent=userActual.nombre;
   await cargarDatos();
   await cargarEstado();
