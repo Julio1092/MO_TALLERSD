@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MANODEOBRA – Nueva Requerimiento</title>
+<title>MANODEOBRA – Nuevo Requerimiento</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <style>
@@ -103,7 +103,7 @@ textarea.fi{resize:vertical;min-height:72px}
 
 <div class="topbar">
   <button class="btn-back" onclick="irAlMenu()">← Menú</button>
-  <div class="tb-logo">NUEVA REQUERIMIENTO</div>
+  <div class="tb-logo">NUEVO REQUERIMIENTO</div>
   <div id="tb-user" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">—</div>
 </div>
 
@@ -188,8 +188,8 @@ function agregarLinea(){
     <div class="field">
       <label class="fl">Artículo (código SAP o descripción) *</label>
       <div class="ss-wrap">
-        <input class="ss-input" id="ss-inp-${lid}" placeholder="Busca por código o descripción…" oninput="filtrarArts(${lid})" onblur="cerrarDrop(${lid})" autocomplete="off">
-        <div class="ss-drop" id="ss-drop-${lid}"></div>
+        <input class="ss-input" id="ss-inp-${lid}" placeholder="Busca por código o descripción…" oninput="filtrarArts(${lid})" onblur="cerrarDrop(${lid})" autocomplete="off" onfocus="filtrarArts(${lid})">
+        <div class="ss-drop" id="ss-drop-${lid}" onmousedown="event.preventDefault()"></div>
         <input type="hidden" id="art-cod-${lid}">
         <input type="hidden" id="art-hana-${lid}">
         <input type="hidden" id="art-um-${lid}">
@@ -235,8 +235,9 @@ function selArt(lid,cod,hana,desc,um){
   document.getElementById(`um-${lid}`).value=um||"—";
   document.getElementById(`ss-drop-${lid}`).classList.remove("open");
   document.getElementById(`ss-inp-${lid}`).classList.remove("error");
+  document.getElementById(`ss-inp-${lid}`).blur();
 }
-function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),200);}
+function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),300);}
 let filasListas=[];
 function cerrarModal(){document.getElementById("modal-confirm").classList.remove("show");}
 async function guardar(){
