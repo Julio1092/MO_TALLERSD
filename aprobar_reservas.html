@@ -166,25 +166,33 @@ window.onload = async () => {
   await cargarColabs();
 };
 
+
+// ── Obtener mecánicos permitidos (propios + asignados temporalmente) ──
+async function obtenerMecPermitidos(mecanicos) {
+  const cod = String(userActual.codigo);
+  // Ve sus propios (jefe_codigo) + los que le asignaron temporalmente (supervisor_temporal)
+  const permitidos = new Set(
+    mecanicos
+      .filter(m => String(m.jefe_codigo) === cod || String(m.supervisor_temporal||'') === cod)
+      .map(m => String(m.codigo))
+  );
+  return permitidos;
+}
+
 async function cargarColabs() {
   try {
     const rol=(userActual?.rol||'').toUpperCase();
     const esJefe=rol==='JEFE';
-    // Jefe carga todos los colaboradores para poder filtrar por supervisor
-    // Supervisor carga solo sus mecánicos
-    const queryTodos = esJefe
-      ?'Colaboradores?select=codigo,nombre,rol,jefe_codigo&order=nombre.asc'
-      :`Colaboradores?select=codigo,nombre,rol,jefe_codigo&order=nombre.asc`;
-    const data = await sbGet(queryTodos);
+    const data = await sbGet('Colaboradores?select=codigo,nombre,rol,jefe_codigo,supervisor_temporal&order=nombre.asc');
     const selSup = document.getElementById('f-sup');
     const mecanicos = [];
     (data||[]).forEach(c=>{
       colabs[String(c.codigo)]=c.nombre;
-      const rol=(c.rol||'').toUpperCase();
-      if(rol==='SUPERVISOR'){
+      const rolC=(c.rol||'').toUpperCase();
+      if(rolC==='SUPERVISOR'){
         const o=document.createElement('option');o.value=c.codigo;o.textContent=`${c.nombre} (${c.codigo})`;selSup.appendChild(o);
       }
-      if(rol==='MECANICO'){
+      if(rolC==='MECANICO'){
         mecanicos.push(c);
         if(c.jefe_codigo){
           const jefe=String(c.jefe_codigo);
@@ -193,16 +201,16 @@ async function cargarColabs() {
         }
       }
     });
-    // mecPermitidos: null = ve todos, Set = solo esos mecánicos
     if(esJefe){
-      mecPermitidos = null; // jefe ve todo
+      mecPermitidos = null;
     } else {
-      // Verificar si está de guardia activa — si sí, ve todos
+      // Verificar guardia activa
       const guardiaNow = await obtenerGuardiaActiva();
       if(guardiaNow && String(guardiaNow.supervisor_codigo)===String(userActual.codigo)){
-        mecPermitidos = null; // supervisor de guardia ve todos
+        mecPermitidos = null; // de guardia ve todos
       } else {
-        mecPermitidos = new Set(mecanicos.filter(m=>String(m.jefe_codigo)===String(userActual.codigo)).map(m=>String(m.codigo)));
+        // Propios + asignaciones temporales
+        mecPermitidos = await obtenerMecPermitidos(mecanicos);
       }
     }
   } catch(e){ console.warn('colabs',e.message); }

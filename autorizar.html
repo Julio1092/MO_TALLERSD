@@ -294,30 +294,46 @@ window.onload=async()=>{
   await cargarColabs();
 };
 
+
+// ── Obtener mecánicos permitidos (propios + asignados temporalmente) ──
+async function obtenerMecPermitidos(mecanicos) {
+  const cod = String(userActual.codigo);
+  // Ve sus propios (jefe_codigo) + los que le asignaron temporalmente (supervisor_temporal)
+  const permitidos = new Set(
+    mecanicos
+      .filter(m => String(m.jefe_codigo) === cod || String(m.supervisor_temporal||'') === cod)
+      .map(m => String(m.codigo))
+  );
+  return permitidos;
+}
+
 async function cargarColabs(){
   try{
     const rol=(userActual?.rol||'').toUpperCase();
     const esJefe=rol==='JEFE';
-    let query;
-    if(esJefe){
-      query='Colaboradores?select=codigo,nombre&rol=eq.MECANICO&order=nombre.asc';
-    } else {
-      query=`Colaboradores?select=codigo,nombre&rol=eq.MECANICO&jefe_codigo=eq.${encodeURIComponent(String(userActual.codigo))}&order=nombre.asc`;
-    }
-    const data=await sbGet(query);
+    // Cargar TODOS los mecánicos (necesitamos todos para las asignaciones)
+    const data=await sbGet('Colaboradores?select=codigo,nombre,jefe_codigo,supervisor_temporal&rol=eq.MECANICO&order=nombre.asc');
     const sel=document.getElementById('f-mec');
-    sel.innerHTML='<option value="">— Todos mis mecanicos —</option>';
-    (data||[]).forEach(c=>{
-      colabs[String(c.codigo)]=c.nombre;
-      const o=document.createElement('option');
-      o.value=c.codigo;
-      o.textContent=c.nombre;
-      sel.appendChild(o);
-    });
-    mecPermitidos=esJefe?null:new Set((data||[]).map(c=>String(c.codigo)));
-    if(!esJefe&&mecPermitidos.size===0){
-      notify('No tienes mecanicos asignados. Contacta al administrador.','warning');
-      document.getElementById('btnB').disabled=true;
+    sel.innerHTML='<option value="">— Todos mis mecánicos —</option>';
+    (data||[]).forEach(c=>{ colabs[String(c.codigo)]=c.nombre; });
+
+    if(esJefe){
+      mecPermitidos=null;
+      // Jefe ve todos en el dropdown
+      (data||[]).forEach(c=>{
+        const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o);
+      });
+    } else {
+      // Obtener mecánicos propios + asignaciones temporales
+      mecPermitidos = await obtenerMecPermitidos(data||[]);
+      // Poblar dropdown solo con los permitidos
+      (data||[]).filter(c=>mecPermitidos.has(String(c.codigo))).forEach(c=>{
+        const o=document.createElement('option');o.value=c.codigo;o.textContent=c.nombre;sel.appendChild(o);
+      });
+      if(mecPermitidos.size===0){
+        notify('No tienes mecánicos asignados. Contacta al administrador.','warning');
+        document.getElementById('btnB').disabled=true;
+      }
     }
   }catch(e){console.warn('colabs:',e.message);}
 }
