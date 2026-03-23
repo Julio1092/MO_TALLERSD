@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MANODEOBRA – Nuevo Requerimiento</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="config.js"></script>
+<script src="config.js"><\/script>
 <style>
 :root{--azul:#3860b2;--azul-d:#00126b;--azul-bg:rgba(56,96,178,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--gris:#4d4d4d;--rojo:#e53e3e;--verde:#2e9e4f;--nrj:#c05621;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(56,96,178,0.10)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -14,101 +14,96 @@ body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 .tb-logo{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
 .btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
 .btn-back:hover{background:rgba(255,255,255,0.22)}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
 .content{max-width:680px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:16px}
 .card{background:white;border:1.5px solid var(--borde);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
 .card-hdr{padding:12px 18px;background:#f8fafc;border-bottom:1.5px solid var(--borde);font-family:"Space Mono",monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--azul);display:flex;align-items:center;gap:8px}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .card-body{padding:18px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
 .field:last-child{margin-bottom:0}
 label.fl{font-size:12px;font-weight:600;color:var(--gris)}
-input.fi,select.fi,textarea.fi{width:100%;padding:10px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
+input.fi,select.fi,textarea.fi{width:100%;padding:10px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;color:#222;background:white;outline:none;transition:border-color .2s;-webkit-appearance:none}
 input.fi:focus,select.fi:focus,textarea.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
-textarea.fi{resize:vertical;min-height:72px}
-.fi.readonly{background:#f8fafc;color:var(--azul-d);font-weight:700;cursor:default}
+textarea.fi{resize:vertical;min-height:74px}
+.fi.readonly{background:#f0f4fb;color:var(--azul-d);font-weight:700;cursor:default;border-color:var(--bord2)}
 .fi.error{border-color:var(--rojo)!important;background:#fff5f5!important}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-
-/* Artículo searchable */
 .ss-wrap{position:relative}
-.ss-input{width:100%;padding:10px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.ss-input{width:100%;padding:10px 13px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;color:#222;outline:none;transition:border-color .2s;background:white}
 .ss-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
-.ss-drop{position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--bord2);border-radius:8px;max-height:200px;overflow-y:auto;z-index:200;display:none;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.ss-input.error{border-color:var(--rojo)!important;background:#fff5f5!important}
+.ss-drop{position:absolute;top:calc(100% + 3px);left:0;right:0;background:white;border:1.5px solid var(--bord2);border-radius:10px;max-height:220px;overflow-y:auto;z-index:500;display:none;box-shadow:0 8px 28px rgba(0,0,0,.14)}
 .ss-drop.open{display:block}
-.ss-option{padding:9px 13px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--borde)}
-.ss-option:last-child{border-bottom:none}
-.ss-option:hover{background:var(--azul-bg)}
-.ss-option .opt-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-left:6px}
-
-/* Líneas */
-.linea{background:#f8fafc;border:1.5px solid var(--borde);border-radius:12px;padding:14px;margin-bottom:10px;position:relative}
-.linea-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.linea-num{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:12px;padding:2px 10px}
-.btn-rm{background:#fee2e2;color:#9b1c1c;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer}
+.ss-opt{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--borde)}
+.ss-opt:last-child{border-bottom:none}
+.ss-opt:hover{background:var(--azul-bg)}
+.ss-opt-desc{font-size:13px;font-weight:600;color:#1a202c}
+.ss-opt-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-top:2px}
+.ss-empty{padding:10px 14px;font-size:13px;color:#aaa;font-style:italic}
+.linea{background:#f8fafc;border:1.5px solid var(--borde);border-radius:12px;padding:14px;margin-bottom:10px}
+.linea:last-child{margin-bottom:0}
+.linea-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.linea-num{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;color:var(--azul);background:var(--azul-bg);border:1px solid var(--bord2);border-radius:12px;padding:3px 10px}
+.btn-rm{background:#fee2e2;color:#9b1c1c;border:none;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer}
 .btn-rm:hover{background:#fecaca}
-.qty-um{display:grid;grid-template-columns:1fr 80px;gap:10px}
-
-.btn-add-linea{width:100%;padding:12px;background:var(--azul-bg);border:2px dashed var(--bord2);border-radius:10px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;color:var(--azul);cursor:pointer;transition:all .2s}
+.qty-um-row{display:grid;grid-template-columns:1fr 90px;gap:10px}
+.btn-add-linea{width:100%;padding:13px;background:var(--azul-bg);border:2px dashed var(--bord2);border-radius:10px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;color:var(--azul);cursor:pointer;transition:all .2s;margin-top:4px}
 .btn-add-linea:hover{background:rgba(56,96,178,.14);border-color:var(--azul)}
 .btn-add-linea:disabled{opacity:.5;cursor:not-allowed}
-
-.btn-guardar{width:100%;padding:14px;background:var(--verde);color:white;border:none;border-radius:12px;font-family:"DM Sans",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
-.btn-guardar:hover{background:#276040;transform:translateY(-1px)}
-.btn-guardar:disabled{opacity:.5;cursor:not-allowed;transform:none}
-
-/* Modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;padding:20px}
+.btn-enviar{width:100%;padding:15px;background:var(--verde);color:white;border:none;border-radius:13px;font-family:"DM Sans",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-enviar:hover{background:#276040;transform:translateY(-1px)}
+.btn-enviar:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:600;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex}
-.modal-box{background:white;border-radius:16px;padding:24px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.modal-title{font-family:"Space Mono",monospace;font-size:13px;font-weight:700;color:var(--azul-d);margin-bottom:14px}
-.modal-linea{padding:8px 0;border-bottom:1px solid var(--borde);font-size:13px}
+.modal-box{background:white;border-radius:18px;padding:24px;max-width:480px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.28);max-height:80vh;overflow-y:auto}
+.modal-title{font-family:"Space Mono",monospace;font-size:12px;font-weight:700;color:var(--azul-d);margin-bottom:16px;letter-spacing:1px}
+.modal-linea{padding:9px 0;border-bottom:1px solid var(--borde);font-size:13px}
 .modal-linea:last-child{border-bottom:none}
+.modal-linea strong{color:#1a202c;display:block}
+.modal-linea span{font-size:11px;color:#718096;display:block;margin-top:2px}
 .modal-btns{display:flex;gap:10px;margin-top:18px}
-.btn-modal-cancel{flex:1;padding:11px;background:#f8fafc;border:1.5px solid var(--borde);border-radius:9px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-.btn-modal-confirm{flex:2;padding:11px;background:var(--verde);color:white;border:none;border-radius:9px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer}
-
-#saving-overlay{display:none;position:fixed;inset:0;background:rgba(56,96,178,.18);backdrop-filter:blur(3px);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-#saving-overlay.show{display:flex}
-.spinner{width:48px;height:48px;border:4px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+.btn-mc{flex:1;padding:11px;background:#f8fafc;border:1.5px solid var(--borde);border-radius:9px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--gris)}
+.btn-mc:hover{background:#f0f0f0}
+.btn-mok{flex:2;padding:11px;background:var(--verde);color:white;border:none;border-radius:9px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.btn-mok:hover{background:#276040}
+#ov-save{display:none;position:fixed;inset:0;background:rgba(56,96,178,.2);backdrop-filter:blur(4px);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#ov-save.show{display:flex}
+.spinner{width:50px;height:50px;border:4px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.saving-txt{color:white;font-weight:700;font-size:16px}
-#success-overlay{display:none;position:fixed;inset:0;background:var(--fondo);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-#success-overlay.show{display:flex}
-.suc-icon{font-size:72px}.suc-title{color:var(--verde);font-size:24px;font-weight:700}.suc-sub{color:var(--gris);font-size:14px;text-align:center;padding:0 20px}
-.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.save-txt{color:white;font-weight:700;font-size:16px}
+#ov-ok{display:none;position:fixed;inset:0;background:var(--fondo);z-index:700;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#ov-ok.show{display:flex}
+.ok-ico{font-size:80px}.ok-tit{color:var(--verde);font-size:24px;font-weight:700;font-family:"Space Mono",monospace}.ok-sub{color:var(--gris);font-size:14px;text-align:center;padding:0 24px}
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:13px 24px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.22)}
 .notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--nrj)}
 @media(max-width:480px){.form-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<div id="saving-overlay"><div class="spinner"></div><div class="saving-txt">Enviando requerimiento…</div></div>
-<div id="success-overlay">
-  <div class="suc-icon">✅</div>
-  <div class="suc-title">¡Requerimiento Enviada!</div>
-  <div class="suc-sub" id="suc-sub">Tu solicitud fue enviada al jefe para aprobación</div>
-  <div style="font-size:12px;color:#999;margin-top:8px">Regresando al menú…</div>
+<div id="ov-save"><div class="spinner"></div><div class="save-txt">Enviando requerimiento…</div></div>
+<div id="ov-ok">
+  <div class="ok-ico">✅</div>
+  <div class="ok-tit">¡Enviado!</div>
+  <div class="ok-sub" id="ok-sub">Tu requerimiento fue enviado al jefe para aprobación</div>
+  <div style="font-size:12px;color:#aaa;margin-top:4px">Regresando al menú…</div>
 </div>
-
-<!-- Modal confirmación -->
-<div class="modal-overlay" id="modal-confirm">
+<div class="modal-overlay" id="modal">
   <div class="modal-box">
     <div class="modal-title">📋 CONFIRMAR REQUERIMIENTO</div>
     <div id="modal-body"></div>
     <div class="modal-btns">
-      <button class="btn-modal-cancel" onclick="cerrarModal()">✕ Revisar</button>
-      <button class="btn-modal-confirm" onclick="ejecutarGuardado()">✓ Confirmar</button>
+      <button class="btn-mc" onclick="cerrarModal()">✕ Revisar</button>
+      <button class="btn-mok" onclick="ejecutar()">✓ Confirmar y Enviar</button>
     </div>
   </div>
 </div>
-
 <div class="topbar">
-  <button class="btn-back" onclick="irAlMenu()">← Menú</button>
+  <button class="btn-back" onclick="window.location.href='menu_supervisor.html'">← Menú</button>
   <div class="tb-logo">NUEVO REQUERIMIENTO</div>
-  <div id="tb-user" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)">—</div>
+  <div class="tb-user" id="tb-user">—</div>
 </div>
-
 <div class="content">
-  <!-- Datos generales -->
   <div class="card">
     <div class="card-hdr"><span class="dot" style="background:var(--azul)"></span> Datos Generales</div>
     <div class="card-body">
@@ -119,178 +114,147 @@ textarea.fi{resize:vertical;min-height:72px}
         </div>
         <div class="field">
           <label class="fl">Criticidad *</label>
-          <select class="fi" id="f-criticidad">
-            <option value="1-No Critico">1 - No Crítico</option>
-            <option value="2-Poco Critico">2 - Poco Crítico</option>
-            <option value="3-Critico">3 - Crítico</option>
-            <option value="4-Muy Critico">4 - Muy Crítico</option>
+          <select class="fi" id="f-crit">
+            <option value="1-No Critico">1 – No Crítico</option>
+            <option value="2-Poco Critico">2 – Poco Crítico</option>
+            <option value="3-Critico">3 – Crítico</option>
+            <option value="4-Muy Critico">4 – Muy Crítico</option>
           </select>
         </div>
       </div>
       <div class="field">
         <label class="fl">Solicitante</label>
-        <input class="fi readonly" id="f-solicitante" type="text" readonly>
+        <input class="fi readonly" id="f-solic" type="text" readonly>
       </div>
     </div>
   </div>
-
-  <!-- Artículos -->
   <div class="card">
-    <div class="card-hdr"><span class="dot" style="background:var(--nrj)"></span> Artículos</div>
+    <div class="card-hdr"><span class="dot" style="background:var(--nrj)"></span> Artículos Solicitados</div>
     <div class="card-body">
       <div id="lineas-wrap"></div>
-      <button class="btn-add-linea" id="btn-add" onclick="agregarLinea()">＋ Agregar Artículo</button>
+      <button class="btn-add-linea" id="btn-add" onclick="addLinea()">＋ Agregar Artículo</button>
     </div>
   </div>
-
-  <button class="btn-guardar" onclick="guardar()">💾 Enviar Requerimiento</button>
+  <button class="btn-enviar" id="btn-enviar" onclick="guardar()">💾 Enviar Requerimiento</button>
 </div>
 <div id="notif" class="notif"></div>
-
 <script>
-const SB_URL="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
-const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
-let userActual=null,articulos=[],nextLid=1,lineas=[];
-async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
-async function sbPost(t,b,pref="return=minimal"){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:"POST",headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json",Prefer:pref},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return pref.includes("representation")?r.json():null;}
-function irAlMenu(){window.location.href="menu_supervisor.html";}
+const SB="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
+const SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
+let U=null,arts=[],seq=0,lids=[],filas=[];
+const hdr={apikey:SK,Authorization:"Bearer "+SK};
+async function get(p){const r=await fetch(SB+"/rest/v1/"+p,{headers:hdr});if(!r.ok)throw new Error(await r.text());return r.json();}
+async function post(t,b,pref="return=minimal"){const r=await fetch(SB+"/rest/v1/"+t,{method:"POST",headers:{...hdr,"Content-Type":"application/json",Prefer:pref},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());return pref.includes("representation")?r.json():null;}
 window.onload=async()=>{
-  userActual=getSession();
-  if(!userActual){window.location.href="index.html";return;}
-  if((userActual.rol||"").toUpperCase()!=="SUPERVISOR"){window.location.href="index.html";return;}
-  document.getElementById("tb-user").textContent="👔 "+userActual.nombre;
+  U=getSession();
+  if(!U){window.location.href="index.html";return;}
+  if((U.rol||"").toUpperCase()!=="SUPERVISOR"){window.location.href="index.html";return;}
+  document.getElementById("tb-user").textContent="👔 "+U.nombre;
   document.getElementById("f-fecha").value=isoHoy();
-  document.getElementById("f-solicitante").value=`${userActual.codigo} — ${userActual.nombre}`;
+  document.getElementById("f-solic").value=U.codigo+" — "+U.nombre;
   const btn=document.getElementById("btn-add");
   btn.disabled=true;btn.textContent="⏳ Cargando artículos…";
-  await cargarArticulos();
+  try{
+    const L=1000;let off=0,res=[],pg=[];
+    do{pg=await get("Articulos_SAP?select=ArticuloSAP,ArticuloHana,Descripcion,UM&order=Descripcion.asc&limit="+L+"&offset="+off);
+      if(pg&&pg.length)res=res.concat(pg);off+=L;
+    }while(pg&&pg.length===L);
+    arts=res;
+  }catch(e){notify("No se cargaron artículos","warning");}
   btn.disabled=false;btn.textContent="＋ Agregar Artículo";
-  agregarLinea();
+  addLinea();
 };
-async function cargarArticulos(){
-  try{
-    const LIMIT=1000;let offset=0,res=[],pag=[];
-    do{pag=await sbGet(`Articulos_SAP?select=ArticuloSAP,ArticuloHana,Descripcion,UM&order=Descripcion.asc&limit=${LIMIT}&offset=${offset}`);
-      if(pag&&pag.length)res=res.concat(pag);offset+=LIMIT;
-    }while(pag&&pag.length===LIMIT);
-    articulos=res;
-  }catch(e){notify("Error cargando artículos","warning");}
-}
-function agregarLinea(){
-  const lid=nextLid++;lineas.push(lid);
-  const wrap=document.getElementById("lineas-wrap");
-  const div=document.createElement("div");div.className="linea";div.id=`lin-${lid}`;
-  div.innerHTML=`
-    <div class="linea-hdr">
-      <span class="linea-num">Artículo #${lineas.length}</span>
-      ${lineas.length>1?`<button class="btn-rm" onclick="eliminarLinea(${lid})">✕ Quitar</button>`:""}
-    </div>
-    <div class="field">
-      <label class="fl">Artículo (código SAP o descripción) *</label>
+function addLinea(){
+  const lid=++seq;lids.push(lid);
+  const w=document.getElementById("lineas-wrap");
+  const d=document.createElement("div");d.className="linea";d.id="l"+lid;
+  d.innerHTML=`<div class="linea-hdr"><span class="linea-num">Artículo #${lids.length}</span>${lids.length>1?`<button class="btn-rm" onclick="rmLinea(${lid})">✕ Quitar</button>`:""}</div>
+    <div class="field"><label class="fl">Artículo (código SAP, HANA o descripción) *</label>
       <div class="ss-wrap">
-        <input class="ss-input" id="ss-inp-${lid}" placeholder="Busca por código o descripción…" oninput="filtrarArts(${lid})" onblur="cerrarDrop(${lid})" autocomplete="off" onfocus="filtrarArts(${lid})">
-        <div class="ss-drop" id="ss-drop-${lid}" onmousedown="event.preventDefault()"></div>
-        <input type="hidden" id="art-cod-${lid}">
-        <input type="hidden" id="art-hana-${lid}">
-        <input type="hidden" id="art-um-${lid}">
-      </div>
+        <input class="ss-input" id="si${lid}" placeholder="Escribe para buscar…" oninput="filtrar(${lid})" onblur="cDrop(${lid})" autocomplete="off">
+        <div class="ss-drop" id="sd${lid}" onmousedown="event.preventDefault()"></div>
+        <input type="hidden" id="sc${lid}"><input type="hidden" id="sh${lid}"><input type="hidden" id="su${lid}">
+      </div></div>
+    <div class="qty-um-row">
+      <div class="field"><label class="fl">Cantidad *</label><input class="fi" id="sq${lid}" type="number" min="0.01" step="0.01" value="1"></div>
+      <div class="field"><label class="fl">UM</label><input class="fi readonly" id="sm${lid}" type="text" readonly placeholder="—"></div>
     </div>
-    <div class="qty-um">
-      <div class="field">
-        <label class="fl">Cantidad *</label>
-        <input class="fi" id="qty-${lid}" type="number" min="0.01" step="0.01" placeholder="0" value="1">
-      </div>
-      <div class="field">
-        <label class="fl">UM</label>
-        <input class="fi readonly" id="um-${lid}" type="text" readonly placeholder="—">
-      </div>
-    </div>
-    <div class="field">
-      <label class="fl">Utilización / Descripción del uso *</label>
-      <textarea class="fi" id="uso-${lid}" placeholder="Describe para qué se usará este artículo…"></textarea>
-    </div>`;
-  wrap.appendChild(div);
+    <div class="field"><label class="fl">Utilización *</label><textarea class="fi" id="su2${lid}" placeholder="Describe para qué se usará este artículo…"></textarea></div>`;
+  w.appendChild(d);
+  setTimeout(()=>document.getElementById("si"+lid)?.focus(),80);
 }
-function eliminarLinea(lid){
-  if(lineas.length<=1){notify("Debe haber al menos un artículo","warning");return;}
-  document.getElementById(`lin-${lid}`)?.remove();
-  lineas=lineas.filter(x=>x!==lid);
-  // Renumerar
-  document.querySelectorAll(".linea-num").forEach((el,i)=>el.textContent=`Artículo #${i+1}`);
+function rmLinea(lid){
+  if(lids.length<=1){notify("Debe quedar al menos un artículo","warning");return;}
+  document.getElementById("l"+lid)?.remove();
+  lids=lids.filter(x=>x!==lid);
+  lids.forEach((l,i)=>{const e=document.querySelector("#l"+l+" .linea-num");if(e)e.textContent="Artículo #"+(i+1);});
 }
-function filtrarArts(lid){
-  const q=document.getElementById(`ss-inp-${lid}`).value.toLowerCase().trim();
-  const drop=document.getElementById(`ss-drop-${lid}`);
-  if(q.length<2){drop.classList.remove("open");return;}
-  const matches=articulos.filter(a=>(a.Descripcion||"").toLowerCase().includes(q)||(a.ArticuloSAP||"").includes(q)||(a.ArticuloHana||"").includes(q)).slice(0,30);
-  if(!matches.length){drop.innerHTML=`<div class="ss-option" style="color:#aaa">Sin resultados</div>`;drop.classList.add("open");return;}
-  drop.innerHTML=matches.map((a,i)=>`<div class="ss-option" data-idx="${i}" onmousedown="selArt(${lid},${JSON.stringify(a.ArticuloSAP)},${JSON.stringify(a.ArticuloHana||"")},${JSON.stringify(a.Descripcion)},${JSON.stringify(a.UM||"")})">${a.Descripcion}<span class="opt-cod">${a.ArticuloSAP}</span></div>`).join("");
-  drop.classList.add("open");
+function filtrar(lid){
+  const q=(document.getElementById("si"+lid)?.value||"").toLowerCase().trim();
+  const d=document.getElementById("sd"+lid);
+  if(q.length<2){d.classList.remove("open");return;}
+  const m=arts.filter(a=>(a.Descripcion||"").toLowerCase().includes(q)||(a.ArticuloSAP||"").includes(q)||(a.ArticuloHana||"").toLowerCase().includes(q)).slice(0,40);
+  if(!m.length){d.innerHTML=`<div class="ss-empty">Sin resultados para "${q}"</div>`;d.classList.add("open");return;}
+  d.innerHTML=m.map(a=>`<div class="ss-opt" onmousedown="sel(${lid},${JSON.stringify(a.ArticuloSAP)},${JSON.stringify(a.ArticuloHana||"")},${JSON.stringify(a.Descripcion)},${JSON.stringify(a.UM||"")})"><div class="ss-opt-desc">${a.Descripcion}</div><div class="ss-opt-cod">${a.ArticuloSAP}${a.ArticuloHana?" · HANA: "+a.ArticuloHana:""}</div></div>`).join("");
+  d.classList.add("open");
 }
-function selArt(lid,cod,hana,desc,um){
-  document.getElementById(`ss-inp-${lid}`).value=desc;
-  document.getElementById(`art-cod-${lid}`).value=cod;
-  document.getElementById(`art-hana-${lid}`).value=hana;
-  document.getElementById(`art-um-${lid}`).value=um;
-  document.getElementById(`um-${lid}`).value=um||"—";
-  document.getElementById(`ss-drop-${lid}`).classList.remove("open");
-  document.getElementById(`ss-inp-${lid}`).classList.remove("error");
-  document.getElementById(`ss-inp-${lid}`).blur();
+function sel(lid,cod,hana,desc,um){
+  document.getElementById("si"+lid).value=desc;
+  document.getElementById("sc"+lid).value=cod;
+  document.getElementById("sh"+lid).value=hana;
+  document.getElementById("su"+lid).value=um;
+  document.getElementById("sm"+lid).value=um||"—";
+  document.getElementById("sd"+lid).classList.remove("open");
+  document.getElementById("si"+lid).classList.remove("error");
 }
-function cerrarDrop(lid){setTimeout(()=>document.getElementById(`ss-drop-${lid}`)?.classList.remove("open"),300);}
-let filasListas=[];
-function cerrarModal(){document.getElementById("modal-confirm").classList.remove("show");}
+function cDrop(lid){setTimeout(()=>document.getElementById("sd"+lid)?.classList.remove("open"),250);}
+function cerrarModal(){document.getElementById("modal").classList.remove("show");}
 async function guardar(){
-  filasListas=[];
-  for(const lid of lineas){
-    const cod=document.getElementById(`art-cod-${lid}`)?.value?.trim();
-    const hana=document.getElementById(`art-hana-${lid}`)?.value?.trim()||null;
-    const desc=document.getElementById(`ss-inp-${lid}`)?.value?.trim();
-    const qty=parseFloat(document.getElementById(`qty-${lid}`)?.value)||0;
-    const um=document.getElementById(`art-um-${lid}`)?.value?.trim()||null;
-    const uso=document.getElementById(`uso-${lid}`)?.value?.trim();
-    if(!cod||!desc){document.getElementById(`ss-inp-${lid}`)?.classList.add("error");notify("Selecciona un artículo válido en todas las líneas","error");document.getElementById(`ss-inp-${lid}`)?.scrollIntoView({behavior:"smooth",block:"center"});return;}
-    document.getElementById(`ss-inp-${lid}`)?.classList.remove("error");
-    if(qty<=0){document.getElementById(`qty-${lid}`)?.classList.add("error");notify("La cantidad debe ser mayor a 0","error");return;}
-    document.getElementById(`qty-${lid}`)?.classList.remove("error");
-    if(!uso){document.getElementById(`uso-${lid}`)?.classList.add("error");notify("La utilización es requerida en todas las líneas","error");return;}
-    document.getElementById(`uso-${lid}`)?.classList.remove("error");
-    filasListas.push({articulosap:cod,articulohana:hana,descripcion:desc,cantidad:qty,um,utilizacion:uso});
+  filas=[];let err=null;
+  for(const lid of lids){
+    const cod=(document.getElementById("sc"+lid)?.value||"").trim();
+    const desc=(document.getElementById("si"+lid)?.value||"").trim();
+    const hana=(document.getElementById("sh"+lid)?.value||"").trim()||null;
+    const um=(document.getElementById("su"+lid)?.value||"").trim()||null;
+    const qty=parseFloat(document.getElementById("sq"+lid)?.value||0);
+    const uso=(document.getElementById("su2"+lid)?.value||"").trim();
+    if(!cod||!desc){document.getElementById("si"+lid)?.classList.add("error");if(!err)err=document.getElementById("si"+lid);notify("Selecciona un artículo del catálogo en todas las líneas","error");break;}
+    document.getElementById("si"+lid)?.classList.remove("error");
+    if(qty<=0){document.getElementById("sq"+lid)?.classList.add("error");if(!err)err=document.getElementById("sq"+lid);notify("La cantidad debe ser mayor a 0","error");break;}
+    document.getElementById("sq"+lid)?.classList.remove("error");
+    if(!uso){document.getElementById("su2"+lid)?.classList.add("error");if(!err)err=document.getElementById("su2"+lid);notify("La utilización es obligatoria en todas las líneas","error");break;}
+    document.getElementById("su2"+lid)?.classList.remove("error");
+    filas.push({articulosap:cod,articulohana:hana,descripcion:desc,cantidad:qty,um,utilizacion:uso});
   }
-  if(!filasListas.length){notify("Agrega al menos un artículo","warning");return;}
-  // Modal resumen
-  const crit=document.getElementById("f-criticidad").value;
-  let html=`<div style="margin-bottom:10px;font-size:13px"><strong>Criticidad:</strong> ${crit}</div>`;
-  filasListas.forEach((f,i)=>{ html+=`<div class="modal-linea"><strong>${i+1}. ${f.descripcion}</strong><br><span style="font-size:12px;color:#718096">Cant: ${f.cantidad} ${f.um||""} · Uso: ${f.utilizacion}</span></div>`; });
+  if(err){err.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(!filas.length){notify("Agrega al menos un artículo","warning");return;}
+  const crit=document.getElementById("f-crit").value;
+  let html=`<div style="margin-bottom:12px;padding:8px 12px;background:#f0f4fb;border-radius:8px;font-size:13px"><strong>Criticidad:</strong> ${crit}</div>`;
+  filas.forEach((f,i)=>{html+=`<div class="modal-linea"><strong>${i+1}. ${f.descripcion}</strong><span>Cantidad: ${f.cantidad} ${f.um||""} · ${f.utilizacion}</span></div>`;});
   document.getElementById("modal-body").innerHTML=html;
-  document.getElementById("modal-confirm").classList.add("show");
+  document.getElementById("modal").classList.add("show");
 }
-async function ejecutarGuardado(){
+async function ejecutar(){
   cerrarModal();
-  document.getElementById("saving-overlay").classList.add("show");
+  document.getElementById("btn-enviar").disabled=true;
+  document.getElementById("ov-save").classList.add("show");
   try{
-    // Insertar cabecera
-    const cab=await sbPost("requerimientos",{
-      fecha_requisicion:isoHoy(),
-      codigo_solicitante:String(userActual.codigo),
-      nombre_solicitante:userActual.nombre,
-      criticidad:document.getElementById("f-criticidad").value,
-      estado:"Pendiente"
-    },"return=representation");
-    const reqId=Array.isArray(cab)?cab[0]?.id:cab?.id;
-    // Insertar líneas
-    const lineasPayload=filasListas.map(f=>({...f,requisicion_id:reqId}));
-    await sbPost("requisicion_lineas",lineasPayload);
-    document.getElementById("saving-overlay").classList.remove("show");
-    document.getElementById("success-overlay").classList.add("show");
-    setTimeout(()=>irAlMenu(),2800);
+    const cab=await post("requisiciones",{fecha_requisicion:isoHoy(),codigo_solicitante:String(U.codigo),nombre_solicitante:U.nombre,criticidad:document.getElementById("f-crit").value,estado:"Pendiente"},"return=representation");
+    const id=Array.isArray(cab)?cab[0]?.id:cab?.id;
+    if(!id)throw new Error("No se obtuvo el ID");
+    await post("requisicion_lineas",filas.map(f=>({...f,requisicion_id:id})));
+    document.getElementById("ov-save").classList.remove("show");
+    document.getElementById("ok-sub").textContent="REQ-"+String(id).padStart(5,"0")+" enviado al jefe para aprobación";
+    document.getElementById("ov-ok").classList.add("show");
+    setTimeout(()=>window.location.href="menu_supervisor.html",2800);
   }catch(e){
-    document.getElementById("saving-overlay").classList.remove("show");
+    document.getElementById("ov-save").classList.remove("show");
+    document.getElementById("btn-enviar").disabled=false;
     notify("Error: "+e.message,"error");
   }
 }
 let nTO;
 function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
-</script>
+<\/script>
 </body>
 </html>
