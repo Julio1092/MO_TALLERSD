@@ -46,6 +46,10 @@ body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 .lin-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-top:2px}
 .lin-uso{font-size:11px;color:#718096;margin-top:2px;font-style:italic}
 .lin-qty{font-family:"Space Mono",monospace;font-size:12px;color:#718096;white-space:nowrap;flex-shrink:0}
+.lin-cant-jefe{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.lin-cant-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4d4d4d}
+.lin-cant-input{padding:7px 10px;border:1.5px solid var(--borde);border-radius:7px;font-family:"Space Mono",monospace;font-size:13px;font-weight:700;color:var(--azul-d);background:white;outline:none;width:120px;transition:border-color .2s}
+.lin-cant-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
 .dec-panel{margin-top:14px;padding:14px;background:#f0f4fb;border:1.5px solid var(--bord2);border-radius:10px;display:flex;flex-direction:column;gap:10px}
 .dec-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .field{display:flex;flex-direction:column;gap:4px}
@@ -137,40 +141,106 @@ async function cargar(){
   }catch(e){document.getElementById("cont").innerHTML=`<div class="estado-empty"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;}
 }
 function bCrit(c){const n=parseInt(c)||1;return`<span class="badge b-c${n}">${c}</span>`;}
+
+// Guarda PATCH en requisicion_lineas para cantidad_jefe por línea
+async function patchLinea(lineaId, cantJefe){
+  const r=await fetch(SB+"/rest/v1/requisicion_lineas?id=eq."+lineaId,{
+    method:"PATCH",
+    headers:{...hdr,"Content-Type":"application/json",Prefer:"return=minimal"},
+    body:JSON.stringify({cantidad_jefe: cantJefe||null})
+  });
+  if(!r.ok)throw new Error(await r.text());
+}
+
 function render(){
   if(!todos.length){document.getElementById("cont").innerHTML='<div class="estado-empty"><div class="e-ico">📭</div><div class="e-txt">Sin requerimientos en este filtro</div></div>';return;}
   document.getElementById("cont").innerHTML=todos.map(r=>{
     const ls=r.requisicion_lineas||[];
-    const lh=ls.map(l=>`<div class="lin-row"><div><div class="lin-desc">${l.descripcion||"—"}</div><div class="lin-cod">${l.articulosap||""}${l.articulohana?" · HANA: "+l.articulohana:""}</div><div class="lin-uso">${l.utilizacion||""}</div></div><div class="lin-qty">Cant: ${l.cantidad} ${l.um||""}</div></div>`).join("");
+
+    // Líneas: si está pendiente, muestra campo de cantidad ajustada por línea
     const pend=r.estado==="Pendiente";
-    const dec=pend?`<div class="dec-panel" id="dp-${r.id}">
-      <div class="dec-row">
-        <div class="field" style="flex:1"><label class="fl">Cantidad ajustada (opcional)</label><input class="fi" id="dq-${r.id}" type="text" placeholder="Dejar vacío para mantener la original"></div>
-        <div class="field" style="flex:2"><label class="fl">Notas (opcional)</label><input class="fi" id="dn-${r.id}" type="text" placeholder="Comentario para el supervisor…"></div>
+    const lh=ls.map(l=>{
+      const cantInput=pend
+        ?`<div class="lin-cant-jefe">
+            <span class="lin-cant-lbl">Cant. ajustada</span>
+            <input class="lin-cant-input" type="number" id="lq-${l.id}" placeholder="${l.cantidad}" min="0.01" step="0.01">
+          </div>`
+        : l.cantidad_jefe
+          ?`<div style="margin-top:5px;font-size:11px;font-weight:700;color:var(--azul-d);font-family:'Space Mono',monospace">✏️ Ajustada: ${l.cantidad_jefe} ${l.um||""}</div>`
+          :"";
+      return`<div class="lin-row">
+        <div style="flex:1">
+          <div class="lin-desc">${l.descripcion||"—"}</div>
+          <div class="lin-cod">${l.articulosap||""}${l.articulohana?" · HANA: "+l.articulohana:""}</div>
+          <div class="lin-uso">${l.utilizacion||""}</div>
+          ${cantInput}
+        </div>
+        <div class="lin-qty">Solicitado: ${l.cantidad} ${l.um||""}</div>
+      </div>`;
+    }).join("");
+
+    const dec=pend
+      ?`<div class="dec-panel" id="dp-${r.id}">
+          <div class="dec-row">
+            <div class="field" style="flex:1">
+              <label class="fl">Nota general (opcional)</label>
+              <input class="fi" id="dn-${r.id}" type="text" placeholder="Comentario para el supervisor…">
+            </div>
+          </div>
+          <div class="dec-btns">
+            <button class="btn-apro" id="ba-${r.id}" onclick="decidir(${r.id},'Aprobado')">✅ Aprobar</button>
+            <button class="btn-rech" id="br-${r.id}" onclick="decidir(${r.id},'Rechazado')">❌ Rechazar</button>
+          </div>
+        </div>`
+      :r.estado==="Aprobado"
+        ?`<div class="dec-panel" style="background:#f0fff4;border-color:#9ae6b4">
+            <span class="dec-done-ok">✅ Aprobado — enviado al Planner</span>
+            ${r.notas_jefe?`<div class="nota-jefe">Nota: ${r.notas_jefe}</div>`:""}
+          </div>`
+        :`<div class="dec-panel" style="background:#fff5f5;border-color:#fca5a5">
+            <span class="dec-done-no">❌ Rechazado${r.notas_jefe?" — "+r.notas_jefe:""}</span>
+          </div>`;
+
+    return`<div class="req-card" id="rc-${r.id}">
+      <div class="req-hdr">
+        <div>
+          <div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div>
+          <div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} (${r.codigo_solicitante})</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          ${bCrit(r.criticidad)}
+          <span class="badge b-${r.estado==="Pendiente"?"pend":r.estado==="Aprobado"?"apro":"rech"}">${r.estado}</span>
+        </div>
       </div>
-      <div class="dec-btns">
-        <button class="btn-apro" id="ba-${r.id}" onclick="decidir(${r.id},'Aprobado')">✅ Aprobar</button>
-        <button class="btn-rech" id="br-${r.id}" onclick="decidir(${r.id},'Rechazado')">❌ Rechazar</button>
-      </div>
-    </div>`
-    :r.estado==="Aprobado"?`<div class="dec-panel" style="background:#f0fff4;border-color:#9ae6b4"><span class="dec-done-ok">✅ Aprobado — enviado al Planner</span>${r.notas_jefe?`<div class="nota-jefe">Nota: ${r.notas_jefe}</div>`:""}</div>`
-    :`<div class="dec-panel" style="background:#fff5f5;border-color:#fca5a5"><span class="dec-done-no">❌ Rechazado${r.notas_jefe?" — "+r.notas_jefe:""}</span></div>`;
-    return`<div class="req-card" id="rc-${r.id}"><div class="req-hdr"><div><div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div><div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} (${r.codigo_solicitante})</div></div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">${bCrit(r.criticidad)}<span class="badge b-${r.estado==="Pendiente"?"pend":r.estado==="Aprobado"?"apro":"rech"}">${r.estado}</span></div></div><div class="req-body">${lh}${dec}</div></div>`;
+      <div class="req-body">${lh}${dec}</div>
+    </div>`;
   }).join("");
 }
-async function decidir(id,dec){
-  const ba=document.getElementById("ba-"+id),br=document.getElementById("br-"+id);
-  if(ba)ba.disabled=true;if(br)br.disabled=true;
-  const cant=(document.getElementById("dq-"+id)?.value||"").trim()||null;
+
+async function decidir(id, dec){
+  const ba=document.getElementById("ba-"+id), br=document.getElementById("br-"+id);
+  if(ba)ba.disabled=true; if(br)br.disabled=true;
   const nota=(document.getElementById("dn-"+id)?.value||"").trim()||null;
+  const r=todos.find(x=>x.id===id);
+  const ls=r?.requisicion_lineas||[];
   try{
-    await patch(id,{estado:dec,jefe_codigo:String(U.codigo),jefe_nombre:U.nombre,fecha_aprobacion:new Date().toISOString(),cantidad_jefe:cant,notas_jefe:nota});
+    // 1. Guardar cantidad ajustada por línea en requisicion_lineas
+    for(const l of ls){
+      const cantRaw=(document.getElementById(`lq-${l.id}`)?.value||"").trim();
+      const cantJefe=cantRaw?parseFloat(cantRaw):null;
+      await patchLinea(l.id, cantJefe);
+    }
+    // 2. Guardar estado y nota general en requisiciones
+    await patch(id,{estado:dec, jefe_codigo:String(U.codigo), jefe_nombre:U.nombre, fecha_aprobacion:new Date().toISOString(), notas_jefe:nota});
     notify(`REQ-${String(id).padStart(5,"0")} ${dec==="Aprobado"?"aprobado ✅":"rechazado ❌"}`,"success");
-    const r=todos.find(x=>x.id===id);if(r){r.estado=dec;r.cantidad_jefe=cant;r.notas_jefe=nota;}
+    if(r){r.estado=dec; r.notas_jefe=nota; ls.forEach(l=>{const cantRaw=(document.getElementById(`lq-${l.id}`)?.value||"").trim();if(cantRaw)l.cantidad_jefe=parseFloat(cantRaw);});}
     render();
     document.getElementById("k-pend").textContent=todos.filter(r=>r.estado==="Pendiente").length;
     document.getElementById("k-apro").textContent=todos.filter(r=>r.estado==="Aprobado").length;
-  }catch(e){notify("Error: "+e.message,"error");if(ba)ba.disabled=false;if(br)br.disabled=false;}
+  }catch(e){
+    notify("Error: "+e.message,"error");
+    if(ba)ba.disabled=false; if(br)br.disabled=false;
+  }
 }
 let nTO;function notify(msg,type="info"){const el=document.getElementById("notif");el.textContent=msg;el.className="notif "+type;void el.offsetWidth;el.classList.add("show");clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),5000);}
 </script>
