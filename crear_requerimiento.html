@@ -99,7 +99,7 @@ textarea.fi{resize:vertical;min-height:74px}
   </div>
 </div>
 <div class="topbar">
-  <button class="btn-back" onclick="window.location.href='menu_supervisor.html'">← Menú</button>
+  <button class="btn-back" onclick="window.location.href='menu_pedidos_supervisor.html'">← Pedidos</button>
   <div class="tb-logo">NUEVO REQUERIMIENTO</div>
   <div class="tb-user" id="tb-user">—</div>
 </div>
@@ -263,7 +263,7 @@ async function ejecutar(){
     document.getElementById("ov-save").classList.remove("show");
     document.getElementById("ok-sub").textContent="REQ-"+String(id).padStart(5,"0")+" enviado al jefe para aprobación";
     document.getElementById("ov-ok").classList.add("show");
-    setTimeout(()=>window.location.href="menu_supervisor.html",2800);
+    setTimeout(()=>window.location.href="menu_pedidos_supervisor.html",2800);
   }catch(e){
     document.getElementById("ov-save").classList.remove("show");
     document.getElementById("btn-enviar").disabled=false;
