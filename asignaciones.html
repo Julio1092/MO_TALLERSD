@@ -65,7 +65,7 @@ select.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)
 </head>
 <body>
 <div class="topbar">
-  <button class="btn-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
+  <button class="btn-back" id="btn-back">← Menú</button>
   <div class="tb-logo">ASIGNACIONES TEMPORALES</div>
   <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)" id="tb-user">—</div>
 </div>
@@ -134,7 +134,9 @@ async function sbPatch(tabla,filtro,body){const r=await fetch(`${SB_URL}/rest/v1
 window.onload=async()=>{
   userActual=getSession();
   if(!userActual){window.location.href="index.html";return;}
-  if((userActual.rol||"").toUpperCase()!=="JEFE"){window.location.href="index.html";return;}
+  const rol=(userActual.rol||"").toUpperCase();
+  if(rol!=="JEFE"&&rol!=="CCT"){window.location.href="index.html";return;}
+  document.getElementById('btn-back').onclick=()=>window.location.href=(rol==='CCT'?'menu_cct.html':'menu_jefe.html');
   document.getElementById("tb-user").textContent=userActual.nombre;
   await cargarDatos();
   await cargarAsignaciones();

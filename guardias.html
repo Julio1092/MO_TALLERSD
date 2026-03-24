@@ -58,7 +58,7 @@ select.fi:focus,input.fi:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgb
 <body>
 
 <div class="topbar">
-  <button class="btn-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
+  <button class="btn-back" id="btn-back">← Menú</button>
   <div class="tb-logo">TURNOS</div>
 </div>
 
@@ -130,7 +130,9 @@ async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.
 window.onload=async()=>{
   const u=getSession();
   if(!u){window.location.href='index.html';return;}
-  if((u.rol||'').toUpperCase()!=='JEFE'){window.location.href='index.html';return;}
+  const rol=(u.rol||'').toUpperCase();
+  if(rol!=='JEFE'&&rol!=='CCT'){window.location.href='index.html';return;}
+  document.getElementById('btn-back').onclick=()=>window.location.href=(rol==='CCT'?'menu_cct.html':'menu_jefe.html');
   // Fecha por defecto hoy
   const hoy=new Date().toISOString().slice(0,10);
   document.getElementById('g-fi').value=hoy;
