@@ -40,7 +40,12 @@
   .ot-title-row{display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d)}
   .btn-remove-ot{background:none;border:none;cursor:pointer;color:#fc8181;font-size:18px;padding:4px 6px;border-radius:6px;transition:all .15s}
   .btn-remove-ot:hover{color:var(--rojo);background:#fff0f0}
-  .ot-input-row{padding:14px 16px;border-bottom:1.5px solid var(--borde)}
+  .ot-cc-row{padding:14px 16px;border-bottom:1.5px solid var(--borde)}
+  .ot-input-row{padding:14px 16px 0;border-bottom:none}
+  .cc-num{width:100%;padding:11px 14px;border:1.5px solid var(--borde);border-radius:8px;font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:#1a6e54;background:white;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield}
+  .cc-num::-webkit-outer-spin-button,.cc-num::-webkit-inner-spin-button{-webkit-appearance:none}
+  .cc-num:focus{border-color:#2c9e7a;box-shadow:0 0 0 3px rgba(44,158,122,.12)}
+  .cc-num.valido{border-color:#2c9e7a;background:#f0fff8} .cc-num.invalido{border-color:var(--rojo)}
   .ot-num{width:100%;padding:11px 14px;border:1.5px solid var(--borde);border-radius:8px;font-family:'Space Mono',monospace;font-size:18px;font-weight:700;color:var(--azul-d);background:white;outline:none;transition:border-color .2s;-moz-appearance:textfield;appearance:textfield}
   .ot-num::-webkit-outer-spin-button,.ot-num::-webkit-inner-spin-button{-webkit-appearance:none}
   .ot-num:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.12)}
@@ -145,13 +150,6 @@
 </div>
 
 <div class="content">
-  <div class="card" style="margin-bottom:14px">
-    <div class="card-label"><span class="dot"></span> Centro de Costo</div>
-    <div class="field">
-      <label class="fl">C.C. *</label>
-      <input class="fi" id="f-cc" type="text" placeholder="Ingresa el centro de costo" style="max-width:300px">
-    </div>
-  </div>
   <div class="card">
     <div class="card-label"><span class="dot"></span> Órdenes de Trabajo y Materiales</div>
     <div class="ot-section" id="ot-section"></div>
@@ -210,10 +208,18 @@ function agregarOT(){
   for(const oid of otIds){
     const otEl=document.getElementById(`otn-${oid}`);
     const otVal=otEl?.value.trim();
-    if(!otVal||(otVal.length<6||otVal.length>8)){
+    if(!otVal||(otVal.length !== 8)){
       otEl?.classList.add('campo-error');
-      notify('Completa el número de OT antes de agregar otra','error');
+      notify('Completa el número de OT (exactamente 8 dígitos) antes de agregar otra','error');
       otEl?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    const ccEl=document.getElementById(`ccn-${oid}`);
+    const ccVal=ccEl?.value.trim();
+    if(!ccVal||(ccVal.length !== 5)){
+      ccEl?.classList.add('campo-error');
+      notify('Completa el Centro de Costo (exactamente 5 dígitos) antes de agregar otra','error');
+      ccEl?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
     const lineas=document.getElementById(`lines-${oid}`)?.querySelectorAll('.linea')||[];
@@ -237,8 +243,12 @@ function agregarOT(){
       <button class="btn-remove-ot" onclick="eliminarOT(${id})">✕</button>
     </div>
     <div class="ot-input-row">
-      <label class="fl">Número de OT <span style="font-weight:400;color:#aaa;font-size:11px">(6, 7 u 8 dígitos)</span></label>
-      <input class="ot-num" id="otn-${id}" type="number" placeholder="000000" oninput="validarOTNum(this)">
+      <label class="fl">Número de OT <span style="font-weight:400;color:#aaa;font-size:11px">(exactamente 8 dígitos)</span></label>
+      <input class="ot-num" id="otn-${id}" type="number" placeholder="00000000" oninput="validarOTNum(this)">
+    </div>
+    <div class="ot-cc-row">
+      <label class="fl">Centro de Costo <span style="font-weight:400;color:#aaa;font-size:11px">(exactamente 5 dígitos)</span></label>
+      <input class="cc-num" id="ccn-${id}" type="number" placeholder="00000" oninput="validarCCNum(this)">
     </div>
     <div class="lines-wrap" id="lines-${id}"></div>
     <button class="btn-add-line" onclick="agregarLinea(${id})">＋ &nbsp;Agregar Artículo</button>`;
@@ -259,7 +269,13 @@ function eliminarOT(id){
 function validarOTNum(el){
   let v=el.value.replace(/\D/g,'');if(v.length>8)v=v.slice(0,8);el.value=v;
   el.classList.remove('valido','invalido','campo-error');
-  if(!v)return;(v.length===6||v.length===7||v.length===8)?el.classList.add('valido'):el.classList.add('invalido');
+  if(!v)return; v.length===8 ? el.classList.add('valido') : el.classList.add('invalido');
+}
+
+function validarCCNum(el){
+  let v=el.value.replace(/\D/g,'');if(v.length>5)v=v.slice(0,5);el.value=v;
+  el.classList.remove('valido','invalido','campo-error');
+  if(!v)return; v.length===5 ? el.classList.add('valido') : el.classList.add('invalido');
 }
 
 /* LINES */
@@ -374,14 +390,25 @@ async function guardar(){
     const otEl = document.getElementById(`otn-${oid}`);
     const otVal = otEl?.value.trim();
 
-    // Validar OT
-    if(!otVal || (otVal.length < 6 || otVal.length > 8)){
+    // Validar OT — exactamente 8 dígitos
+    if(!otVal || otVal.length !== 8){
       otEl?.classList.add('campo-error');
-      notify('Todas las OTs deben tener entre 6 y 8 dígitos','error');
+      notify('Todas las OTs deben tener exactamente 8 dígitos','error');
       otEl?.scrollIntoView({behavior:'smooth', block:'center'});
       hayError = true; break;
     }
     otEl?.classList.remove('campo-error');
+
+    // Validar C.C. — exactamente 5 dígitos
+    const ccEl = document.getElementById(`ccn-${oid}`);
+    const ccVal = ccEl?.value.trim();
+    if(!ccVal || ccVal.length !== 5){
+      ccEl?.classList.add('campo-error');
+      notify('El Centro de Costo debe tener exactamente 5 dígitos','error');
+      ccEl?.scrollIntoView({behavior:'smooth', block:'center'});
+      hayError = true; break;
+    }
+    ccEl?.classList.remove('campo-error');
 
     const lineas = document.getElementById(`lines-${oid}`)?.querySelectorAll('.linea') || [];
 
@@ -407,6 +434,7 @@ async function guardar(){
       filasListas.push({
         fecha_reserva: hoy,
         ot: otVal,
+        centro_costo: ccVal,
         articulosap: cod,
         articulohana: hana,
         descripcion: desc,
@@ -419,29 +447,19 @@ async function guardar(){
   }
   if(hayError) return;
   if(!filasListas.length){ notify('Agrega al menos un artículo','warning'); return; }
-  // Validar C.C.
-  const ccVal = document.getElementById('f-cc')?.value?.trim();
-  if(!ccVal){ 
-    document.getElementById('f-cc')?.classList.add('campo-error');
-    notify('El Centro de Costo (C.C.) es requerido','error');
-    document.getElementById('f-cc')?.scrollIntoView({behavior:'smooth',block:'center'});
-    return;
-  }
-  document.getElementById('f-cc')?.classList.remove('campo-error');
-  // Agregar CC a todas las filas
-  filasListas = filasListas.map(f => ({...f, centro_costo: ccVal}));
 
   // Construir resumen para el modal
   let htmlModal = '';
   const otAgrupadas = {};
   filasListas.forEach(f => {
-    if(!otAgrupadas[f.ot]) otAgrupadas[f.ot] = [];
-    otAgrupadas[f.ot].push(f);
+    const key = `${f.ot}||${f.centro_costo}`;
+    if(!otAgrupadas[key]) otAgrupadas[key] = { ot: f.ot, cc: f.centro_costo, items: [] };
+    otAgrupadas[key].items.push(f);
   });
   let totalLineas = 0;
-  Object.entries(otAgrupadas).forEach(([ot, items]) => {
+  Object.values(otAgrupadas).forEach(({ ot, cc, items }) => {
     htmlModal += `<div class="modal-ot-block">
-      <div class="modal-ot-num"><span class="modal-ot-badge">OT</span> ${ot}</div>`;
+      <div class="modal-ot-num"><span class="modal-ot-badge">OT</span> ${ot} &nbsp;·&nbsp; <span style="color:#1a6e54;font-family:'Space Mono',monospace;font-size:12px">CC ${cc}</span></div>`;
     items.forEach(item => {
       totalLineas++;
       htmlModal += `<div class="modal-linea">
@@ -465,15 +483,17 @@ async function ejecutarGuardado(){
     document.getElementById('saving-overlay').classList.remove('show');
 
     // Construir resumen para pantalla de éxito
-    const otAgrupadas = {};
+    const otAgrupadasEx = {};
     filasListas.forEach(f => {
-      if(!otAgrupadas[f.ot]) otAgrupadas[f.ot] = [];
-      otAgrupadas[f.ot].push(f);
+      const key = `${f.ot}||${f.centro_costo}`;
+      if(!otAgrupadasEx[key]) otAgrupadasEx[key] = { ot: f.ot, cc: f.centro_costo, items: [] };
+      otAgrupadasEx[key].items.push(f);
     });
     let htmlResumen = '';
-    Object.entries(otAgrupadas).forEach(([ot, items]) => {
+    Object.values(otAgrupadasEx).forEach(({ ot, cc, items }) => {
       htmlResumen += `<div style="margin-bottom:12px">
-        <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d);margin-bottom:6px">📋 OT ${ot}</div>`;
+        <div style="font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--azul-d);margin-bottom:2px">📋 OT ${ot}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#1a6e54;margin-bottom:6px">CC ${cc}</div>`;
       items.forEach(item => {
         htmlResumen += `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #eef0f8;gap:10px">
           <span style="color:#444">${item.descripcion}</span>

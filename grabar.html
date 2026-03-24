@@ -158,7 +158,7 @@
   <div class="card">
     <div class="card-label">
       Órdenes de Trabajo
-      <span style="font-weight:400;color:#999;font-size:10px;text-transform:none;letter-spacing:0">(6, 7 u 8 dígitos)</span>
+      <span style="font-weight:400;color:#999;font-size:10px;text-transform:none;letter-spacing:0">(exactamente 8 dígitos)</span>
     </div>
     <div class="ot-list" id="ot-list"></div>
     <button class="btn-add-ot" onclick="agregarOT()">＋ Agregar Orden de Trabajo</button>
@@ -195,6 +195,8 @@ let otIds = [], nextOtId = 1;
 // Actividad state
 let actIds = [], nextActId = 1;
 let ColOrdenes = [], userActual = null;
+// Rastrear qué campos de actividad/componente tuvieron selección real del dropdown
+const ssSeleccionados = new Set();
 
 window.onload = async () => {
   userActual = getSession();
@@ -305,7 +307,8 @@ async function validarDuplicado(turno, fecha) {
   if (!turno || !fecha || !userActual) return;
   const sel = document.getElementById('turno');
   try {
-    const url = `${SB_URL_G}/rest/v1/reportes_mo?Fecha_Reporte=eq.${fecha}&Turno=eq.${encodeURIComponent(turno)}&codigo_operario=eq.${encodeURIComponent(userActual.codigo)}&select=Fecha_Reporte`;
+    // Ignorar registros rechazados — el técnico puede volver a grabar si fue rechazado
+    const url = `${SB_URL_G}/rest/v1/reportes_mo?Fecha_Reporte=eq.${fecha}&Turno=eq.${encodeURIComponent(turno)}&codigo_operario=eq.${encodeURIComponent(userActual.codigo)}&sup_decision=neq.Rechazado&select=id,sup_decision`;
     const res = await fetch(url,{headers:{apikey:SB_KEY_G,Authorization:`Bearer ${SB_KEY_G}`}});
     const data = await res.json();
     if (data && data.length > 0) {
@@ -356,7 +359,7 @@ function limitarOT(el, id) {
   el.value = v;
   el.classList.remove('valido','invalido');
   if (!v) return;
-  (v.length >= 6 && v.length <= 8) ? el.classList.add('valido') : el.classList.add('invalido');
+  v.length === 8 ? el.classList.add('valido') : el.classList.add('invalido');
 }
 
 function actualizarOrdenes() {
@@ -365,7 +368,7 @@ function actualizarOrdenes() {
   if (ccEntry) ColOrdenes.push(ccEntry);
   otIds.forEach(id => {
     const v = document.getElementById(`ot-${id}`)?.value.trim();
-    if (v && v.length >= 6 && v.length <= 8) ColOrdenes.push({ Valor: v });
+    if (v && v.length === 8) ColOrdenes.push({ Valor: v });
   });
   actIds.forEach(id => {
     const s = document.getElementById('act-ot-'+id);
@@ -406,10 +409,12 @@ function actualizarReloj(totalMins){
 
 function validarActividadCompleta(id){
   ['act-ot-','act-act-','act-com-'].forEach(p=>document.getElementById(p+id)?.classList.remove('campo-error'));
-  const ot=document.getElementById('act-ot-'+id)?.value,act=document.getElementById('act-act-'+id)?.value,com=document.getElementById('act-com-'+id)?.value;
-  if(!ot){document.getElementById('act-ot-'+id)?.classList.add('campo-error');return'Orden de Trabajo';}
-  if(!act||!act.trim()){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad';}
-  if(!com||!com.trim()){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente';}
+  const act=document.getElementById('act-act-'+id)?.value,com=document.getElementById('act-com-'+id)?.value;
+  // OT ya no es obligatoria — se omite
+  // Actividad: debe haber sido seleccionada del listado, no solo escrita
+  if(!act||!act.trim()||!ssSeleccionados.has('act-act-'+id)){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad (selecciona del listado)';}
+  // Componente: debe haber sido seleccionado del listado
+  if(!com||!com.trim()||!ssSeleccionados.has('act-com-'+id)){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente (selecciona del listado)';}
   if(getMinsAct(id)<5){return'duración mínima de 5 minutos';}
   return null;
 }
@@ -418,7 +423,6 @@ function onSelectChange(elId){document.getElementById(elId)?.classList.remove('c
 function agregarActividad(){
   const turno=document.getElementById('turno').value;
   if(!turno){notify('Primero selecciona el Turno','error');return;}
-  if(!ColOrdenes.length){notify('Ingresa al menos una Orden válida (6, 7 u 8 dígitos)','warning');return;}
   if(actIds.length>=20){notify('Máximo 20 actividades','warning');return;}
   if(actIds.length>0){
     const ultId=actIds[actIds.length-1];
@@ -480,9 +484,9 @@ function agregarActividad(){
   document.getElementById('btn-agregar').disabled=actIds.length>=20;
 }
 
-function eliminarActividad(id){if(actIds[actIds.length-1]!==id){notify('Solo puedes eliminar la última actividad','warning');return;}const el=document.getElementById('act-'+id);el.style.opacity='0';el.style.transform='translateX(30px)';el.style.transition='all 0.2s';setTimeout(()=>{el.remove();actIds.pop();renumerarBadges();calcularTotal();document.getElementById('btn-agregar').disabled=false;},200);}
+function eliminarActividad(id){if(actIds[actIds.length-1]!==id){notify('Solo puedes eliminar la última actividad','warning');return;}const el=document.getElementById('act-'+id);el.style.opacity='0';el.style.transform='translateX(30px)';el.style.transition='all 0.2s';setTimeout(()=>{el.remove();actIds.pop();ssSeleccionados.delete('act-act-'+id);ssSeleccionados.delete('act-com-'+id);renumerarBadges();calcularTotal();document.getElementById('btn-agregar').disabled=false;},200);}
 function renumerarBadges(){actIds.forEach((id,i)=>{const b=document.querySelector(`#act-${id} .act-num`);if(b)b.textContent=`ACT #${i+1}`;});}
-function limpiarActividades(){actIds.forEach(id=>{const el=document.getElementById('act-'+id);if(el)el.remove();});actIds=[];nextActId=1;calcularTotal();document.getElementById('btn-agregar').disabled=false;}
+function limpiarActividades(){actIds.forEach(id=>{const el=document.getElementById('act-'+id);if(el)el.remove();});actIds=[];nextActId=1;ssSeleccionados.clear();calcularTotal();document.getElementById('btn-agregar').disabled=false;}
 function onHoraIniChange(id){
   // Solo aplica a la primera actividad Extraordinario con hora libre
   const turno=document.getElementById('turno').value;
@@ -568,14 +572,11 @@ async function guardar(){
   // 2. Al menos una actividad
   if(!actIds.length){notify('Agrega al menos una actividad','error');return;}
 
-  // 3. Validar OTs
-  let otValidas=0;
+  // 3. Validar OTs — opcionales, pero si se ingresan deben ser exactamente 8 dígitos
   for(const id of otIds){
     const v=document.getElementById(`ot-${id}`)?.value.trim();
-    if(v&&(v.length<6||v.length>8)){notify('Las órdenes deben tener entre 6 y 8 dígitos','error');return;}
-    if(v&&v.length>=6&&v.length<=8)otValidas++;
+    if(v && v.length !== 8){notify('Las órdenes de trabajo deben tener exactamente 8 dígitos','error');return;}
   }
-  if(otValidas===0){notify('Ingresa al menos una Orden de Trabajo válida (6, 7 u 8 dígitos)','error');return;}
 
   // 4. Validar cada actividad (OT, actividad, componente, duración mínima)
   for(const id of actIds){
@@ -709,12 +710,13 @@ function ssRender(ddId, items, query) {
   }).join('');
 }
 function ssOpen(inputId, ddId, items) { const inp=document.getElementById(inputId),dd=document.getElementById(ddId); if(!inp||!dd)return; ssRender(ddId,items,inp.value); dd.classList.add('open'); }
-function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); }
+function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); ssSeleccionados.delete(inputId); }
 function ssBlur(ddId) { setTimeout(()=>document.getElementById(ddId)?.classList.remove('open'),180); }
 function ssSelect(ddId, optEl) {
   const val=optEl.dataset.val, dd=document.getElementById(ddId); if(!dd) return;
   const inputId=ddId.replace('ss-act-dd-','act-act-').replace('ss-com-dd-','act-com-');
   const inp=document.getElementById(inputId); if(inp){inp.value=val;inp.classList.remove('campo-error');}
+  ssSeleccionados.add(inputId); // marcar como selección válida del dropdown
   dd.classList.remove('open');
 }
 function ssKey(event, inputId, ddId, items) {
