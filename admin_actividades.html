@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Actividades y Componentes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--lila:#553c9a;--lila-d:#2d1f5e;--lila-bg:rgba(85,60,154,0.07);--borde:#e2e8f0;--bord2:#bac8e2;--rojo:#e53e3e;--verde:#2e9e4f;--fondo:#f0f4fb;--shadow:0 2px 16px rgba(85,60,154,0.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--lila-d);color:white;display:flex;align-items:center;padding:0 20px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(45,31,94,0.35);gap:12px}
+.tb-logo{font-family:"Space Mono",monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+
+/* PAGE */
+.page{max-width:720px;margin:0 auto;padding:24px 16px;display:flex;flex-direction:column;gap:20px}
+
+/* TABS */
+.tabs-wrap{display:flex;gap:6px;background:white;border:1.5px solid var(--borde);border-radius:14px;padding:5px;box-shadow:var(--shadow)}
+.tab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:700;cursor:pointer;border-radius:10px;border:none;background:none;font-family:"DM Sans",sans-serif;color:#718096;transition:all .2s}
+.tab.active{background:var(--lila-d);color:white}
+.tab:not(.active):hover{background:var(--lila-bg);color:var(--lila)}
+
+/* CARD */
+.card{background:white;border:1.5px solid var(--borde);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+.card-hdr{padding:14px 20px;border-bottom:1.5px solid var(--borde);background:#f8fafc;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-ttl{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--lila)}
+.cnt-badge{font-family:"Space Mono",monospace;font-size:11px;color:#718096}
+
+/* FORM AGREGAR */
+.form-add{padding:16px 20px;border-bottom:1.5px solid var(--borde);background:#fafbff;display:flex;gap:10px;align-items:center}
+.inp-add{flex:1;padding:10px 14px;border:1.5px solid var(--borde);border-radius:9px;font-family:"DM Sans",sans-serif;font-size:14px;color:#222;outline:none;transition:border-color .2s}
+.inp-add:focus{border-color:var(--lila);box-shadow:0 0 0 3px rgba(85,60,154,.1)}
+.inp-add.error{border-color:var(--rojo);background:#fff5f5}
+.btn-add{padding:10px 20px;background:var(--lila-d);color:white;border:none;border-radius:9px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:all .2s}
+.btn-add:hover{background:var(--lila);transform:translateY(-1px)}
+.btn-add:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* BUSCADOR */
+.search-wrap{padding:12px 20px;border-bottom:1.5px solid var(--borde)}
+.inp-search{width:100%;padding:9px 14px;border:1.5px solid var(--borde);border-radius:9px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;outline:none;transition:border-color .2s}
+.inp-search:focus{border-color:var(--lila)}
+
+/* LISTA */
+.lista{display:flex;flex-direction:column}
+.item-row{display:flex;align-items:center;gap:10px;padding:11px 20px;border-bottom:1px solid #f0f2f8;transition:background .15s}
+.item-row:last-child{border-bottom:none}
+.item-row:hover{background:#fafbff}
+.item-nombre{flex:1;font-size:14px;font-weight:600;color:#1a202c}
+.item-nombre.editando{display:none}
+.inp-edit{flex:1;padding:7px 12px;border:1.5px solid var(--lila);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:600;color:#1a202c;outline:none;display:none}
+.inp-edit.visible{display:block}
+.item-nombre.oculto{display:none}
+.acciones{display:flex;gap:6px;flex-shrink:0}
+.btn-edit{padding:6px 12px;background:var(--lila-bg);border:1.5px solid #c4b5fd;border-radius:7px;color:var(--lila);font-size:12px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s}
+.btn-edit:hover{background:#ede9fe}
+.btn-save-edit{padding:6px 12px;background:#d1fae5;border:1.5px solid #6ee7b7;border-radius:7px;color:#065f46;font-size:12px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s;display:none}
+.btn-save-edit:hover{background:#a7f3d0}
+.btn-cancel-edit{padding:6px 10px;background:#f3f4f6;border:1.5px solid #d1d5db;border-radius:7px;color:#374151;font-size:12px;font-weight:700;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s;display:none}
+.btn-cancel-edit:hover{background:#e5e7eb}
+.btn-del{padding:6px 10px;background:#fff5f5;border:1.5px solid #fca5a5;border-radius:7px;color:#c53030;font-size:14px;cursor:pointer;transition:all .15s;line-height:1}
+.btn-del:hover{background:#fee2e2;border-color:var(--rojo)}
+
+/* EMPTY / SPIN */
+.estado-empty{padding:48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.e-ico{font-size:44px;opacity:.3}
+.e-txt{font-family:"Space Mono",monospace;font-size:13px;color:#718096;font-weight:700}
+.spin{display:inline-block;width:20px;height:20px;border:2.5px solid rgba(85,60,154,.2);border-top-color:var(--lila);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* NOTIF */
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:#c05621}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_cct.html'">← Menú</button>
+  <div class="tb-logo">ACTIVIDADES Y COMPONENTES</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<div class="page">
+
+  <!-- TABS -->
+  <div class="tabs-wrap">
+    <button class="tab active" id="tab-act" onclick="setTab('actividades')">⚙️ Actividades</button>
+    <button class="tab" id="tab-comp" onclick="setTab('componentes')">🔩 Componentes</button>
+  </div>
+
+  <!-- CARD PRINCIPAL -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-ttl" id="card-ttl">● Actividades</div>
+      <span class="cnt-badge" id="cnt-badge"></span>
+    </div>
+
+    <!-- FORM AGREGAR -->
+    <div class="form-add">
+      <input class="inp-add" id="inp-nuevo" type="text" placeholder="Nombre de la actividad…" maxlength="100"
+        onkeydown="if(event.key==='Enter')agregar()">
+      <button class="btn-add" id="btn-agregar" onclick="agregar()">＋ Agregar</button>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="search-wrap">
+      <input class="inp-search" id="inp-buscar" type="text" placeholder="🔍 Buscar…" oninput="filtrar()">
+    </div>
+
+    <!-- LISTA -->
+    <div class="lista" id="lista">
+      <div class="estado-empty"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+const SB="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
+const SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
+const hdr={apikey:SK,Authorization:"Bearer "+SK,"Content-Type":"application/json"};
+
+let tabActual="actividades", datos=[], filtrados=[];
+
+// Config por tab
+const CFG={
+  actividades:{tabla:"Actividades", campo:"Actividad", label:"actividad", placeholder:"Nombre de la actividad…", icon:"⚙️"},
+  componentes: {tabla:"Componentes",  campo:"Componente", label:"componente", placeholder:"Nombre del componente…",  icon:"🔩"}
+};
+
+window.onload=async()=>{
+  const u=getSession();
+  if(!u){window.location.href="index.html";return;}
+  if((u.rol||"").toUpperCase()!=="CCT"){window.location.href="index.html";return;}
+  document.getElementById("tb-user").textContent=u.nombre;
+  await cargar();
+};
+
+function setTab(t){
+  tabActual=t;
+  document.getElementById("tab-act").className="tab"+(t==="actividades"?" active":"");
+  document.getElementById("tab-comp").className="tab"+(t==="componentes"?" active":"");
+  const cfg=CFG[t];
+  document.getElementById("card-ttl").textContent=`● ${cfg.icon} ${cfg.label.charAt(0).toUpperCase()+cfg.label.slice(1)}s`;
+  document.getElementById("inp-nuevo").placeholder=cfg.placeholder;
+  document.getElementById("inp-buscar").value="";
+  document.getElementById("inp-nuevo").value="";
+  cargar();
+}
+
+async function cargar(){
+  const cfg=CFG[tabActual];
+  document.getElementById("lista").innerHTML='<div class="estado-empty"><div class="spin"></div><div class="e-txt" style="margin-top:8px">Cargando…</div></div>';
+  try{
+    const r=await fetch(`${SB}/rest/v1/${cfg.tabla}?select=id,${cfg.campo}&order=${cfg.campo}.asc`,{headers:hdr});
+    datos=await r.json()||[];
+    filtrados=[...datos];
+    render();
+  }catch(e){
+    document.getElementById("lista").innerHTML=`<div class="estado-empty"><div class="e-ico">❌</div><div class="e-txt">${e.message}</div></div>`;
+  }
+}
+
+function filtrar(){
+  const q=document.getElementById("inp-buscar").value.toLowerCase().trim();
+  const cfg=CFG[tabActual];
+  filtrados=q?datos.filter(d=>(d[cfg.campo]||"").toLowerCase().includes(q)):[...datos];
+  render();
+}
+
+function render(){
+  const cfg=CFG[tabActual];
+  document.getElementById("cnt-badge").textContent=`${filtrados.length} ${cfg.label}${filtrados.length!==1?"s":""}`;
+  const lista=document.getElementById("lista");
+  if(!filtrados.length){
+    lista.innerHTML=`<div class="estado-empty"><div class="e-ico">📋</div><div class="e-txt">Sin ${cfg.label}s</div></div>`;
+    return;
+  }
+  lista.innerHTML="";
+  filtrados.forEach(d=>{
+    const nombre=d[cfg.campo]||"";
+    const div=document.createElement("div");
+    div.className="item-row";
+    div.id=`item-${d.id}`;
+    div.innerHTML=`
+      <span class="item-nombre" id="nom-${d.id}">${nombre}</span>
+      <input class="inp-edit" id="edit-${d.id}" type="text" value="${nombre}" maxlength="100"
+        onkeydown="if(event.key==='Enter')guardarEdicion(${d.id});if(event.key==='Escape')cancelarEdicion(${d.id})">
+      <div class="acciones">
+        <button class="btn-edit"        id="bedit-${d.id}"   onclick="iniciarEdicion(${d.id})">✏️ Editar</button>
+        <button class="btn-save-edit"   id="bsave-${d.id}"   onclick="guardarEdicion(${d.id})">✓ Guardar</button>
+        <button class="btn-cancel-edit" id="bcancel-${d.id}" onclick="cancelarEdicion(${d.id})">✕</button>
+        <button class="btn-del"         onclick="eliminar(${d.id},'${nombre.replace(/'/g,"\\'")}')">🗑</button>
+      </div>`;
+    lista.appendChild(div);
+  });
+}
+
+/* ── AGREGAR ── */
+async function agregar(){
+  const cfg=CFG[tabActual];
+  const inp=document.getElementById("inp-nuevo");
+  const nombre=inp.value.trim();
+  if(!nombre){inp.classList.add("error");inp.focus();notify("Escribe un nombre primero","error");return;}
+  // Verificar duplicado
+  if(datos.some(d=>(d[cfg.campo]||"").toLowerCase()===nombre.toLowerCase())){
+    inp.classList.add("error");notify(`Ya existe esa ${cfg.label}`,"warning");return;
+  }
+  inp.classList.remove("error");
+  document.getElementById("btn-agregar").disabled=true;
+  try{
+    const r=await fetch(`${SB}/rest/v1/${cfg.tabla}`,{
+      method:"POST",headers:{...hdr,Prefer:"return=representation"},
+      body:JSON.stringify({[cfg.campo]:nombre})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    inp.value="";
+    notify(`${cfg.label.charAt(0).toUpperCase()+cfg.label.slice(1)} agregada ✅`,"success");
+    await cargar();
+  }catch(e){notify("Error: "+e.message,"error");}
+  document.getElementById("btn-agregar").disabled=false;
+}
+
+/* ── EDITAR ── */
+function iniciarEdicion(id){
+  document.getElementById(`nom-${id}`).classList.add("oculto");
+  document.getElementById(`edit-${id}`).classList.add("visible");
+  document.getElementById(`bedit-${id}`).style.display="none";
+  document.getElementById(`bsave-${id}`).style.display="block";
+  document.getElementById(`bcancel-${id}`).style.display="block";
+  document.getElementById(`edit-${id}`).focus();
+  document.getElementById(`edit-${id}`).select();
+}
+
+function cancelarEdicion(id){
+  const d=datos.find(x=>x.id===id);
+  const cfg=CFG[tabActual];
+  document.getElementById(`edit-${id}`).value=d?d[cfg.campo]:"";
+  document.getElementById(`nom-${id}`).classList.remove("oculto");
+  document.getElementById(`edit-${id}`).classList.remove("visible");
+  document.getElementById(`bedit-${id}`).style.display="";
+  document.getElementById(`bsave-${id}`).style.display="none";
+  document.getElementById(`bcancel-${id}`).style.display="none";
+}
+
+async function guardarEdicion(id){
+  const cfg=CFG[tabActual];
+  const nuevoNombre=document.getElementById(`edit-${id}`).value.trim();
+  const original=datos.find(x=>x.id===id)?.[cfg.campo]||"";
+  if(!nuevoNombre){notify("El nombre no puede estar vacío","error");return;}
+  if(nuevoNombre===original){cancelarEdicion(id);return;}
+  if(datos.some(d=>d.id!==id&&(d[cfg.campo]||"").toLowerCase()===nuevoNombre.toLowerCase())){
+    notify(`Ya existe esa ${cfg.label}`,"warning");return;
+  }
+  document.getElementById(`bsave-${id}`).disabled=true;
+  try{
+    const r=await fetch(`${SB}/rest/v1/${cfg.tabla}?id=eq.${id}`,{
+      method:"PATCH",headers:{...hdr,Prefer:"return=minimal"},
+      body:JSON.stringify({[cfg.campo]:nuevoNombre})
+    });
+    if(!r.ok)throw new Error(await r.text());
+    notify(`${cfg.label.charAt(0).toUpperCase()+cfg.label.slice(1)} actualizada ✅`,"success");
+    await cargar();
+  }catch(e){notify("Error: "+e.message,"error");document.getElementById(`bsave-${id}`).disabled=false;}
+}
+
+/* ── ELIMINAR ── */
+async function eliminar(id, nombre){
+  if(!confirm(`¿Eliminar "${nombre}"?\nEsta acción no se puede deshacer.`))return;
+  const cfg=CFG[tabActual];
+  try{
+    const r=await fetch(`${SB}/rest/v1/${cfg.tabla}?id=eq.${id}`,{
+      method:"DELETE",headers:hdr
+    });
+    if(!r.ok)throw new Error(await r.text());
+    notify(`"${nombre}" eliminada ✅`,"success");
+    await cargar();
+  }catch(e){notify("Error: "+e.message,"error");}
+}
+
+let nTO;
+function notify(msg,type="info"){
+  const el=document.getElementById("notif");
+  el.textContent=msg;el.className="notif "+type;
+  void el.offsetWidth;el.classList.add("show");
+  clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove("show"),4000);
+}
+</script>
+</body>
+</html>
