@@ -410,11 +410,11 @@ function actualizarReloj(totalMins){
 function validarActividadCompleta(id){
   ['act-ot-','act-act-','act-com-'].forEach(p=>document.getElementById(p+id)?.classList.remove('campo-error'));
   const act=document.getElementById('act-act-'+id)?.value,com=document.getElementById('act-com-'+id)?.value;
-  // OT ya no es obligatoria — se omite
-  // Actividad: debe haber sido seleccionada del listado, no solo escrita
-  if(!act||!act.trim()||!ssSeleccionados.has('act-act-'+id)){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad (selecciona del listado)';}
-  // Componente: debe haber sido seleccionado del listado
-  if(!com||!com.trim()||!ssSeleccionados.has('act-com-'+id)){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente (selecciona del listado)';}
+  // OT no es obligatoria
+  // Actividad: solo verificar que no esté vacío (permite texto libre)
+  if(!act||!act.trim()){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad';}
+  // Componente: solo verificar que no esté vacío (permite texto libre)
+  if(!com||!com.trim()){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente';}
   if(getMinsAct(id)<5){return'duración mínima de 5 minutos';}
   return null;
 }
@@ -710,7 +710,7 @@ function ssRender(ddId, items, query) {
   }).join('');
 }
 function ssOpen(inputId, ddId, items) { const inp=document.getElementById(inputId),dd=document.getElementById(ddId); if(!inp||!dd)return; ssRender(ddId,items,inp.value); dd.classList.add('open'); }
-function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); ssSeleccionados.delete(inputId); }
+function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); }
 function ssBlur(ddId) { setTimeout(()=>document.getElementById(ddId)?.classList.remove('open'),180); }
 function ssSelect(ddId, optEl) {
   const val=optEl.dataset.val, dd=document.getElementById(ddId); if(!dd) return;
