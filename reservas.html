@@ -208,9 +208,9 @@ function agregarOT(){
   for(const oid of otIds){
     const otEl=document.getElementById(`otn-${oid}`);
     const otVal=otEl?.value.trim();
-    if(!otVal||(otVal.length !== 8)){
+    if(!otVal||((otVal.length !== 8 && otVal.length !== 9))){
       otEl?.classList.add('campo-error');
-      notify('Completa el número de OT (exactamente 8 dígitos) antes de agregar otra','error');
+      notify('Completa el número de OT (8 o 9 dígitos) antes de agregar otra','error');
       otEl?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
@@ -243,7 +243,7 @@ function agregarOT(){
       <button class="btn-remove-ot" onclick="eliminarOT(${id})">✕</button>
     </div>
     <div class="ot-input-row">
-      <label class="fl">Número de OT <span style="font-weight:400;color:#aaa;font-size:11px">(exactamente 8 dígitos)</span></label>
+      <label class="fl">Número de OT <span style="font-weight:400;color:#aaa;font-size:11px">(8 o 9 dígitos)</span></label>
       <input class="ot-num" id="otn-${id}" type="number" placeholder="00000000" oninput="validarOTNum(this)">
     </div>
     <div class="ot-cc-row">
@@ -267,9 +267,9 @@ function eliminarOT(id){
 }
 
 function validarOTNum(el){
-  let v=el.value.replace(/\D/g,'');if(v.length>8)v=v.slice(0,8);el.value=v;
+  let v=el.value.replace(/\D/g,'');if(v.length>9)v=v.slice(0,9);el.value=v;
   el.classList.remove('valido','invalido','campo-error');
-  if(!v)return; v.length===8 ? el.classList.add('valido') : el.classList.add('invalido');
+  if(!v)return; (v.length===8||v.length===9) ? el.classList.add('valido') : el.classList.add('invalido');
 }
 
 function validarCCNum(el){
@@ -390,10 +390,10 @@ async function guardar(){
     const otEl = document.getElementById(`otn-${oid}`);
     const otVal = otEl?.value.trim();
 
-    // Validar OT — exactamente 8 dígitos
-    if(!otVal || otVal.length !== 8){
+    // Validar OT — 8 o 9 dígitos
+    if(!otVal || (otVal.length !== 8 && otVal.length !== 9)){
       otEl?.classList.add('campo-error');
-      notify('Todas las OTs deben tener exactamente 8 dígitos','error');
+      notify('Todas las OTs deben tener 8 o 9 dígitos','error');
       otEl?.scrollIntoView({behavior:'smooth', block:'center'});
       hayError = true; break;
     }

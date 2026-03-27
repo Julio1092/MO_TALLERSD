@@ -87,7 +87,7 @@ tbody tr:hover td{background:rgba(255,215,0,.04)}
 <body>
 
 <div class="topbar">
-  <button class="tb-back" onclick="window.location.href='menu_jefe.html'">← Menú</button>
+  <button class="tb-back" id="btn-back">← Menú</button>
   <div class="tb-logo">RESERVAS</div>
   <div class="tb-badge">👑 <span id="tb-user">—</span></div>
 </div>
@@ -182,7 +182,9 @@ const PPG=30;
 window.onload=async()=>{
   const u=getSession();
   if(!u){window.location.href='index.html';return;}
-  if((u.rol||'').toUpperCase()!=='JEFE'){window.location.href='index.html';return;}
+  const rol=(u.rol||'').toUpperCase();
+  if(rol!=='JEFE'&&rol!=='CCT'){window.location.href='index.html';return;}
+  document.getElementById('btn-back').onclick=()=>window.location.href=(rol==='CCT'?'menu_cct.html':'menu_jefe.html');
   document.getElementById('tb-user').textContent=u.nombre;
   const hoy=new Date(),d30=new Date();d30.setDate(hoy.getDate()-30);
   document.getElementById('f-desde').value=d30.toISOString().slice(0,10);
