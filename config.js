@@ -3,11 +3,11 @@
    Configuración global compartida entre páginas
 ══════════════════════════════════════════════════ */
 
-const SUPA_URL = 'https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SUPA_URL = '';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
 
 async function supaFetch(endpoint, opts = {}) {
-  const res = await fetch(`${SUPA_URL}/rest/v1/${endpoint}`, {
+  const res = await fetch(`/api/supa/rest/v1/${endpoint}`, {
     ...opts,
     headers: {
       'Content-Type': 'application/json',
