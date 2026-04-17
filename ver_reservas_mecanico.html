@@ -173,15 +173,17 @@ tbody tr:hover td{background:rgba(56,96,178,.04)}
     <div style="overflow-x:auto">
       <table>
         <thead><tr>
-          <th>N° Reserva</th>
           <th>Estado</th>
           <th>Fecha</th>
           <th>C.C.</th>
           <th>Cód. HANA</th>
           <th>Descripción</th>
-          <th>Cant. Solicitada</th>
-          <th>Cant. Aprobada</th>
+          <th>Cant. Sol.</th>
+          <th>Cant. Apr.</th>
           <th>UM</th>
+          <th>N° Reserva</th>
+          <th>Bodega</th>
+          <th>Comentario CCT</th>
         </tr></thead>
         <tbody id="tbody"></tbody>
       </table>
@@ -335,7 +337,7 @@ function renderTabla(){
   tb.innerHTML='';
 
   if(!filtrados.length){
-    tb.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--txt3);font-family:'Space Mono',monospace;font-size:13px">Sin registros para este filtro</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--txt3);font-family:'Space Mono',monospace;font-size:13px">Sin registros para este filtro</td></tr>`;
     document.getElementById('pag').innerHTML='';
     return;
   }
@@ -361,7 +363,7 @@ function renderTabla(){
       // Cabecera de grupo — muestra OT y CC, NO la columna OT en filas
       const trHdr=document.createElement('tr');
       trHdr.innerHTML=`
-        <td colspan="9" style="padding:9px 14px;background:#eef2fa;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--azul-d);border-bottom:1.5px solid var(--bord2);border-top:${fi===0&&oi===0?'none':'2px solid #d0daf0'}">
+        <td colspan="11" style="padding:9px 14px;background:#eef2fa;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--azul-d);border-bottom:1.5px solid var(--bord2);border-top:${fi===0&&oi===0?'none':'2px solid #d0daf0'}">
           📅 ${fecha} &nbsp;·&nbsp; OT: ${ot} &nbsp;·&nbsp; <span style="color:#1a6e54">CC: ${cc}</span>
           <span style="font-family:'DM Sans',sans-serif;font-weight:500;font-size:11px;color:var(--txt3);margin-left:8px">${lineas.length} artículo${lineas.length!==1?'s':''}</span>
         </td>`;
@@ -383,13 +385,20 @@ function renderTabla(){
           ?`<span class="td-qty-s">${r.cantidadsupervisor}</span>`
           :`<span class="td-qty-na">—</span>`;
 
-        const nroReservaHtml=r.cct_comentario
-          ?`<span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--azul-d);font-size:12px;background:var(--azul-bg);border:1px solid var(--bord2);border-radius:6px;padding:2px 8px">${r.cct_comentario}</span>`
+        const nroReservaHtml=r.numero_reserva
+          ?`<span style="font-family:'Space Mono',monospace;font-weight:700;color:var(--azul-d);font-size:12px;background:var(--azul-bg);border:1px solid var(--bord2);border-radius:6px;padding:2px 8px">${r.numero_reserva}</span>`
+          :`<span style="font-size:12px;color:var(--txt3)">—</span>`;
+
+        const bodegaHtml=r.bodega
+          ?`<span style="font-family:'Space Mono',monospace;font-weight:700;font-size:12px;background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;border-radius:6px;padding:2px 8px">🏪 ${r.bodega}</span>`
+          :`<span style="font-size:12px;color:var(--txt3)">—</span>`;
+
+        const comentarioHtml=r.cct_comentario
+          ?`<span style="font-size:12px;color:var(--txt2);font-style:italic">${r.cct_comentario}</span>`
           :`<span style="font-size:12px;color:var(--txt3)">—</span>`;
 
         const tr=document.createElement('tr');
         tr.innerHTML=`
-          <td>${nroReservaHtml}</td>
           <td>${badgeHtml}</td>
           <td class="td-fecha">${r.fecha_reserva||'—'}</td>
           <td class="td-cod" style="color:#1a6e54;font-weight:700">${r.centro_costo||'—'}</td>
@@ -397,7 +406,10 @@ function renderTabla(){
           <td style="max-width:200px">${r.descripcion||'—'}</td>
           <td class="td-qty">${r.cantidad}</td>
           <td>${cantAprobada}</td>
-          <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>`;
+          <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--txt3)">${r.um||'—'}</td>
+          <td>${nroReservaHtml}</td>
+          <td>${bodegaHtml}</td>
+          <td>${comentarioHtml}</td>`;
         tb.appendChild(tr);
       });
     });
