@@ -306,20 +306,70 @@ async function iniciarCarga() {
   if (!filas.length) { notify('No hay datos para insertar', 'error'); return; }
   if (cargando) return;
 
-  const confirmar = confirm(`¿Insertar ${filas.length} artículos en la base de datos?\n\nEsta acción no verifica duplicados.`);
+  const confirmar = confirm(`⚠️ ATENCIÓN\n\nEsto hará lo siguiente:\n1. Borrar TODOS los registros actuales de Articulos_SAP\n2. Reiniciar el contador (ID) desde 1\n3. Insertar los ${filas.length} artículos del Excel\n\n¿Deseas continuar?`);
   if (!confirmar) return;
 
   cargando = true;
   const btn = document.getElementById('btn-upload');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Insertando…';
 
   document.getElementById('prog-section').classList.remove('hidden');
   document.getElementById('log-card').classList.remove('hidden');
   document.getElementById('log-box').innerHTML = '';
 
+  const TABLA = 'Articulos_SAP';
+  const HDR = {
+    'Content-Type': 'application/json',
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Prefer': 'return=minimal'
+  };
+
+  // ── PASO 1: BORRAR TODOS LOS REGISTROS ──
+  btn.innerHTML = '<span class="spin"></span> Borrando registros…';
+  agregarLog('— PASO 1: Borrando todos los registros existentes…', 'info');
+  try {
+    const resDel = await fetch(`/api/supa/rest/v1/${TABLA}?id=gte.0`, {
+      method: 'DELETE',
+      headers: HDR
+    });
+    if (!resDel.ok && resDel.status !== 204) {
+      const txt = await resDel.text();
+      throw new Error(txt.slice(0, 120));
+    }
+    agregarLog('✓ Registros borrados correctamente', 'ok');
+  } catch(e) {
+    agregarLog(`✗ Error al borrar: ${e.message}`, 'err');
+    notify('Error al borrar los registros existentes', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '⬆️ Insertar en Base de Datos';
+    cargando = false;
+    return;
+  }
+
+  // ── PASO 2: REINICIAR SECUENCIA (ID) ──
+  agregarLog('— PASO 2: Reiniciando contador de ID…', 'info');
+  try {
+    const resRpc = await fetch(`/api/supa/rest/v1/rpc/reset_articulos_sap_sequence`, {
+      method: 'POST',
+      headers: HDR,
+      body: JSON.stringify({})
+    });
+    if (resRpc.ok || resRpc.status === 200 || resRpc.status === 204) {
+      agregarLog('✓ Contador reiniciado correctamente', 'ok');
+    } else {
+      agregarLog('⚠ Función RPC no encontrada — el ID continuará desde donde quedó', 'warn');
+    }
+  } catch(e) {
+    agregarLog('⚠ No se pudo reiniciar el contador — continuando de todas formas', 'warn');
+  }
+
+  // ── PASO 3: INSERTAR ──
+  btn.innerHTML = '<span class="spin"></span> Insertando…';
+  agregarLog(`— PASO 3: Insertando ${filas.length} artículos…`, 'info');
+
   let ok = 0, err = 0;
-  const BATCH = 50; // insertar de 50 en 50
+  const BATCH = 50;
 
   for (let i = 0; i < filas.length; i += BATCH) {
     const lote = filas.slice(i, i + BATCH);
@@ -328,19 +378,19 @@ async function iniciarCarga() {
     document.getElementById('prog-label').textContent = `${i} / ${filas.length}`;
 
     try {
-      const { ok: resOk, status, data } = await supaFetch('articulos_sap', {
+      const resIns = await fetch(`/api/supa/rest/v1/${TABLA}`, {
         method: 'POST',
-        headers: { Prefer: 'return=minimal' },
+        headers: HDR,
         body: JSON.stringify(lote)
       });
 
-      if (resOk || status === 201) {
+      if (resIns.ok || resIns.status === 201) {
         ok += lote.length;
         agregarLog(`✓ Lote ${Math.floor(i/BATCH)+1}: ${lote.length} filas insertadas`, 'ok');
       } else {
         err += lote.length;
-        const msg = data ? JSON.stringify(data).slice(0, 120) : `HTTP ${status}`;
-        agregarLog(`✗ Lote ${Math.floor(i/BATCH)+1}: Error — ${msg}`, 'err');
+        const txt = await resIns.text();
+        agregarLog(`✗ Lote ${Math.floor(i/BATCH)+1}: HTTP ${resIns.status} — ${txt.slice(0,120)}`, 'err');
       }
     } catch(e) {
       err += lote.length;
@@ -349,7 +399,6 @@ async function iniciarCarga() {
 
     document.getElementById('k-ok').textContent = ok;
     document.getElementById('k-err').textContent = err;
-    // Pequeña pausa para no saturar
     await new Promise(r => setTimeout(r, 80));
   }
 
