@@ -227,7 +227,7 @@ async function cargarCC() {
   } catch(e) { console.warn('CC:', e.message); }
 }
 
-const SB_URL_G = 'https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_URL_G = '/api/supa';
 const SB_KEY_G = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
 
 async function sbGet(path) {
@@ -410,11 +410,11 @@ function actualizarReloj(totalMins){
 function validarActividadCompleta(id){
   ['act-ot-','act-act-','act-com-'].forEach(p=>document.getElementById(p+id)?.classList.remove('campo-error'));
   const act=document.getElementById('act-act-'+id)?.value,com=document.getElementById('act-com-'+id)?.value;
-  // OT no es obligatoria
-  // Actividad: solo verificar que no esté vacío (permite texto libre)
-  if(!act||!act.trim()){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad';}
-  // Componente: solo verificar que no esté vacío (permite texto libre)
-  if(!com||!com.trim()){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente';}
+  // OT ya no es obligatoria — se omite
+  // Actividad: debe haber sido seleccionada del listado, no solo escrita
+  if(!act||!act.trim()||!ssSeleccionados.has('act-act-'+id)){document.getElementById('act-act-'+id)?.classList.add('campo-error');return'Actividad (selecciona del listado)';}
+  // Componente: debe haber sido seleccionado del listado
+  if(!com||!com.trim()||!ssSeleccionados.has('act-com-'+id)){document.getElementById('act-com-'+id)?.classList.add('campo-error');return'Componente (selecciona del listado)';}
   if(getMinsAct(id)<5){return'duración mínima de 5 minutos';}
   return null;
 }
@@ -710,7 +710,7 @@ function ssRender(ddId, items, query) {
   }).join('');
 }
 function ssOpen(inputId, ddId, items) { const inp=document.getElementById(inputId),dd=document.getElementById(ddId); if(!inp||!dd)return; ssRender(ddId,items,inp.value); dd.classList.add('open'); }
-function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); }
+function ssFilter(inputId, ddId, items) { const inp=document.getElementById(inputId); ssRender(ddId,items,inp?inp.value:''); document.getElementById(ddId)?.classList.add('open'); inp?.classList.remove('campo-error'); ssSeleccionados.delete(inputId); }
 function ssBlur(ddId) { setTimeout(()=>document.getElementById(ddId)?.classList.remove('open'),180); }
 function ssSelect(ddId, optEl) {
   const val=optEl.dataset.val, dd=document.getElementById(ddId); if(!dd) return;

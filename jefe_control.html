@@ -185,7 +185,7 @@ tbody tr:hover td.td-estado{background:#f7fdf9}
 </div>
 
 <script>
-const SB_URL='https://rzcfrjgwxhgwslwvtbbe.supabase.co';
+const SB_URL='/api/supa';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs';
 async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`}});if(!r.ok)throw new Error(await r.text());return r.json();}
 

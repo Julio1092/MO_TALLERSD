@@ -27,11 +27,18 @@ body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 .kpi-val{font-family:"Space Mono",monospace;font-size:26px;font-weight:700}
 .kpi-lbl{font-size:10px;color:#718096;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
 .kpi.a .kpi-val{color:var(--azul)}.kpi.p .kpi-val{color:var(--nrj)}.kpi.v .kpi-val{color:var(--verde)}
-.req-card{background:white;border:1.5px solid var(--borde);border-radius:14px;overflow:hidden;box-shadow:var(--shadow)}
-.req-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;border-bottom:1.5px solid var(--borde);background:#f8fafc}
-.req-id{font-family:"Space Mono",monospace;font-size:12px;font-weight:700;color:var(--azul-d)}
-.req-meta{font-size:12px;color:#718096;margin-top:2px}
-.badge{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Space Mono",monospace}
+
+/* CARDS CON ESPACIO */
+#cont{display:flex;flex-direction:column;gap:20px}
+.req-card{background:white;border:1.5px solid var(--borde);border-radius:16px;overflow:hidden;box-shadow:var(--shadow)}
+
+/* HEADER */
+.req-hdr{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;border-bottom:1.5px solid var(--borde);background:#f8fafc}
+.req-id{font-family:"Space Mono",monospace;font-size:14px;font-weight:700;color:var(--azul-d)}
+.req-meta{font-size:12px;color:#718096;margin-top:3px}
+
+/* BADGE */
+.badge{display:inline-flex;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;font-family:"Space Mono",monospace}
 .b-pend{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
 .b-apro{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7}
 .b-rech{background:#FEE2E2;color:#7F1D1D;border:1px solid #FCA5A5}
@@ -39,39 +46,53 @@ body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 .b-c2{background:#FEF3C7;color:#B45309;border:1px solid #FDE68A}
 .b-c3{background:#FEE2E2;color:#9B1C1C;border:1px solid #FCA5A5}
 .b-c4{background:#7F1D1D;color:white;border:1px solid #991B1B}
-.req-body{padding:14px 16px}
-.lin-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borde);gap:8px;font-size:13px;align-items:flex-start}
+
+/* LÍNEAS DE ARTÍCULOS */
+.req-body{padding:0}
+.lin-row{display:grid;grid-template-columns:1fr auto;gap:16px;padding:14px 20px;border-bottom:1px solid #f0f2f8;align-items:start}
 .lin-row:last-child{border-bottom:none}
-.lin-desc{font-weight:600;color:#1a202c;flex:1}
-.lin-cod{font-family:"Space Mono",monospace;font-size:10px;color:#aaa;margin-top:2px}
-.lin-uso{font-size:11px;color:#718096;margin-top:2px;font-style:italic}
-.lin-qty{font-family:"Space Mono",monospace;font-size:12px;color:#718096;white-space:nowrap;flex-shrink:0}
-.lin-cant-jefe{display:flex;flex-direction:column;gap:3px;margin-top:6px}
+.lin-left{display:flex;flex-direction:column;gap:4px}
+.lin-desc{font-weight:700;color:#1a202c;font-size:14px;line-height:1.4}
+.lin-codigos{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.lin-cod-badge{font-family:"Space Mono",monospace;font-size:10px;font-weight:700;background:#edf2ff;color:var(--azul-d);border:1px solid #c3d0f0;border-radius:6px;padding:2px 8px}
+.lin-uso{font-size:14px;color:#1a202c;font-weight:400;margin-top:2px}
+.lin-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.lin-qty-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#a0aec0}
+.lin-qty-val{font-family:"Space Mono",monospace;font-size:16px;font-weight:700;color:var(--azul-d)}
+.lin-um-val{font-size:10px;color:#a0aec0;font-family:"Space Mono",monospace}
+
+/* CAMPO CANTIDAD AJUSTADA POR LÍNEA */
+.lin-cant-jefe{display:flex;flex-direction:column;gap:3px;margin-top:8px}
 .lin-cant-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4d4d4d}
-.lin-cant-input{padding:7px 10px;border:1.5px solid var(--borde);border-radius:7px;font-family:"Space Mono",monospace;font-size:13px;font-weight:700;color:var(--azul-d);background:white;outline:none;width:120px;transition:border-color .2s}
+.lin-cant-input{padding:8px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:"Space Mono",monospace;font-size:14px;font-weight:700;color:var(--azul-d);background:white;outline:none;width:130px;transition:border-color .2s}
 .lin-cant-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
-.dec-panel{margin-top:14px;padding:14px;background:#f0f4fb;border:1.5px solid var(--bord2);border-radius:10px;display:flex;flex-direction:column;gap:10px}
-.dec-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
-.field{display:flex;flex-direction:column;gap:4px}
-label.fl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4d4d4d}
-input.fi{padding:9px 12px;border:1.5px solid var(--borde);border-radius:8px;font-family:"DM Sans",sans-serif;font-size:13px;color:#222;background:white;outline:none;transition:border-color .2s}
-input.fi:focus{border-color:var(--azul)}
-.dec-btns{display:flex;gap:8px;flex-wrap:wrap}
-.btn-apro{background:var(--verde);color:white;border:none;border-radius:9px;padding:10px 20px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.lin-cant-grabada{margin-top:6px;display:inline-flex;align-items:center;gap:5px;background:#dbeafe;border:1px solid #93c5fd;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;color:#1e40af;font-family:"Space Mono",monospace}
+
+/* PANEL DE DECISIÓN */
+.dec-panel{margin:0 20px 16px;padding:16px;background:#f0f4fb;border:1.5px solid var(--bord2);border-radius:12px;display:flex;flex-direction:column;gap:12px}
+.dec-nota-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--azul-d);margin-bottom:4px}
+.dec-nota-input{width:100%;padding:11px 14px;border:1.5px solid var(--bord2);border-radius:9px;font-family:"DM Sans",sans-serif;font-size:14px;color:#222;background:white;outline:none;transition:border-color .2s}
+.dec-nota-input:focus{border-color:var(--azul);box-shadow:0 0 0 3px rgba(56,96,178,.1)}
+.dec-nota-input::placeholder{color:#bbb}
+.dec-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-apro{background:var(--verde);color:white;border:none;border-radius:10px;padding:12px 24px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
 .btn-apro:hover{background:#276040;transform:translateY(-1px)}
-.btn-rech{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5;border-radius:9px;padding:10px 20px;font-family:"DM Sans",sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-rech{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 24px;font-family:"DM Sans",sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px}
 .btn-rech:hover{background:#fecaca}
 .btn-apro:disabled,.btn-rech:disabled{opacity:.5;cursor:wait;transform:none}
-.dec-done-ok{background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;border-radius:9px;padding:10px 16px;font-size:13px;font-weight:700;display:inline-block}
-.dec-done-no{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5;border-radius:9px;padding:10px 16px;font-size:13px;font-weight:700;display:inline-block}
-.nota-jefe{margin-top:6px;font-size:12px;color:#7f1d1d;font-style:italic}
+
+/* RESULTADO FINAL */
+.dec-done-ok{background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;display:inline-block}
+.dec-done-no{background:#fee2e2;color:#7f1d1d;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;display:inline-block}
+.nota-jefe-result{margin-top:8px;padding:10px 14px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:9px;font-size:13px;color:#92400e;line-height:1.5}
+
 .estado-empty{padding:48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
 .e-ico{font-size:44px;opacity:.35}.e-txt{font-family:"Space Mono",monospace;font-size:13px;color:#718096}
 .spin{display:inline-block;width:16px;height:16px;border:2.5px solid rgba(56,96,178,.25);border-top-color:var(--azul);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
 .notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--nrj)}
-@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.kpi-row{grid-template-columns:1fr 1fr}.lin-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -105,7 +126,7 @@ input.fi:focus{border-color:var(--azul)}
 </div>
 <div id="notif" class="notif"></div>
 <script>
-const SB="https://rzcfrjgwxhgwslwvtbbe.supabase.co";
+const SB="/api/supa";
 const SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6Y2Zyamd3eGhnd3Nsd3Z0YmJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3MzA2NjIsImV4cCI6MjA4ODMwNjY2Mn0.hWg2jS8q_X6xIbfMIYGU7Bp7JcJhpYbQwJEB4ZaSjrs";
 let U=null,todos=[];
 const hdr={apikey:SK,Authorization:"Bearer "+SK};
@@ -162,30 +183,37 @@ function render(){
     const lh=ls.map(l=>{
       const cantInput=pend
         ?`<div class="lin-cant-jefe">
-            <span class="lin-cant-lbl">Cant. ajustada</span>
+            <span class="lin-cant-lbl">Cant. Ajustada por Jefe</span>
             <input class="lin-cant-input" type="number" id="lq-${l.id}" placeholder="${l.cantidad}" min="0.01" step="0.01">
           </div>`
         : l.cantidad_jefe
-          ?`<div style="margin-top:5px;font-size:11px;font-weight:700;color:var(--azul-d);font-family:'Space Mono',monospace">✏️ Ajustada: ${l.cantidad_jefe} ${l.um||""}</div>`
+          ?`<div class="lin-cant-grabada">✏️ Ajustada: ${l.cantidad_jefe} ${l.um||""}</div>`
           :"";
+
+      const codigos=[];
+      if(l.articulosap) codigos.push(`<span class="lin-cod-badge">SAP: ${l.articulosap}</span>`);
+      if(l.articulohana) codigos.push(`<span class="lin-cod-badge">HANA: ${l.articulohana}</span>`);
+
       return`<div class="lin-row">
-        <div style="flex:1">
+        <div class="lin-left">
+          ${codigos.length?`<div class="lin-codigos">${codigos.join("")}</div>`:""}
           <div class="lin-desc">${l.descripcion||"—"}</div>
-          <div class="lin-cod">${l.articulosap||""}${l.articulohana?" · HANA: "+l.articulohana:""}</div>
-          <div class="lin-uso">${l.utilizacion||""}</div>
+          ${l.utilizacion?`<div class="lin-uso">${l.utilizacion}</div>`:""}
           ${cantInput}
         </div>
-        <div class="lin-qty">Solicitado: ${l.cantidad} ${l.um||""}</div>
+        <div class="lin-right">
+          <span class="lin-qty-label">Solicitado</span>
+          <span class="lin-qty-val">${l.cantidad}</span>
+          <span class="lin-um-val">${l.um||""}</span>
+        </div>
       </div>`;
     }).join("");
 
     const dec=pend
       ?`<div class="dec-panel" id="dp-${r.id}">
-          <div class="dec-row">
-            <div class="field" style="flex:1">
-              <label class="fl">Nota general (opcional)</label>
-              <input class="fi" id="dn-${r.id}" type="text" placeholder="Comentario para el supervisor…">
-            </div>
+          <div>
+            <div class="dec-nota-lbl">📝 Nota general para el supervisor</div>
+            <input class="dec-nota-input" id="dn-${r.id}" type="text" placeholder="Escribe un comentario o instrucción para el supervisor…">
           </div>
           <div class="dec-btns">
             <button class="btn-apro" id="ba-${r.id}" onclick="decidir(${r.id},'Aprobado')">✅ Aprobar</button>
@@ -193,26 +221,28 @@ function render(){
           </div>
         </div>`
       :r.estado==="Aprobado"
-        ?`<div class="dec-panel" style="background:#f0fff4;border-color:#9ae6b4">
+        ?`<div class="dec-panel" style="background:#f0fff4;border-color:#9ae6b4;margin:0 20px 16px">
             <span class="dec-done-ok">✅ Aprobado — enviado al Planner</span>
-            ${r.notas_jefe?`<div class="nota-jefe">Nota: ${r.notas_jefe}</div>`:""}
+            ${r.notas_jefe?`<div class="nota-jefe-result">💬 ${r.notas_jefe}</div>`:""}
           </div>`
-        :`<div class="dec-panel" style="background:#fff5f5;border-color:#fca5a5">
-            <span class="dec-done-no">❌ Rechazado${r.notas_jefe?" — "+r.notas_jefe:""}</span>
+        :`<div class="dec-panel" style="background:#fff5f5;border-color:#fca5a5;margin:0 20px 16px">
+            <span class="dec-done-no">❌ Rechazado</span>
+            ${r.notas_jefe?`<div class="nota-jefe-result">💬 ${r.notas_jefe}</div>`:""}
           </div>`;
 
     return`<div class="req-card" id="rc-${r.id}">
       <div class="req-hdr">
         <div>
           <div class="req-id">REQ-${String(r.id).padStart(5,"0")}</div>
-          <div class="req-meta">${r.fecha_requisicion} · ${r.nombre_solicitante} (${r.codigo_solicitante})</div>
+          <div class="req-meta">📅 ${r.fecha_requisicion} · 👤 ${r.nombre_solicitante} (${r.codigo_solicitante})</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
           ${bCrit(r.criticidad)}
           <span class="badge b-${r.estado==="Pendiente"?"pend":r.estado==="Aprobado"?"apro":"rech"}">${r.estado}</span>
         </div>
       </div>
-      <div class="req-body">${lh}${dec}</div>
+      ${lh}
+      ${dec}
     </div>`;
   }).join("");
 }
