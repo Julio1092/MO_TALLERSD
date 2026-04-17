@@ -369,7 +369,7 @@ async function iniciarCarga() {
   agregarLog(`— PASO 3: Insertando ${filas.length} artículos…`, 'info');
 
   let ok = 0, err = 0;
-  const BATCH = 50;
+  const BATCH = 800;
 
   for (let i = 0; i < filas.length; i += BATCH) {
     const lote = filas.slice(i, i + BATCH);
