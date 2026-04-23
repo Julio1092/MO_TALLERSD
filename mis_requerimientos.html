@@ -95,7 +95,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--fondo);min-height:100vh}
 <body>
 
 <div class="topbar">
-  <button class="btn-back" onclick="window.location.href='menu_pedidos_supervisor.html'">← Pedidos</button>
+  <button class="btn-back" id="btn-back" onclick="window.location.href='menu_pedidos_supervisor.html'">← Pedidos</button>
   <div class="tb-logo">MIS REQUERIMIENTOS</div>
   <button class="btn-nueva" onclick="window.location.href='crear_requerimiento.html'">＋ Nuevo</button>
 </div>
@@ -150,7 +150,12 @@ async function get(p){
 window.onload=async()=>{
   U=getSession();
   if(!U){window.location.href="index.html";return;}
-  if((U.rol||"").toUpperCase()!=="SUPERVISOR"){window.location.href="index.html";return;}
+  if((U.rol||"").toUpperCase()!=="SUPERVISOR"&&(U.rol||"").toUpperCase()!=="JEFE"){window.location.href="index.html";return;}
+  const esJefe=(U.rol||"").toUpperCase()==="JEFE";
+  if(esJefe){
+    document.getElementById("btn-back").onclick=()=>window.location.href="menu_jefe.html";
+    document.getElementById("btn-back").textContent="← Menú";
+  }
   const hoy=isoHoy();
   const d=new Date(hoy+"T12:00:00"); d.setDate(d.getDate()-30);
   document.getElementById("f-desde").value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;

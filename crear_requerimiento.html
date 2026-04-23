@@ -99,7 +99,7 @@ textarea.fi{resize:vertical;min-height:74px}
   </div>
 </div>
 <div class="topbar">
-  <button class="btn-back" onclick="window.location.href='menu_pedidos_supervisor.html'">← Pedidos</button>
+  <button class="btn-back" id="btn-back" onclick="window.location.href='menu_pedidos_supervisor.html'">← Volver</button>
   <div class="tb-logo">NUEVO REQUERIMIENTO</div>
   <div class="tb-user" id="tb-user">—</div>
 </div>
@@ -148,8 +148,10 @@ async function post(t,b,pref="return=minimal"){const r=await fetch(SB+"/rest/v1/
 window.onload=async()=>{
   U=getSession();
   if(!U){window.location.href="index.html";return;}
-  if((U.rol||"").toUpperCase()!=="SUPERVISOR"){window.location.href="index.html";return;}
-  document.getElementById("tb-user").textContent="👔 "+U.nombre;
+  if((U.rol||"").toUpperCase()!=="SUPERVISOR"&&(U.rol||"").toUpperCase()!=="JEFE"){window.location.href="index.html";return;}
+  const esJefe=(U.rol||"").toUpperCase()==="JEFE";
+  document.getElementById("tb-user").textContent=(esJefe?"🧑🏻‍💻 ":"👔 ")+U.nombre;
+  if(esJefe) document.getElementById("btn-back").onclick=()=>window.location.href="menu_jefe.html";
   document.getElementById("f-fecha").value=isoHoy();
   document.getElementById("f-solic").value=U.codigo+" — "+U.nombre;
   const btn=document.getElementById("btn-add");
@@ -263,7 +265,8 @@ async function ejecutar(){
     document.getElementById("ov-save").classList.remove("show");
     document.getElementById("ok-sub").textContent="REQ-"+String(id).padStart(5,"0")+" enviado al jefe para aprobación";
     document.getElementById("ov-ok").classList.add("show");
-    setTimeout(()=>window.location.href="menu_pedidos_supervisor.html",2800);
+    const menuRedir=(U.rol||"").toUpperCase()==="JEFE"?"menu_jefe.html":"menu_pedidos_supervisor.html";
+    setTimeout(()=>window.location.href=menuRedir,2800);
   }catch(e){
     document.getElementById("ov-save").classList.remove("show");
     document.getElementById("btn-enviar").disabled=false;
