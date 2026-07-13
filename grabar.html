@@ -629,7 +629,34 @@ async function guardar(){
     if(!actAlim){notify('Falta la actividad de ALIMENTACIÓN (actividad: ALIMENTACION, componente: ALIMENTACION, duración: 1 hora exacta)','error');return;}
   }
 
-  // 6. Validar total de horas del turno
+  // 6. Regla del Gerente de Taller: máximo 20 min al CC del área
+  if(userActual?._CC){
+    const ccStr = String(userActual._CC);
+    let minsCC = 0;
+    const actsCC = [];
+    actIds.forEach(id=>{
+      const otSel = document.getElementById('act-ot-'+id)?.value || '';
+      if(otSel === ccStr){
+        minsCC += getMinsAct(id);
+        actsCC.push(actIds.indexOf(id)+1);
+      }
+    });
+    if(minsCC > 20){
+      // Marcar en rojo las actividades imputadas al CC para que el operario las ubique rápido
+      actIds.forEach(id=>{
+        const otSel = document.getElementById('act-ot-'+id)?.value || '';
+        if(otSel === ccStr) document.getElementById('act-ot-'+id)?.classList.add('campo-error');
+      });
+      const hh=Math.floor(minsCC/60), mm=minsCC%60;
+      const tiempoStr = hh>0 ? `${hh}h ${mm}min` : `${mm} min`;
+      notify(`⛔ Por orden del Gerente de Taller ya no se pueden reportar más de 20 min al CC del área (${ccStr}). Llevas ${tiempoStr} en la(s) actividad(es) #${actsCC.join(', #')}. Reasigna el tiempo excedente a una Orden de Trabajo (OT).`,'error');
+      // Llevar al operario a la primera actividad marcada
+      document.getElementById('act-'+actIds.find(id=>(document.getElementById('act-ot-'+id)?.value||'')===ccStr))?.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+  }
+
+  // 7. Validar total de horas del turno
   const cfg=TURNO_CFG[turno];
   if(cfg&&cfg.limite>0){
     let tot=0;actIds.forEach(id=>tot+=getMinsAct(id));
