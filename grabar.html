@@ -238,17 +238,47 @@ async function sbGet(path) {
   return r.json();
 }
 
+// 🔑 Trae TODAS las filas paginando de 1000 en 1000.
+// PostgREST/Supabase limita a 1000 filas por request (db-max-rows),
+// por eso hay que pedir por bloques con Range hasta agotar la tabla.
+async function sbGetAll(path, pageSize = 1000) {
+  const sep = path.includes('?') ? '&' : '?';
+  const todo = [];
+  let desde = 0;
+  while (true) {
+    const hasta = desde + pageSize - 1;
+    const r = await fetch(`${SB_URL_G}/rest/v1/${path}${sep}limit=${pageSize}&offset=${desde}`, {
+      headers: {
+        apikey: SB_KEY_G,
+        Authorization: `Bearer ${SB_KEY_G}`,
+        'Range-Unit': 'items',
+        'Range': `${desde}-${hasta}`
+      }
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const parte = await r.json();
+    if (!parte || parte.length === 0) break;
+    todo.push(...parte);
+    if (parte.length < pageSize) break;   // ya no hay más
+    desde += pageSize;
+    if (desde > 100000) break;            // salvavidas
+  }
+  return todo;
+}
+
 async function cargarActividades() {
   try {
-    const data = await sbGet('Actividades?select=Actividad&order=Actividad.asc');
+    const data = await sbGetAll('Actividades?select=Actividad&order=Actividad.asc');
     H_ACTIVIDADES = (data||[]).map(d=>d.Actividad).filter(Boolean);
+    console.log(`✅ Actividades cargadas: ${H_ACTIVIDADES.length}`);
   } catch(e) { console.warn('Actividades:', e.message); }
 }
 
 async function cargarComponentes() {
   try {
-    const data = await sbGet('Componentes?select=Componente&order=Componente.asc');
+    const data = await sbGetAll('Componentes?select=Componente&order=Componente.asc');
     H_COMPONENTES = (data||[]).map(d=>d.Componente).filter(Boolean);
+    console.log(`✅ Componentes cargados: ${H_COMPONENTES.length}`);
   } catch(e) { console.warn('Componentes:', e.message); }
 }
 
