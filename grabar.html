@@ -630,28 +630,41 @@ async function guardar(){
   }
 
   // 6. Regla del Gerente de Taller: máximo 20 min al CC del área
+  //    (la hora de ALIMENTACIÓN NO cuenta — es aparte)
   if(userActual?._CC){
     const ccStr = String(userActual._CC);
     let minsCC = 0;
     const actsCC = [];
     actIds.forEach(id=>{
       const otSel = document.getElementById('act-ot-'+id)?.value || '';
-      if(otSel === ccStr){
+      const act   = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+      const com   = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+      const esAlimentacion = act==='ALIMENTACION' && com==='ALIMENTACION';
+      if(otSel === ccStr && !esAlimentacion){
         minsCC += getMinsAct(id);
         actsCC.push(actIds.indexOf(id)+1);
       }
     });
     if(minsCC > 20){
-      // Marcar en rojo las actividades imputadas al CC para que el operario las ubique rápido
+      // Marcar en rojo las actividades imputadas al CC (excepto la alimentación) para que el operario las ubique rápido
       actIds.forEach(id=>{
         const otSel = document.getElementById('act-ot-'+id)?.value || '';
-        if(otSel === ccStr) document.getElementById('act-ot-'+id)?.classList.add('campo-error');
+        const act   = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+        const com   = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+        const esAlimentacion = act==='ALIMENTACION' && com==='ALIMENTACION';
+        if(otSel === ccStr && !esAlimentacion) document.getElementById('act-ot-'+id)?.classList.add('campo-error');
       });
       const hh=Math.floor(minsCC/60), mm=minsCC%60;
       const tiempoStr = hh>0 ? `${hh}h ${mm}min` : `${mm} min`;
-      notify(`⛔ Por orden del Gerente de Taller ya no se pueden reportar más de 20 min al CC del área (${ccStr}). Llevas ${tiempoStr} en la(s) actividad(es) #${actsCC.join(', #')}. Reasigna el tiempo excedente a una Orden de Trabajo (OT).`,'error');
+      notify(`⛔ Por orden del Gerente de Taller ya no se pueden reportar más de 20 min al CC del área (${ccStr}), sin contar la hora de alimentación. Llevas ${tiempoStr} en la(s) actividad(es) #${actsCC.join(', #')}. Reasigna el tiempo excedente a una Orden de Trabajo (OT).`,'error');
       // Llevar al operario a la primera actividad marcada
-      document.getElementById('act-'+actIds.find(id=>(document.getElementById('act-ot-'+id)?.value||'')===ccStr))?.scrollIntoView({behavior:'smooth',block:'center'});
+      const primeraCC = actIds.find(id=>{
+        const otSel = document.getElementById('act-ot-'+id)?.value || '';
+        const act   = (document.getElementById('act-act-'+id)?.value||'').trim().toUpperCase();
+        const com   = (document.getElementById('act-com-'+id)?.value||'').trim().toUpperCase();
+        return otSel===ccStr && !(act==='ALIMENTACION' && com==='ALIMENTACION');
+      });
+      document.getElementById('act-'+primeraCC)?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
   }
