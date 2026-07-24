@@ -241,27 +241,45 @@ async function sbGet(path) {
 // 🔑 Trae TODAS las filas paginando de 1000 en 1000.
 // PostgREST/Supabase limita a 1000 filas por request (db-max-rows),
 // por eso hay que pedir por bloques con Range hasta agotar la tabla.
+// Además pide el conteo exacto para verificar que trajimos todo.
 async function sbGetAll(path, pageSize = 1000) {
-  const sep = path.includes('?') ? '&' : '?';
+  const nombreTabla = path.split('?')[0];
   const todo = [];
   let desde = 0;
+  let totalEsperado = null;
+
   while (true) {
     const hasta = desde + pageSize - 1;
-    const r = await fetch(`${SB_URL_G}/rest/v1/${path}${sep}limit=${pageSize}&offset=${desde}`, {
+    const r = await fetch(`${SB_URL_G}/rest/v1/${path}`, {
       headers: {
         apikey: SB_KEY_G,
         Authorization: `Bearer ${SB_KEY_G}`,
         'Range-Unit': 'items',
-        'Range': `${desde}-${hasta}`
+        'Range': `${desde}-${hasta}`,
+        'Prefer': 'count=exact'
       }
     });
-    if (!r.ok) throw new Error(await r.text());
+    if (!r.ok) throw new Error(`[${nombreTabla}] HTTP ${r.status}: ${await r.text()}`);
+
+    // Content-Range: "0-999/2345"  →  total esperado = 2345
+    if (totalEsperado === null) {
+      const cr = r.headers.get('content-range') || '';
+      const m = cr.match(/\/(\d+|\*)$/);
+      if (m && m[1] !== '*') totalEsperado = parseInt(m[1], 10);
+      console.log(`📊 [${nombreTabla}] total en base de datos: ${totalEsperado ?? '?'}`);
+    }
+
     const parte = await r.json();
+    console.log(`  📄 [${nombreTabla}] página ${(desde/pageSize)+1}: ${parte?.length || 0} filas`);
     if (!parte || parte.length === 0) break;
     todo.push(...parte);
     if (parte.length < pageSize) break;   // ya no hay más
     desde += pageSize;
     if (desde > 100000) break;            // salvavidas
+  }
+
+  if (totalEsperado !== null && todo.length !== totalEsperado) {
+    console.warn(`⚠️ [${nombreTabla}] cargados ${todo.length} de ${totalEsperado} → faltan ${totalEsperado - todo.length}`);
   }
   return todo;
 }

@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MANODEOBRA – Cargar Existencias</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --naranja:#c05621;--naranja-d:#7c2d12;--naranja-bg:rgba(192,86,33,0.07);
+  --lila:#553c9a;--lila-d:#2d1f5e;
+  --borde:#e2e8f0;--rojo:#e53e3e;--verde:#2e9e4f;
+  --fondo:#f0f4fb;--shadow:0 2px 16px rgba(45,31,94,0.10)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--fondo);min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--naranja-d);color:white;display:flex;align-items:center;padding:0 20px;height:58px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(124,45,18,0.35);gap:12px}
+.tb-logo{font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:2px;color:white;flex:1}
+.btn-back{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-back:hover{background:rgba(255,255,255,0.22)}
+.tb-user{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.9)}
+
+.page{max-width:820px;margin:0 auto;padding:24px 16px;display:flex;flex-direction:column;gap:20px}
+.card{background:white;border:1.5px solid var(--borde);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.card-ttl{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--naranja);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+/* ESTADO ACTUAL */
+.estado-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.estado-cell{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:10px;padding:12px 10px;text-align:center}
+.estado-val{font-family:'Space Mono',monospace;font-size:20px;font-weight:700;color:var(--naranja-d)}
+.estado-lbl{font-size:10px;color:#9A3412;font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-top:3px}
+.estado-fecha{grid-column:1 / -1;background:#FEF3C7;border:1.5px solid #FCD34D;border-radius:10px;padding:10px 14px;text-align:center;font-size:12px;color:#78350F;font-weight:600}
+
+/* INFO */
+.info-box{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:14px 16px;font-size:13px;color:#7C2D12;line-height:1.7}
+.info-box strong{font-weight:700}
+.col-map{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-top:10px}
+.col-excel{background:#FED7AA;border:1px solid #FDBA74;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#7C2D12;text-align:center}
+.col-arrow{font-size:16px;color:var(--naranja);text-align:center}
+.col-db{background:#FFEDD5;border:1px solid #FED7AA;border-radius:6px;padding:5px 12px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#9A3412;text-align:center}
+
+/* DROP ZONE */
+.drop-zone{border:2.5px dashed #FDBA74;border-radius:14px;padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#FFFAF5;position:relative}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--naranja);background:#FFF7ED}
+.drop-icon{font-size:48px;margin-bottom:12px}
+.drop-title{font-size:16px;font-weight:700;color:var(--naranja-d);margin-bottom:6px}
+.drop-sub{font-size:13px;color:#9A3412}
+.drop-sub span{color:var(--naranja);font-weight:700;cursor:pointer;text-decoration:underline}
+#file-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-selected{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#FFEDD5;border:1.5px solid #FED7AA;border-radius:10px;margin-top:12px}
+.file-icon{font-size:28px}
+.file-name{font-weight:700;color:var(--naranja-d);font-size:14px}
+.file-size{font-size:12px;color:#9A3412}
+.btn-clear{margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:#aaa;transition:color .2s}
+.btn-clear:hover{color:var(--rojo)}
+
+/* PREVIEW */
+.preview-wrap{overflow-x:auto;border-radius:10px;border:1.5px solid var(--borde);max-height:320px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{background:var(--naranja-d);color:white;position:sticky;top:0}
+thead th{padding:10px 14px;text-align:left;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+tbody tr{border-bottom:1px solid #f0f2f8;transition:background .15s}
+tbody tr:hover{background:#fffaf5}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:9px 14px;color:#1a202c;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+tbody td:first-child{font-family:'Space Mono',monospace;font-size:11px;color:var(--naranja);font-weight:700}
+.preview-cnt{font-size:12px;color:#718096;margin-bottom:10px;font-family:'Space Mono',monospace}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:white;border:1.5px solid var(--borde);border-radius:12px;padding:14px 16px;text-align:center;box-shadow:var(--shadow)}
+.kpi-val{font-family:'Space Mono',monospace;font-size:26px;font-weight:700}
+.kpi-lbl{font-size:11px;color:#718096;font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-top:3px}
+.kpi.total .kpi-val{color:var(--naranja)}
+.kpi.ok .kpi-val{color:var(--verde)}
+.kpi.err .kpi-val{color:var(--rojo)}
+
+/* PROG */
+.prog-wrap{background:#FED7AA;border-radius:20px;height:10px;overflow:hidden;margin-bottom:10px}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--naranja),#F97316);border-radius:20px;transition:width .3s ease;width:0%}
+.prog-label{font-size:12px;color:#718096;text-align:center;font-family:'Space Mono',monospace;font-weight:700}
+
+/* BOTÓN */
+.btn-upload{width:100%;padding:16px;background:linear-gradient(135deg,var(--naranja),#F97316);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;letter-spacing:.5px;box-shadow:0 4px 14px rgba(192,86,33,0.35)}
+.btn-upload:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(192,86,33,0.5)}
+.btn-upload:disabled{background:#cbd5e0;cursor:not-allowed;transform:none;box-shadow:none}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:sp 1s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* LOG */
+.log-box{background:#0f172a;color:#cbd5e0;border-radius:10px;padding:12px 16px;font-family:'Space Mono',monospace;font-size:11px;max-height:250px;overflow-y:auto;line-height:1.6}
+.log-line{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.log-info{color:#cbd5e0}.log-ok{color:#68d391}.log-err{color:#fc8181}.log-warn{color:#fbd38d}
+
+/* NOTIF */
+.notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#2d3748;color:white;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1);max-width:90vw;text-align:center}
+.notif.show{transform:translateX(-50%) translateY(0)}.notif.error{background:var(--rojo)}.notif.success{background:var(--verde)}.notif.warning{background:var(--naranja)}
+
+.hidden{display:none!important}
+
+@media(max-width:600px){
+  .estado-grid{grid-template-columns:repeat(2,1fr)}
+  .kpi-row{grid-template-columns:1fr 1fr 1fr}
+  .kpi-val{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="btn-back" onclick="window.location.href='menu_cct.html'">← Menú</button>
+  <div class="tb-logo">CARGAR EXISTENCIAS</div>
+  <div class="tb-user" id="tb-user">—</div>
+</div>
+
+<div class="page">
+
+  <!-- ESTADO ACTUAL -->
+  <div class="card">
+    <div class="card-ttl"><span class="dot"></span> Estado actual de la base</div>
+    <div class="estado-grid">
+      <div class="estado-cell"><div class="estado-val" id="est-total">—</div><div class="estado-lbl">Registros</div></div>
+      <div class="estado-cell"><div class="estado-val" id="est-mat">—</div><div class="estado-lbl">Materiales</div></div>
+      <div class="estado-cell"><div class="estado-val" id="est-cen">—</div><div class="estado-lbl">Centros</div></div>
+      <div class="estado-cell"><div class="estado-val" id="est-alm">—</div><div class="estado-lbl">Almacenes</div></div>
+      <div class="estado-fecha" id="est-fecha">Consultando última carga…</div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="info-box">
+    📋 <strong>¿Cómo funciona?</strong> Sube el reporte de existencias exportado desde SAP. Al confirmar, se <strong>borrarán todos los registros previos</strong> y se cargarán los del nuevo Excel.
+    <div class="col-map">
+      <div class="col-excel">Material</div><div class="col-arrow">→</div><div class="col-db">Material</div>
+      <div class="col-excel">Centro</div><div class="col-arrow">→</div><div class="col-db">Centro</div>
+      <div class="col-excel">Almacén</div><div class="col-arrow">→</div><div class="col-db">Almacen</div>
+      <div class="col-excel">Libre utilización</div><div class="col-arrow">→</div><div class="col-db">Cantidad</div>
+      <div class="col-excel">Unidad medida base</div><div class="col-arrow">→</div><div class="col-db">UM</div>
+      <div class="col-excel">Descripción del material</div><div class="col-arrow">→</div><div class="col-db">Descripcion</div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="card">
+    <div class="card-ttl"><span class="dot"></span> Seleccionar Archivo Excel</div>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+      <div class="drop-icon">📦</div>
+      <div class="drop-title">Arrastra tu archivo aquí</div>
+      <div class="drop-sub">o <span>haz clic para seleccionar</span> — .xlsx, .xls, .csv</div>
+    </div>
+    <div id="file-info" class="hidden">
+      <div class="file-selected">
+        <span class="file-icon">📗</span>
+        <div>
+          <div class="file-name" id="file-name">—</div>
+          <div class="file-size" id="file-size">—</div>
+        </div>
+        <button class="btn-clear" onclick="limpiar()" title="Quitar archivo">✕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="card hidden" id="preview-card">
+    <div class="card-ttl"><span class="dot"></span> Vista Previa</div>
+    <div class="preview-cnt" id="preview-cnt"></div>
+    <div class="preview-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Material</th><th>Centro</th><th>Almacén</th><th>Cant.</th><th>UM</th><th>Descripción</th></tr></thead>
+        <tbody id="preview-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- KPI + BOTÓN -->
+  <div class="hidden" id="action-section">
+    <div class="kpi-row" style="margin-bottom:16px">
+      <div class="kpi total"><div class="kpi-val" id="k-total">0</div><div class="kpi-lbl">Total filas</div></div>
+      <div class="kpi ok"><div class="kpi-val" id="k-ok">0</div><div class="kpi-lbl">Insertadas ✓</div></div>
+      <div class="kpi err"><div class="kpi-val" id="k-err">0</div><div class="kpi-lbl">Errores ✗</div></div>
+    </div>
+    <div id="prog-section" class="hidden" style="margin-bottom:16px">
+      <div class="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+      <div class="prog-label" id="prog-label">0 / 0</div>
+    </div>
+    <button class="btn-upload" id="btn-upload" onclick="iniciarCarga()">⬆️ Reemplazar existencias</button>
+  </div>
+
+  <!-- LOG -->
+  <div class="card hidden" id="log-card">
+    <div class="card-ttl"><span class="dot"></span> Registro de Operación</div>
+    <div class="log-box" id="log-box"></div>
+  </div>
+
+</div>
+
+<div id="notif" class="notif"></div>
+
+<script>
+const TABLA = 'Existencias';
+let filas = [];
+let cargando = false;
+
+/* ── AUTH: solo CCT ── */
+window.onload = () => {
+  const u = getSession();
+  if (!u) { window.location.href = 'index.html'; return; }
+  if ((u.rol||'').toUpperCase() !== 'CCT') { window.location.href = 'index.html'; return; }
+  document.getElementById('tb-user').textContent = u.nombre;
+  cargarEstadoActual();
+};
+
+/* ── ESTADO ACTUAL ── */
+async function cargarEstadoActual(){
+  try{
+    const HDR = { apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY, 'Prefer':'count=exact', 'Range':'0-0' };
+    // Total registros
+    const rTot = await fetch(`/api/supa/rest/v1/${TABLA}?select=id`, { headers: HDR });
+    const crTot = rTot.headers.get('content-range') || '';
+    const total = parseInt((crTot.split('/')[1]||'0'),10) || 0;
+    document.getElementById('est-total').textContent = total.toLocaleString('es-GT');
+
+    // Última carga (max created_at)
+    const rFecha = await fetch(`/api/supa/rest/v1/${TABLA}?select=created_at&order=created_at.desc&limit=1`, {
+      headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY }
+    });
+    const fechaData = await rFecha.json();
+    if (fechaData && fechaData[0]?.created_at){
+      const f = new Date(fechaData[0].created_at);
+      document.getElementById('est-fecha').textContent = '📅 Última carga: ' + f.toLocaleString('es-GT',{dateStyle:'long',timeStyle:'short'});
+    } else {
+      document.getElementById('est-fecha').textContent = '📭 No hay carga previa registrada';
+    }
+
+    // Materiales / centros / almacenes distintos (aproximación: consulta muestra)
+    if (total > 0){
+      const rMuestra = await fetch(`/api/supa/rest/v1/${TABLA}?select=Material,Centro,Almacen&limit=5000`, {
+        headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY }
+      });
+      const muestra = await rMuestra.json();
+      const mats = new Set(), cens = new Set(), alms = new Set();
+      (muestra||[]).forEach(r => { r.Material && mats.add(r.Material); r.Centro && cens.add(r.Centro); r.Almacen && alms.add(r.Almacen); });
+      document.getElementById('est-mat').textContent = mats.size.toLocaleString('es-GT') + (total > 5000 ? '+' : '');
+      document.getElementById('est-cen').textContent = cens.size;
+      document.getElementById('est-alm').textContent = alms.size;
+    } else {
+      document.getElementById('est-mat').textContent = '0';
+      document.getElementById('est-cen').textContent = '0';
+      document.getElementById('est-alm').textContent = '0';
+    }
+  } catch(e){
+    console.warn('No se pudo cargar estado actual:', e.message);
+    document.getElementById('est-fecha').textContent = '⚠️ No se pudo consultar el estado actual';
+  }
+}
+
+/* ── DRAG & DROP ── */
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) procesarArchivo(e.dataTransfer.files[0]);
+});
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) procesarArchivo(e.target.files[0]);
+});
+
+/* ── PROCESAR ARCHIVO ── */
+function procesarArchivo(file){
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (!['xlsx','xls','csv'].includes(ext)) { notify('Solo se aceptan archivos .xlsx, .xls o .csv','error'); return; }
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-size').textContent = (file.size/1024).toFixed(1)+' KB';
+  document.getElementById('file-info').classList.remove('hidden');
+  document.getElementById('drop-zone').style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, {defval:''});
+
+      filas = json.map(r => {
+        const material = String(r['Material']||'').trim();
+        if (!material) return null;
+        const cantRaw = r['Libre utilización'] ?? r['Libre utilizacion'] ?? 0;
+        const cantidad = typeof cantRaw === 'number' ? cantRaw : parseFloat(String(cantRaw).replace(/,/g,'')) || 0;
+        return {
+          Material: material,
+          Centro: String(r['Centro']||'').trim(),
+          Almacen: String(r['Almacén']||r['Almacen']||'').trim(),
+          Cantidad: cantidad,
+          UM: String(r['Unidad medida base']||r['UM']||'').trim(),
+          Descripcion: String(r['Descripción del material']||r['Descripcion']||'').trim()
+        };
+      }).filter(Boolean);
+
+      if (!filas.length){ notify('El archivo no tiene datos válidos','error'); return; }
+
+      document.getElementById('k-total').textContent = filas.length;
+      renderPreview();
+      document.getElementById('preview-card').classList.remove('hidden');
+      document.getElementById('action-section').classList.remove('hidden');
+      notify(`✓ ${filas.length} filas leídas del Excel`,'success');
+    } catch(err){
+      notify('Error al leer el archivo: '+err.message,'error');
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function renderPreview(){
+  const preview = filas.slice(0, 50);
+  const tbody = document.getElementById('preview-body');
+  document.getElementById('preview-cnt').textContent = `Mostrando ${preview.length} de ${filas.length} filas` + (filas.length>50?' (primeras 50)':'');
+  tbody.innerHTML = preview.map((r,i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td>${r.Material}</td>
+      <td>${r.Centro}</td>
+      <td>${r.Almacen}</td>
+      <td>${r.Cantidad}</td>
+      <td>${r.UM}</td>
+      <td title="${r.Descripcion}">${r.Descripcion}</td>
+    </tr>`).join('');
+}
+
+function limpiar(){
+  filas = [];
+  document.getElementById('file-input').value = '';
+  document.getElementById('file-info').classList.add('hidden');
+  document.getElementById('drop-zone').style.display = '';
+  document.getElementById('preview-card').classList.add('hidden');
+  document.getElementById('action-section').classList.add('hidden');
+  document.getElementById('log-card').classList.add('hidden');
+  document.getElementById('k-ok').textContent = '0';
+  document.getElementById('k-err').textContent = '0';
+  document.getElementById('log-box').innerHTML = '';
+}
+
+/* ── CARGA ── */
+async function iniciarCarga(){
+  if (!filas.length){ notify('No hay datos para insertar','error'); return; }
+  if (cargando) return;
+
+  const confirmar = confirm(`⚠️ ATENCIÓN\n\nEsto hará lo siguiente:\n1. Borrar TODOS los registros actuales de Existencias\n2. Insertar los ${filas.length} registros del Excel\n\nLos mecánicos verán la nueva información inmediatamente.\n\n¿Deseas continuar?`);
+  if (!confirmar) return;
+
+  cargando = true;
+  const btn = document.getElementById('btn-upload');
+  btn.disabled = true;
+
+  document.getElementById('prog-section').classList.remove('hidden');
+  document.getElementById('log-card').classList.remove('hidden');
+  document.getElementById('log-box').innerHTML = '';
+
+  const HDR = {
+    'Content-Type': 'application/json',
+    'apikey': SUPA_KEY,
+    'Authorization': 'Bearer ' + SUPA_KEY,
+    'Prefer': 'return=minimal'
+  };
+
+  // PASO 1: borrar
+  btn.innerHTML = '<span class="spin"></span> Borrando existencias…';
+  agregarLog('— PASO 1: Borrando todos los registros existentes…','info');
+  try{
+    const resDel = await fetch(`/api/supa/rest/v1/${TABLA}?id=gte.0`, { method:'DELETE', headers: HDR });
+    if (!resDel.ok && resDel.status !== 204){
+      const txt = await resDel.text();
+      throw new Error(txt.slice(0,120));
+    }
+    agregarLog('✓ Registros borrados correctamente','ok');
+  } catch(e){
+    agregarLog(`✗ Error al borrar: ${e.message}`,'err');
+    notify('Error al borrar los registros existentes','error');
+    btn.disabled = false;
+    btn.innerHTML = '⬆️ Reemplazar existencias';
+    cargando = false;
+    return;
+  }
+
+  // PASO 2: insertar en lotes
+  btn.innerHTML = '<span class="spin"></span> Insertando…';
+  agregarLog(`— PASO 2: Insertando ${filas.length} filas…`,'info');
+
+  let ok = 0, err = 0;
+  const BATCH = 800;
+
+  for (let i=0; i<filas.length; i+=BATCH){
+    const lote = filas.slice(i, i+BATCH);
+    const pct = Math.round((i/filas.length)*100);
+    document.getElementById('prog-bar').style.width = pct+'%';
+    document.getElementById('prog-label').textContent = `${i} / ${filas.length}`;
+
+    try{
+      const resIns = await fetch(`/api/supa/rest/v1/${TABLA}`, {
+        method:'POST', headers: HDR, body: JSON.stringify(lote)
+      });
+      if (resIns.ok || resIns.status === 201){
+        ok += lote.length;
+        agregarLog(`✓ Lote ${Math.floor(i/BATCH)+1}: ${lote.length} filas insertadas`,'ok');
+      } else {
+        err += lote.length;
+        const txt = await resIns.text();
+        agregarLog(`✗ Lote ${Math.floor(i/BATCH)+1}: HTTP ${resIns.status} — ${txt.slice(0,120)}`,'err');
+      }
+    } catch(e){
+      err += lote.length;
+      agregarLog(`✗ Lote ${Math.floor(i/BATCH)+1}: ${e.message}`,'err');
+    }
+
+    document.getElementById('k-ok').textContent = ok;
+    document.getElementById('k-err').textContent = err;
+    await new Promise(r => setTimeout(r, 80));
+  }
+
+  document.getElementById('prog-bar').style.width = '100%';
+  document.getElementById('prog-label').textContent = `${filas.length} / ${filas.length}`;
+
+  if (err === 0){
+    notify(`✅ ${ok} existencias cargadas correctamente`,'success');
+    agregarLog(`— COMPLETADO: ${ok} insertadas, ${err} errores —`,'info');
+    cargarEstadoActual();
+  } else {
+    notify(`⚠️ ${ok} insertadas, ${err} con error`,'warning');
+    agregarLog(`— FIN: ${ok} OK · ${err} errores —`,'warn');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '⬆️ Reemplazar existencias';
+  cargando = false;
+}
+
+function agregarLog(msg, tipo){
+  const box = document.getElementById('log-box');
+  const div = document.createElement('div');
+  div.className = `log-line log-${tipo}`;
+  const now = new Date().toLocaleTimeString('es-GT');
+  div.innerHTML = `<span style="opacity:.5">[${now}]</span> <span>${msg}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+let nTO;
+function notify(msg, type='info'){
+  const el = document.getElementById('notif');
+  el.textContent = msg; el.className = 'notif '+type;
+  void el.offsetWidth; el.classList.add('show');
+  clearTimeout(nTO); nTO = setTimeout(() => el.classList.remove('show'), 5000);
+}
+</script>
+</body>
+</html>

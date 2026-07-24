@@ -110,6 +110,86 @@
   .btn-modal-confirm{padding:12px;border-radius:10px;border:none;background:var(--verde);color:white;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
   .btn-modal-confirm:hover{background:#276040}
   .qty-error{border-color:var(--rojo)!important;background:#fff5f5!important}
+/* ═══════════════════════════════════════════════════════
+   NUEVO: picker + selected state + modal fullscreen
+═══════════════════════════════════════════════════════ */
+
+/* Botón picker (estado vacío en cada línea) */
+.art-picker{display:flex;align-items:center;gap:14px;width:100%;background:linear-gradient(135deg,#eef2ff,#faf5ff);border:2px dashed #a5b4fc;border-radius:12px;padding:16px 18px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.art-picker:hover{border-color:#6366f1;background:linear-gradient(135deg,#e0e7ff,#f3e8ff);transform:translateY(-1px);box-shadow:0 4px 14px rgba(99,102,241,.15)}
+.art-picker.campo-error{border-color:#e53e3e;background:#fef2f2;animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.picker-icon{font-size:26px;flex-shrink:0}
+.picker-txt{flex:1;text-align:left}
+.picker-title{font-weight:700;font-size:14px;color:#3730a3}
+.picker-sub{font-size:11px;color:#6366f1;margin-top:2px}
+.picker-arrow{font-size:24px;color:#a5b4fc;font-weight:300}
+
+/* Selected state (artículo ya elegido en la línea) */
+.art-selected{background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 14px;transition:all .2s}
+.art-selected.campo-error{border-color:#e53e3e;background:#fef2f2}
+.sel-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.sel-desc{font-size:13px;font-weight:600;color:#14532d;line-height:1.35;flex:1}
+.sel-change{background:white;border:1.5px solid #86efac;color:#16a34a;width:30px;height:30px;border-radius:50%;font-size:16px;cursor:pointer;flex-shrink:0;transition:all .15s;line-height:1;padding:0}
+.sel-change:hover{background:#dcfce7;transform:rotate(180deg)}
+.sel-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sel-cod{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#3730a3;background:#e0e7ff;border:1px solid #c7d2fe;border-radius:5px;padding:2px 7px}
+.sel-bod{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:#7c2d12;background:#FFEDD5;border:1px solid #FED7AA;border-radius:5px;padding:2px 7px}
+
+/* Hint bajo la cantidad */
+.qty-hint{font-size:10px;color:#64748b;font-family:'Space Mono',monospace;margin-top:3px;min-height:14px;line-height:1.4}
+.qty-hint.qty-hint-err{color:#e53e3e;font-weight:700}
+
+/* MODAL FULLSCREEN (buscador) */
+.modal-picker{position:fixed;inset:0;background:#f8fafc;z-index:9998;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);visibility:hidden}
+.modal-picker.open{transform:translateY(0);visibility:visible}
+
+.mp-header{background:#00126b;color:white;padding:0 16px;height:56px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 10px rgba(0,18,107,.35);flex-shrink:0}
+.mp-back{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);color:white;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.mp-back:hover{background:rgba(255,255,255,.22)}
+.mp-title{font-family:'Space Mono',monospace;font-size:13px;letter-spacing:2px;font-weight:700}
+
+.mp-search-wrap{position:relative;padding:16px 16px 10px;background:white;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+.mp-search-input{width:100%;padding:14px 16px 14px 44px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;font-family:'DM Sans',sans-serif;transition:all .15s;background:#f8fafc}
+.mp-search-input:focus{outline:none;border-color:#3860b2;background:white;box-shadow:0 0 0 3px rgba(56,96,178,.12)}
+.mp-search-icon{position:absolute;left:30px;top:50%;transform:translateY(-25%);font-size:18px;color:#94a3b8;pointer-events:none}
+
+.mp-hint{padding:14px;text-align:center;color:#94a3b8;font-size:12px;font-family:'Space Mono',monospace;background:white;border-bottom:1px solid #e2e8f0}
+.mp-results{flex:1;overflow-y:auto;padding:12px 16px 30px;-webkit-overflow-scrolling:touch}
+
+.mp-empty{padding:40px 20px;text-align:center;color:#94a3b8}
+.mp-empty-icon{font-size:42px;margin-bottom:10px;opacity:.5}
+.mp-empty-title{font-weight:700;color:#64748b;margin-bottom:4px}
+.mp-empty-sub{font-size:12px}
+
+.mp-article{background:white;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:8px;overflow:hidden;transition:all .15s}
+.mp-article.open{border-color:#3860b2;box-shadow:0 4px 16px rgba(56,96,178,.12)}
+.mp-art-head{display:grid;grid-template-columns:auto 1fr auto auto;gap:10px;align-items:center;padding:12px 14px;cursor:pointer;transition:background .12s}
+.mp-art-head:hover{background:#f8fafc}
+.mp-article.open .mp-art-head{background:linear-gradient(90deg,rgba(56,96,178,.06),rgba(56,96,178,.02))}
+.mp-art-code{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#3730a3;background:#e0e7ff;border:1px solid #c7d2fe;border-radius:5px;padding:3px 8px;white-space:nowrap}
+.mp-art-desc{font-size:13px;color:#1a202c;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-art-total{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:#166534;background:#DCFCE7;border:1px solid #BBF7D0;border-radius:5px;padding:3px 8px;white-space:nowrap}
+.mp-art-arrow{color:#94a3b8;font-size:12px;transition:transform .2s}
+.mp-article.open .mp-art-arrow{transform:rotate(180deg);color:#3860b2}
+.mp-match{background:#fef08a;font-weight:700;border-radius:2px;padding:0 1px}
+
+.mp-art-body{max-height:0;overflow:hidden;transition:max-height .28s ease}
+.mp-article.open .mp-art-body{max-height:800px}
+.mp-bod-ttl{font-family:'Space Mono',monospace;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#c05621;padding:14px 14px 8px;border-top:1.5px dashed #e2e8f0}
+.mp-bodegas{display:flex;flex-direction:column;gap:6px;padding:0 14px 14px}
+.mp-bod-pill{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;text-align:left}
+.mp-bod-pill:hover{border-color:#2e9e4f;background:#DCFCE7;transform:translateX(2px)}
+.mp-bod-pill:active{transform:scale(.98)}
+.mp-bod-loc{font-size:13px;font-weight:600;color:#1a202c}
+.mp-sep{color:#94a3b8;margin:0 3px}
+.mp-bod-cant{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;color:#166534;background:white;border:1px solid #BBF7D0;border-radius:6px;padding:4px 10px;white-space:nowrap}
+
+@media(max-width:480px){
+  .mp-art-head{grid-template-columns:auto 1fr auto;gap:8px}
+  .mp-art-arrow{display:none}
+  .sel-desc{font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -165,6 +245,8 @@ async function sbGet(p){const r=await fetch(`${SB_URL}/rest/v1/${p}`,{headers:{a
 async function sbPost(t,b){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(b)});if(!r.ok)throw new Error(await r.text());}
 
 let userActual=null, articulos=[], otIds=[], nextOT=1, nextLine=1;
+let existenciasMap = {}; // { Material: { total, bodegas: [{centro, almacen, cantidad, um}] } }
+let modalLid = null;      // línea activa cuando se abre el buscador
 const hoy=isoHoy();
 
 function irAlMenu(){
@@ -183,10 +265,37 @@ window.onload=async()=>{
   const btnOT = document.getElementById('btn-add-ot');
   btnOT.disabled = true;
   btnOT.textContent = '⏳ Cargando artículos…';
-  await cargarArticulos();
+  await Promise.all([cargarArticulos(), cargarExistencias()]);
   btnOT.disabled = false;
   btnOT.textContent = '＋ Agregar Orden de Trabajo';
 };
+
+async function cargarExistencias(){
+  try{
+    const LIMIT = 1000;
+    let offset = 0, todo = [], pagina = [];
+    do {
+      pagina = await sbGet(`Existencias?select=Material,Centro,Almacen,Cantidad,UM&Cantidad=gt.0&order=Material.asc&limit=${LIMIT}&offset=${offset}`);
+      if(pagina && pagina.length) todo = todo.concat(pagina);
+      offset += LIMIT;
+    } while(pagina && pagina.length === LIMIT);
+
+    existenciasMap = {};
+    todo.forEach(r => {
+      const mat = String(r.Material||'').trim();
+      if(!mat) return;
+      if(!existenciasMap[mat]) existenciasMap[mat] = { total: 0, bodegas: [] };
+      const c = Number(r.Cantidad)||0;
+      existenciasMap[mat].bodegas.push({ centro: r.Centro||'', almacen: r.Almacen||'', cantidad: c, um: r.UM||'' });
+      existenciasMap[mat].total += c;
+    });
+    Object.values(existenciasMap).forEach(e => e.bodegas.sort((a,b) => b.cantidad - a.cantidad));
+    console.log(`✅ Existencias cargadas: ${Object.keys(existenciasMap).length} materiales con stock`);
+  } catch(e){
+    console.warn('Existencias:', e.message);
+    notify('No se pudo cargar la información de existencias','warning');
+  }
+}
 
 async function cargarArticulos(){
   try{
@@ -227,9 +336,10 @@ function agregarOT(){
       const lidV=lin.id.replace('lin-','');
       const codV=document.getElementById(`art-cod-${lidV}`)?.value?.trim();
       if(!codV){
-        document.getElementById(`art-${lidV}`)?.classList.add('campo-error');
+        document.getElementById(`picker-${lidV}`)?.classList.add('campo-error');
+        document.getElementById(`selected-${lidV}`)?.classList.add('campo-error');
         notify('Selecciona todos los artículos antes de agregar otra OT','error');
-        document.getElementById(`art-${lidV}`)?.scrollIntoView({behavior:'smooth',block:'center'});
+        (document.getElementById(`picker-${lidV}`)||document.getElementById(`selected-${lidV}`))?.scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
     }
@@ -288,9 +398,10 @@ function agregarLinea(otId){
     const lidUlt=ultima.id.replace('lin-','');
     const codUlt=document.getElementById(`art-cod-${lidUlt}`)?.value?.trim();
     if(!codUlt){
-      document.getElementById(`art-${lidUlt}`)?.classList.add('campo-error');
+      document.getElementById(`picker-${lidUlt}`)?.classList.add('campo-error');
+      document.getElementById(`selected-${lidUlt}`)?.classList.add('campo-error');
       notify('Selecciona un artículo antes de agregar otro','error');
-      document.getElementById(`art-${lidUlt}`)?.scrollIntoView({behavior:'smooth',block:'center'});
+      (document.getElementById(`picker-${lidUlt}`)||document.getElementById(`selected-${lidUlt}`))?.scrollIntoView({behavior:'smooth',block:'center'});
       return;
     }
   }
@@ -298,22 +409,35 @@ function agregarLinea(otId){
   const num=wrap.querySelectorAll('.linea').length+1;
   const div=document.createElement('div');div.className='linea';div.id=`lin-${lid}`;
   div.innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <span class="linea-num">#${num}</span>
-      <label class="fl">Artículo</label>
-      <div class="ss-wrap">
-        <input class="ss-input" id="art-${lid}" type="text" placeholder="Buscar descripción o código SAP…" autocomplete="off"
-          oninput="artFilter(${lid})" onfocus="artOpen(${lid})" onblur="artBlur(${lid})" onkeydown="artKey(event,${lid})">
-        <span class="ss-arrow">▾</span>
-        <div class="ss-dropdown" id="art-dd-${lid}"></div>
-        <input type="hidden" id="art-cod-${lid}">
-        <input type="hidden" id="art-hana-${lid}">
+    <span class="linea-num">#${num}</span>
+
+    <!-- ESTADO VACÍO: botón para abrir buscador -->
+    <button type="button" class="art-picker" id="picker-${lid}" onclick="abrirBuscador(${lid})">
+      <div class="picker-icon">🔍</div>
+      <div class="picker-txt">
+        <div class="picker-title">Buscar artículo</div>
+        <div class="picker-sub">Toca para elegir artículo y bodega</div>
+      </div>
+      <div class="picker-arrow">›</div>
+    </button>
+
+    <!-- ESTADO LLENO: artículo ya elegido -->
+    <div class="art-selected" id="selected-${lid}" style="display:none">
+      <div class="sel-top">
+        <div class="sel-desc" id="sel-desc-${lid}">—</div>
+        <button type="button" class="sel-change" onclick="abrirBuscador(${lid})" title="Cambiar artículo o bodega">↻</button>
+      </div>
+      <div class="sel-meta">
+        <span class="sel-cod" id="sel-cod-${lid}">—</span>
+        <span class="sel-bod" id="sel-bod-${lid}">—</span>
       </div>
     </div>
+
     <div class="linea-row2">
       <div style="display:flex;flex-direction:column;gap:3px">
         <label class="fl">Cantidad</label>
-        <input class="qty-input" type="number" id="qty-${lid}" min="0.01" step="0.01" value="1">
+        <input class="qty-input" type="number" id="qty-${lid}" min="0.01" step="0.01" value="1" oninput="validarCantidad(${lid})">
+        <div class="qty-hint" id="qty-hint-${lid}"></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:3px">
         <label class="fl">UM</label>
@@ -322,7 +446,15 @@ function agregarLinea(otId){
       <div style="display:flex;flex-direction:column;justify-content:flex-end">
         <button class="btn-del-line" onclick="eliminarLinea(${lid},${otId})">✕</button>
       </div>
-    </div>`;
+    </div>
+
+    <!-- Campos ocultos que usa el guardar -->
+    <input type="hidden" id="art-cod-${lid}">
+    <input type="hidden" id="art-hana-${lid}">
+    <input type="hidden" id="art-desc-${lid}">
+    <input type="hidden" id="art-bod-${lid}">
+    <input type="hidden" id="art-alm-${lid}">
+    <input type="hidden" id="art-max-${lid}">`;
   wrap.appendChild(div);
 }
 
@@ -333,46 +465,176 @@ function eliminarLinea(lid,otId){
   wrap.querySelectorAll('.linea-num').forEach((el,i)=>el.textContent=`#${i+1}`);
 }
 
-/* SEARCHABLE ARTICULOS */
-function artRender(lid,q){
-  const dd=document.getElementById(`art-dd-${lid}`);if(!dd)return;
-  const qL=(q||'').toLowerCase().trim();
-  const fil=qL?articulos.filter(a=>(a.Descripcion||'').toLowerCase().includes(qL)||String(a.ArticuloSAP||'').includes(qL)):articulos;
-  if(!fil.length){dd.innerHTML='<div class="ss-empty">Sin resultados</div>';return;}
-  dd.innerHTML=fil.slice(0,60).map((a,i)=>{
-    let desc=String(a.Descripcion||''),cod=String(a.ArticuloSAP||'');
-    if(qL){const hl=s=>{const p=s.toLowerCase().indexOf(qL);return p>=0?s.slice(0,p)+`<span class="ss-match">${s.slice(p,p+qL.length)}</span>`+s.slice(p+qL.length):s;};desc=hl(desc);cod=hl(cod);}
-    return `<div class="ss-option" data-idx="${i}" data-cod="${a.ArticuloSAP}" data-hana="${a.ArticuloHana||''}" data-desc="${a.Descripcion}" data-um="${a.UM||''}"
-      onmousedown="artSelect(${lid},this)"><span>${desc}</span><span class="ss-cod">${cod}</span></div>`;
-  }).join('');
+/* ═══════════════════════════════════════════════════════════
+   BUSCADOR EN MODAL FULLSCREEN
+   Se abre desde cada línea, permite buscar y elegir bodega,
+   y al elegir cierra el modal y llena la línea correspondiente
+═══════════════════════════════════════════════════════════ */
+
+function abrirBuscador(lid){
+  modalLid = lid;
+  const modal = document.getElementById('modal-picker');
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Precargar la búsqueda si ya había un artículo elegido (para facilitar cambio)
+  const codPrev = document.getElementById(`art-cod-${lid}`)?.value;
+  const q = document.getElementById('mp-q');
+  q.value = codPrev || '';
+  renderModalResults();
+  setTimeout(() => q.focus(), 120);
 }
-function artOpen(lid){artRender(lid,document.getElementById(`art-${lid}`)?.value);document.getElementById(`art-dd-${lid}`)?.classList.add('open');}
-function artBlur(lid){setTimeout(()=>document.getElementById(`art-dd-${lid}`)?.classList.remove('open'),200);}
-function artFilter(lid){
-  document.getElementById(`art-cod-${lid}`).value='';
-  document.getElementById(`art-hana-${lid}`).value='';
-  document.getElementById(`um-${lid}`).textContent='—';
-  document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
-  artRender(lid,document.getElementById(`art-${lid}`)?.value);
-  document.getElementById(`art-dd-${lid}`)?.classList.add('open');
+
+function cerrarBuscador(){
+  document.getElementById('modal-picker').classList.remove('open');
+  document.body.style.overflow = '';
+  modalLid = null;
 }
-function artSelect(lid,el){
-  document.getElementById(`art-${lid}`).value=el.dataset.desc;
-  document.getElementById(`art-cod-${lid}`).value=el.dataset.cod;
-  document.getElementById(`art-hana-${lid}`).value=el.dataset.hana||'';
-  document.getElementById(`um-${lid}`).textContent=el.dataset.um||'—';
-  document.getElementById(`art-dd-${lid}`)?.classList.remove('open');
-  document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
-  document.getElementById(`qty-${lid}`)?.focus();
+
+let mpTimer = null;
+function onModalSearch(){
+  clearTimeout(mpTimer);
+  mpTimer = setTimeout(renderModalResults, 200);
 }
-function artKey(event,lid){
-  const dd=document.getElementById(`art-dd-${lid}`);if(!dd||!dd.classList.contains('open'))return;
-  const opts=dd.querySelectorAll('.ss-option');let cur=dd.querySelector('.ss-option.hi');let idx=cur?parseInt(cur.dataset.idx):-1;
-  if(event.key==='ArrowDown'){event.preventDefault();cur?.classList.remove('hi');idx=Math.min(idx+1,opts.length-1);opts[idx]?.classList.add('hi');opts[idx]?.scrollIntoView({block:'nearest'});}
-  else if(event.key==='ArrowUp'){event.preventDefault();cur?.classList.remove('hi');idx=Math.max(idx-1,0);opts[idx]?.classList.add('hi');opts[idx]?.scrollIntoView({block:'nearest'});}
-  else if(event.key==='Enter'){event.preventDefault();if(cur)artSelect(lid,cur);else if(opts.length===1)artSelect(lid,opts[0]);}
-  else if(event.key==='Escape')dd.classList.remove('open');
+
+function renderModalResults(){
+  const q = document.getElementById('mp-q').value.trim().toLowerCase();
+  const results = document.getElementById('mp-results');
+  const hint = document.getElementById('mp-hint');
+
+  if(q.length < 2){
+    results.innerHTML = '';
+    hint.style.display = 'block';
+    hint.textContent = 'Escribe al menos 2 caracteres para buscar (código o descripción)';
+    return;
+  }
+  hint.style.display = 'none';
+
+  // Recorrer artículos: solo mostrar los que tienen existencia
+  const matchList = [];
+  articulos.forEach(a => {
+    const info = existenciasMap[String(a.ArticuloSAP)];
+    if(!info || info.total <= 0) return;
+    const desc = String(a.Descripcion||'').toLowerCase();
+    const cod  = String(a.ArticuloSAP||'').toLowerCase();
+    if(desc.includes(q) || cod.includes(q)){
+      matchList.push({a, info});
+    }
+  });
+
+  if(!matchList.length){
+    results.innerHTML = `<div class="mp-empty"><div class="mp-empty-icon">📭</div>
+      <div class="mp-empty-title">Sin resultados con existencia</div>
+      <div class="mp-empty-sub">No hay artículos con stock que coincidan con "${escapeHtml(q)}"</div></div>`;
+    return;
+  }
+  matchList.sort((x,y) => y.info.total - x.info.total);
+
+  const hl = (s) => {
+    const p = String(s).toLowerCase().indexOf(q);
+    return p>=0 ? escapeHtml(String(s).slice(0,p))+'<span class="mp-match">'+escapeHtml(String(s).slice(p,p+q.length))+'</span>'+escapeHtml(String(s).slice(p+q.length)) : escapeHtml(String(s));
+  };
+
+  results.innerHTML = matchList.slice(0, 80).map(({a, info}) => `
+    <div class="mp-article" id="mp-art-${a.ArticuloSAP}">
+      <div class="mp-art-head" onclick="toggleMpArt('${a.ArticuloSAP}')">
+        <div class="mp-art-code">${hl(a.ArticuloSAP)}</div>
+        <div class="mp-art-desc" title="${escapeHtml(a.Descripcion||'')}">${hl(a.Descripcion||'')}</div>
+        <div class="mp-art-total">${fmtNum(info.total)} ${escapeHtml(a.UM||'')}</div>
+        <div class="mp-art-arrow">▼</div>
+      </div>
+      <div class="mp-art-body">
+        <div class="mp-bod-ttl">📍 Elige la bodega:</div>
+        <div class="mp-bodegas">
+          ${info.bodegas.map(b => {
+            const payload = JSON.stringify({
+              cod: a.ArticuloSAP, hana: a.ArticuloHana||'', desc: a.Descripcion||'',
+              centro: b.centro, almacen: b.almacen, cantidad: b.cantidad, um: b.um||a.UM||''
+            }).replace(/"/g,'&quot;');
+            return `<button type="button" class="mp-bod-pill" data-info="${payload}" onclick="seleccionarBodegaModal(this)">
+              <div class="mp-bod-loc">🏭 ${escapeHtml(b.centro)} <span class="mp-sep">/</span> 📦 ${escapeHtml(b.almacen)}</div>
+              <div class="mp-bod-cant">${fmtNum(b.cantidad)} ${escapeHtml(b.um||a.UM||'')}</div>
+            </button>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Si sólo hay UN artículo en resultados, abrirlo automáticamente
+  if(matchList.length === 1) toggleMpArt(matchList[0].a.ArticuloSAP);
 }
+
+function toggleMpArt(mat){
+  const el = document.getElementById('mp-art-'+mat);
+  if(!el) return;
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.mp-article').forEach(x => x.classList.remove('open'));
+  if(!wasOpen){
+    el.classList.add('open');
+    setTimeout(() => el.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+  }
+}
+
+function seleccionarBodegaModal(btn){
+  if(modalLid === null) return;
+  const info = JSON.parse(btn.dataset.info.replace(/&quot;/g,'"'));
+  const lid = modalLid;
+
+  // Guardar en inputs ocultos
+  document.getElementById(`art-cod-${lid}`).value  = info.cod;
+  document.getElementById(`art-hana-${lid}`).value = info.hana||'';
+  document.getElementById(`art-desc-${lid}`).value = info.desc;
+  document.getElementById(`art-bod-${lid}`).value  = info.centro;
+  document.getElementById(`art-alm-${lid}`).value  = info.almacen;
+  document.getElementById(`art-max-${lid}`).value  = info.cantidad;
+
+  // Actualizar UI de la línea
+  document.getElementById(`sel-desc-${lid}`).textContent = info.desc;
+  document.getElementById(`sel-cod-${lid}`).textContent = info.cod;
+  document.getElementById(`sel-bod-${lid}`).innerHTML = `🏭 ${escapeHtml(info.centro)} <span style="color:#94a3b8;margin:0 3px">/</span> 📦 ${escapeHtml(info.almacen)}`;
+  document.getElementById(`um-${lid}`).textContent = info.um;
+
+  // Cantidad SIEMPRE arranca en 1 (no en el max)
+  const qty = document.getElementById(`qty-${lid}`);
+  qty.value = '1';
+  qty.max = info.cantidad;
+  qty.classList.remove('campo-error');
+  document.getElementById(`qty-hint-${lid}`).textContent = `Disponible en bodega: ${fmtNum(info.cantidad)} ${info.um}`;
+  document.getElementById(`qty-hint-${lid}`).classList.remove('qty-hint-err');
+
+  // Mostrar estado lleno, ocultar picker
+  document.getElementById(`picker-${lid}`).style.display = 'none';
+  document.getElementById(`selected-${lid}`).style.display = '';
+  document.getElementById(`selected-${lid}`).classList.remove('campo-error');
+
+  cerrarBuscador();
+  notify(`✓ ${info.desc.substring(0,40)}${info.desc.length>40?'…':''} — 🏭${info.centro}/📦${info.almacen}`,'success');
+}
+
+function validarCantidad(lid){
+  const qty  = document.getElementById(`qty-${lid}`);
+  const max  = parseFloat(document.getElementById(`art-max-${lid}`).value);
+  const hint = document.getElementById(`qty-hint-${lid}`);
+  const um   = document.getElementById(`um-${lid}`).textContent;
+  if(!isFinite(max) || max <= 0) return;
+  const val = parseFloat(qty.value);
+  if(val > max){
+    qty.classList.add('campo-error');
+    hint.textContent = `⚠️ No puedes pedir más de ${fmtNum(max)} ${um} (lo disponible)`;
+    hint.classList.add('qty-hint-err');
+  } else if(!val || val <= 0){
+    qty.classList.add('campo-error');
+    hint.textContent = `La cantidad debe ser mayor a 0`;
+    hint.classList.add('qty-hint-err');
+  } else {
+    qty.classList.remove('campo-error');
+    hint.textContent = `Disponible en bodega: ${fmtNum(max)} ${um}`;
+    hint.classList.remove('qty-hint-err');
+  }
+}
+
+function fmtNum(n){ if(n===null||n===undefined) return ''; return Number(n).toLocaleString('es-GT',{maximumFractionDigits:3}); }
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
 
 /* GUARDAR */
 let filasListas = [];
@@ -415,21 +677,34 @@ async function guardar(){
     for(const lin of lineas){
       const lid = lin.id.replace('lin-','');
       const cod  = document.getElementById(`art-cod-${lid}`)?.value?.trim();
-      const desc = document.getElementById(`art-${lid}`)?.value?.trim();
+      const desc = document.getElementById(`art-desc-${lid}`)?.value?.trim();
       const um   = document.getElementById(`um-${lid}`)?.textContent?.trim();
       const qtyEl= document.getElementById(`qty-${lid}`);
       const qtyRaw = qtyEl?.value;
       const qty = (!qtyRaw || isNaN(parseFloat(qtyRaw)) || parseFloat(qtyRaw) <= 0) ? 1 : parseFloat(qtyRaw);
+      const bodega  = document.getElementById(`art-bod-${lid}`)?.value?.trim();
+      const almacen = document.getElementById(`art-alm-${lid}`)?.value?.trim();
+      const maxDisp = parseFloat(document.getElementById(`art-max-${lid}`)?.value);
 
-      // Validar artículo seleccionado
-      if(!cod || !desc){
-        document.getElementById(`art-${lid}`)?.classList.add('campo-error');
-        notify('Selecciona un artículo válido en todas las líneas','error');
-        document.getElementById(`art-${lid}`)?.scrollIntoView({behavior:'smooth', block:'center'});
+      // Validar artículo seleccionado (implica también bodega, porque solo se llena desde el modal)
+      if(!cod || !desc || !bodega || !almacen){
+        document.getElementById(`picker-${lid}`)?.classList.add('campo-error');
+        document.getElementById(`selected-${lid}`)?.classList.add('campo-error');
+        notify('Falta elegir el artículo y la bodega en alguna línea','error');
+        (document.getElementById(`picker-${lid}`)||document.getElementById(`selected-${lid}`))?.scrollIntoView({behavior:'smooth', block:'center'});
         hayError = true; break;
       }
 
-      document.getElementById(`art-${lid}`)?.classList.remove('campo-error');
+      // Validar cantidad ≤ disponible en la bodega elegida
+      if(isFinite(maxDisp) && maxDisp > 0 && qty > maxDisp){
+        qtyEl?.classList.add('campo-error');
+        notify(`No puedes pedir ${qty} — solo hay ${maxDisp} ${um||''} en 🏭${bodega}/📦${almacen}`,'error');
+        qtyEl?.scrollIntoView({behavior:'smooth', block:'center'});
+        hayError = true; break;
+      }
+
+      document.getElementById(`picker-${lid}`)?.classList.remove('campo-error');
+      document.getElementById(`selected-${lid}`)?.classList.remove('campo-error');
       const hana = document.getElementById(`art-hana-${lid}`)?.value?.trim()||null;
       filasListas.push({
         fecha_reserva: hoy,
@@ -440,6 +715,8 @@ async function guardar(){
         descripcion: desc,
         cantidad: qty,
         um: um === '—' ? null : um,
+        bodega: bodega,
+        almacen: almacen,
         codigo_operario: String(userActual.codigo)
       });
     }
@@ -462,8 +739,9 @@ async function guardar(){
       <div class="modal-ot-num"><span class="modal-ot-badge">OT</span> ${ot} &nbsp;·&nbsp; <span style="color:#1a6e54;font-family:'Space Mono',monospace;font-size:12px">CC ${cc}</span></div>`;
     items.forEach(item => {
       totalLineas++;
+      const bodStr = item.bodega ? ` <span style="font-family:'Space Mono',monospace;font-size:11px;color:#7c2d12;background:#FFEDD5;padding:1px 6px;border-radius:4px;margin-left:6px">🏭${item.bodega}/📦${item.almacen}</span>` : '';
       htmlModal += `<div class="modal-linea">
-        <span class="modal-linea-desc">${item.descripcion}</span>
+        <span class="modal-linea-desc">${item.descripcion}${bodStr}</span>
         <span class="modal-linea-qty">${item.cantidad} ${item.um||''}</span>
       </div>`;
     });
@@ -515,5 +793,20 @@ async function ejecutarGuardado(){
 let nTO;
 function notify(msg,type='info'){const el=document.getElementById('notif');el.textContent=msg;el.className='notif '+type;void el.offsetWidth;el.classList.add('show');clearTimeout(nTO);nTO=setTimeout(()=>el.classList.remove('show'),5000);}
 </script>
+
+<!-- MODAL BUSCADOR DE ARTÍCULOS (pantalla completa) -->
+<div class="modal-picker" id="modal-picker">
+  <div class="mp-header">
+    <button type="button" class="mp-back" onclick="cerrarBuscador()">← Volver</button>
+    <div class="mp-title">Buscar Artículo</div>
+  </div>
+  <div class="mp-search-wrap">
+    <span class="mp-search-icon">🔍</span>
+    <input type="text" id="mp-q" class="mp-search-input" placeholder="Código o descripción del material…" autocomplete="off" oninput="onModalSearch()">
+  </div>
+  <div class="mp-hint" id="mp-hint">Escribe al menos 2 caracteres para buscar (código o descripción)</div>
+  <div class="mp-results" id="mp-results"></div>
+</div>
+
 </body>
 </html>
