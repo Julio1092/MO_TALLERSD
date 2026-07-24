@@ -510,13 +510,18 @@ function renderModalResults(){
   hint.style.display = 'none';
 
   // Recorrer artículos: solo mostrar los que tienen existencia
+  // Desduplicar por ArticuloSAP (por si el catálogo tiene el mismo código repetido)
   const matchList = [];
+  const yaVisto = new Set();
   articulos.forEach(a => {
-    const info = existenciasMap[String(a.ArticuloSAP)];
+    const cod = String(a.ArticuloSAP||'');
+    if(!cod || yaVisto.has(cod)) return;
+    const info = existenciasMap[cod];
     if(!info || info.total <= 0) return;
     const desc = String(a.Descripcion||'').toLowerCase();
-    const cod  = String(a.ArticuloSAP||'').toLowerCase();
-    if(desc.includes(q) || cod.includes(q)){
+    const codL = cod.toLowerCase();
+    if(desc.includes(q) || codL.includes(q)){
+      yaVisto.add(cod);
       matchList.push({a, info});
     }
   });
